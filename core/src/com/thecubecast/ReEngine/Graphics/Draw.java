@@ -18,7 +18,7 @@ public class Draw {
 	Texture LoadingSheet;
 	
 	//Always set to 1 above the number of spites in file
-	public Texture[] Tiles = new Texture[70];
+	public Texture[] Tiles = new Texture[73];
 	public Texture[] Images = new Texture[4];
 	
 	BitmapFont font = new BitmapFont();
@@ -180,6 +180,10 @@ public void DrawTilesForeground(SpriteBatch buffer, int OffsetX, int OffsetY, in
 			//Common.print("player moved right");
 			buffer.draw(Tiles[56], PosX, PosY, Sizex, Sizey);
 		}
+	}
+	
+	public void GUIDrawText(SpriteBatch buffer, int PosX, int PosY, String Text) {
+		font.draw(buffer, Text, PosX , PosY);
 	}
 	
 	//The GUI or Menu would go here.

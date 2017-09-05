@@ -3,7 +3,6 @@ package com.thecubecast.reengine2.client;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import com.thecubecast.reengine2.mainclass;
 
 public class HtmlLauncher extends GwtApplication {
 
@@ -14,6 +13,6 @@ public class HtmlLauncher extends GwtApplication {
 
         @Override
         public ApplicationListener createApplicationListener () {
-                return new mainclass();
+                return new com.thecubecast.ReEngine.mainclass();
         }
 }

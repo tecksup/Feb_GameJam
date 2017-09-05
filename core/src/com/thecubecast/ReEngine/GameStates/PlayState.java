@@ -1,9 +1,14 @@
 package com.thecubecast.ReEngine.GameStates;
 
 import com.thecubecast.ReEngine.Data.GameStateManager;
+import com.thecubecast.ReEngine.Tiled.GameMap;
+import com.thecubecast.ReEngine.Tiled.TileType;
+import com.thecubecast.ReEngine.Tiled.TiledGameMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector3;
 import com.thecubecast.ReEngine.Data.Common;
 
 import java.awt.*;
@@ -12,6 +17,10 @@ import java.awt.*;
 public class PlayState extends GameState {	
 	
 	private String CurrentSave = gsm.ChosenSave;
+	
+	GameMap gameMap;
+	
+	OrthographicCamera cam;
 	
 	private int TileSize = 32; //This is the size of each tile, aswell as how far the camera moves per "turn"
 	private int WorldSize = 200; //radius expanding from the origin point (0,0) of the world
@@ -51,6 +60,13 @@ public class PlayState extends GameState {
 	}
 	
 	public void init() {
+		
+		gameMap = new TiledGameMap();
+		
+		cam = new OrthographicCamera();
+		cam.setToOrtho(false, 1920, 1080);
+		cam.update();
+		
 		//JukeBox.load("/Music/bgmusic.wav", "introsound");
 		//JukeBox.loop("introsound");
 		//JukeBox.setVolume("introsound", -30.0f);
@@ -89,16 +105,18 @@ public class PlayState extends GameState {
 		//The Tiles are being drawn on this "Layer"
 		//A function that reads the map file, then places each tile on the screen
 		
-		gsm.Render.DrawTiles(bbg, cameraX, cameraY, TileSize, WorldSize);
+		//gsm.Render.DrawTiles(bbg, cameraX, cameraY, TileSize, WorldSize);
+		
+		//gameMap.render(cam);
 		
 		//The "Player" and other entities or overlays must be drawn last. Think top layer 
 		gsm.Render.Player(bbg, (width/2), ((height/2) - (TileSize/2)), TileSize, TileSize, PlayerDirection);
 		
 		// Draws the Foreground
-		gsm.Render.DrawTilesForeground(bbg, cameraX, cameraY, TileSize, WorldSize);
+		//gsm.Render.DrawTilesForeground(bbg, cameraX, cameraY, TileSize, WorldSize);
 		
 		//Debug Layer goes here
-		gsm.Render.DrawChunkDebugLines(bbg, 0, 0, TileSize, cameraX, cameraY);
+		//gsm.Render.DrawChunkDebugLines(bbg, 0, 0, TileSize, cameraX, cameraY);
 		
 		//The GUI would go here
 		gsm.Render.GUIDeco(bbg, 0, 0, CurrentSave); //Any overlays such as Health, gold, fuel, etc.
@@ -107,19 +125,38 @@ public class PlayState extends GameState {
 			button1 = gsm.Render.GUIButton(bbg, width/2, height/2, 6,  true, "Return to Menu");
 			} // The Game MEnu
 		
-		gsm.Render.DrawAny(bbg, 00, "Tiles", MousePosX, MousePosY);
+		//gsm.Render.DrawAny(bbg, 00, "Tiles", MousePosX, MousePosY);
+		
+		gameMap.render(cam);
+		
+		
 		
 		
 	}
 	
 	public void handleInput() {
+		
+		if(Gdx.input.isTouched()) {
+			cam.translate(-Gdx.input.getDeltaX(), Gdx.input.getDeltaY());
+			cam.update();
+		}
+		
+		if(Gdx.input.justTouched()) {
+			Vector3 pos = cam.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+			TileType type = gameMap.getTileTypeByLocation(0, pos.x, pos.y);
+			
+			if (type != null) { 
+				Common.print("You Clicked on tile with id " + type.getId() + " " + type.getName());
+			}
+		}
+		
+		
 		if(gsm.MouseClick[0] == 1 && MenuOpen) { //Runs all the button checks			
 			if(gsm.MouseClick[1] >= button1[0] && gsm.MouseClick[1] <= button1[2]) { //The button1
 				if(gsm.MouseClick[2] >= button1[1] && gsm.MouseClick[2] <= button1[3]) {
 					//Save the game
 					//stop all audio
-					Common.print("Clicked The button!");
-					//gsm.setState(GameStateManager.MENU);
+					gsm.setState(GameStateManager.MENU);
 				}
 			}
 		}
@@ -156,7 +193,7 @@ public class PlayState extends GameState {
 						PlayerDirection = 2;	
 					}
 					else {
-						cameraX -= TileSize;	
+						cameraX -= TileSize;
 					}
 				}
 			}

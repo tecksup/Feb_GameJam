@@ -91,18 +91,13 @@ public class MainMenuState extends GameState {
 		
 		if (currentState == 2) { 
 			button21 = gsm.Render.GUIButton(bbg, width/2, (height/20)*9, 5, true, "Setting1");
-			//font.setColor(Color.WHITE);
-		 //  font.draw(bbg, "Hello world", 25, 160);
-			//bbg.drawString("" + (100*Slider22Value), (width/2), (height/20)*10);
-			
+			gsm.Render.GUIDrawText(bbg, (width/2), (height/20)*10, "" + (100*Slider22Value));
 			Slider22 = gsm.Render.GUISlider(bbg, (width/16)*7, (height/20)*11, 5, false, Slider22Value);
-			//button22 = gsm.Render.GUIButton(bbg, (width/16)*7, (height/20)*11, 2, true, "Volume -");
-			//button23 = gsm.Render.GUIButton(bbg, (width/16)*9, (height/20)*11, 2, true, "Volume +");
 			button24 = gsm.Render.GUIButton(bbg, width/2, (height/20)*12, 5, true, "Back");
 			checkbox15 = gsm.Render.GUICheckBox(bbg, width/2, (height/20)*5, checkbox15Value);
 		}
 		
-		gsm.Render.DrawAny(bbg, 63, "Tiles", gsm.MouseX, gsm.MouseY);
+		gsm.Render.DrawAny(bbg, 72, "Tiles", gsm.MouseX, gsm.MouseY);
 	}
 	
 	public void handleInput() {

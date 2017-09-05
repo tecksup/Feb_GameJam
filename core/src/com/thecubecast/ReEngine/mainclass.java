@@ -86,10 +86,6 @@ public class mainclass extends ApplicationAdapter implements InputProcessor{
 		if(MouseClick[0] == 1) {
 			MouseClick[0] = 0;
 		}
-		
-		if(MouseDrag[0] == 1) {
-			MouseDrag[0] = 0;
-		}
 	}
 	
 	public void UpdateInput(){
@@ -147,7 +143,8 @@ public class mainclass extends ApplicationAdapter implements InputProcessor{
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		Common.print("Clicked!");
+		MouseDrag[0] = 0;
+		//Common.print("Clicked!");
 		int[] MouseClicked = new int[] {1, MouseX, MouseY};
 		MouseClick = MouseClicked;
 		return false;
@@ -155,12 +152,11 @@ public class mainclass extends ApplicationAdapter implements InputProcessor{
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		if (Gdx.input.isButtonPressed(Buttons.LEFT)) {
+		//Common.print("Dragging");
 			int[] MouseDraged = new int[] {1, screenX, screenY};
 			MouseDrag = MouseDraged;
 			MouseX = screenX;
 			MouseY = screenY;
-		}
 		return false;
 	}
 
