@@ -143,7 +143,7 @@ public class PlayState extends GameState {
 		
 		if(Gdx.input.justTouched()) {
 			Vector3 pos = cam.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
-			TileType type = gameMap.getTileTypeByLocation(0, pos.x, pos.y);
+			TileType type = gameMap.getTileTypeByLocation(1, pos.x, pos.y);
 			
 			if (type != null) { 
 				Common.print("You Clicked on tile with id " + type.getId() + " " + type.getName());

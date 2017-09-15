@@ -6,12 +6,14 @@ import com.thecubecast.ReEngine.mainclass;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
+		
+		
 		final LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.fullscreen = true;
-		//config.addIcon("icon.png", null );
+		config.fullscreen = false;
+		config.addIcon("icon.png", null);
 		config.title = "ReEngine";
-		config.width = 1920;
-		config.height = 1080;
+		config.width = 1366;
+		config.height = 768;
 		config.forceExit = false;
 		new LwjglApplication(new mainclass(), config);
 	}

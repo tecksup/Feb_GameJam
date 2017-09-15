@@ -225,7 +225,7 @@ public void DrawTilesForeground(SpriteBatch buffer, int OffsetX, int OffsetY, in
 		//Draws the Dot
 		buffer.draw(Tiles[63], PosX + Math.round(((Tiles[60].getWidth()*(length))*SliderValue)), PosY);		
 		
-		int[] size = new int[] {PosX, PosY, PosX+(Tiles[60].getWidth()*length), PosY+(Tiles[60].getHeight())}; 
+		int[] size = new int[] {PosX, PosY, PosX+(Tiles[60].getWidth()*(length + 1)), PosY+(Tiles[60].getHeight())}; 
 		return size;
 	}
 	
