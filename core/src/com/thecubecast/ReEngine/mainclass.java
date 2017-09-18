@@ -108,6 +108,7 @@ public class mainclass extends ApplicationAdapter implements InputProcessor{
 	
 	public void Draw(SpriteBatch bbg) {
 		
+		bbg.getProjectionMatrix().setToOrtho2D(0, 0, W, H);
 		//Figure out how to do this before you start exporting things to external files
 		gsm.draw(bbg, H, W, stateTime);
 	}
