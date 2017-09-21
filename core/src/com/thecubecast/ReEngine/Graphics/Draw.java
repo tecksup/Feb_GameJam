@@ -213,7 +213,7 @@ public void DrawTilesForeground(SpriteBatch buffer, int OffsetX, int OffsetY, in
 		return size;
 	}
 	
-	public int[] GUISlider(SpriteBatch buffer, int PosX, int PosY, int length, boolean center, float SliderValue) {
+	public int[] GUISlider(SpriteBatch buffer, int PosX, int PosY, int length, boolean center, float SliderValue, String label, float Value) {
 		if (center) {
 			PosX = PosX - ((Tiles[60].getWidth()*length)/2);
 		}
@@ -224,6 +224,8 @@ public void DrawTilesForeground(SpriteBatch buffer, int OffsetX, int OffsetY, in
 		buffer.draw(Tiles[62], PosX + (Tiles[60].getWidth()*length), PosY);
 		//Draws the Dot
 		buffer.draw(Tiles[63], PosX + Math.round(((Tiles[60].getWidth()*(length))*SliderValue)), PosY);		
+		
+		font.draw(buffer, label + ": " + Value, PosX, PosY + (70));
 		
 		int[] size = new int[] {PosX, PosY, PosX+(Tiles[60].getWidth()*(length + 1)), PosY+(Tiles[60].getHeight())}; 
 		return size;
