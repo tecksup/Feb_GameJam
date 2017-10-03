@@ -107,7 +107,7 @@ public class PlayState extends GameState {
 		
 		//gsm.Render.DrawTiles(bbg, cameraX, cameraY, TileSize, WorldSize);
 		
-		//gameMap.render(cam);
+		gameMap.render(cam);
 		
 		//The "Player" and other entities or overlays must be drawn last. Think top layer 
 		gsm.Render.Player(bbg, (width/2), ((height/2) - (TileSize/2)), TileSize, TileSize, PlayerDirection);
@@ -127,7 +127,7 @@ public class PlayState extends GameState {
 		
 		//gsm.Render.DrawAny(bbg, 00, "Tiles", MousePosX, MousePosY);
 		
-		gameMap.render(cam);
+		//gameMap.render(cam);
 		
 		
 		

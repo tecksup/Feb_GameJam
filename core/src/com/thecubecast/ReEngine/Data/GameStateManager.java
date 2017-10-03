@@ -12,6 +12,7 @@ import com.thecubecast.ReEngine.GameStates.IntroState;
 import com.thecubecast.ReEngine.GameStates.MainMenuState;
 //import com.thecubecast.ReEngine.GameStates.OptionsState;
 import com.thecubecast.ReEngine.GameStates.PlayState;
+import com.thecubecast.ReEngine.GameStates.TestState;
 import com.thecubecast.ReEngine.Graphics.Draw;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.thecubecast.ReEngine.Data.Common;
@@ -94,12 +95,13 @@ public class GameStateManager {
 			gameStates[i] = new OptionsState(this);
 			gameStates[i].init();
 		}
+		**/
 		else if(i == TEST) {
 			//Common.print("Loaded state Test");
 			gameStates[i] = new TestState(this);
 			gameStates[i].init();
 		}
-		**/
+		
 	}
 	
 	public void unloadState(int i) {

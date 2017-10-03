@@ -48,12 +48,11 @@ public class IntroState extends GameState {
 	}
 	
 	public void draw(SpriteBatch g, int width, int height, float Time) {
-	
+		Gdx.gl.glClearColor(255f, 255f, 255f, 1);
 		
 		
-		gsm.Render.DrawAny(g, 00, "Images", 60, 60);
+		gsm.Render.DrawSplash(g, 00, width/2, height/2, 0.8f, 0.8f, true);
 		
-	    //g.draw(gsm.Render.Images[00], PosX, PoxY);
 	}
 	
 	public void handleInput() {

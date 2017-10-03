@@ -104,11 +104,24 @@ public class Draw {
 		return walkFrames;
 	}
 	
-	public void DrawAnimatedTile(SpriteBatch buffer, Animation<TextureRegion> animation_, int x, int y, float stateTime) {
+	public void DrawAnimatedTile(SpriteBatch buffer, Animation<TextureRegion> animation_, int x, int y, float SizeX, float SizeY, float stateTime) {
 		// Get current frame of animation for the current stateTime
 		TextureRegion currentFrame = animation_.getKeyFrame(stateTime, true);
 		
-		buffer.draw(currentFrame, x, y);
+		buffer.draw(currentFrame, x, y, currentFrame.getRegionWidth()*SizeX, currentFrame.getRegionHeight()*SizeY);
+	}
+	
+	public void DrawSplash(SpriteBatch buffer, int ID, int x, int y, float x2, float y2, boolean centered) { // The x2 and y2 is Percentage of 100
+			int SizeX = Images[ID].getWidth();
+			int SizeY = Images[ID].getHeight();
+		
+			if (centered) {
+				buffer.draw(Images[ID], x-((SizeX * x2)/2), y-((SizeY * y2)/2), SizeX * x2, SizeY * y2);	
+			}
+			else {
+				buffer.draw(Images[ID], x, y, SizeX * x2, SizeY * y2);	
+			}
+			
 	}
 	
 	public void DrawAny(SpriteBatch buffer, int ID, String Type, int x, int y) {
@@ -207,7 +220,6 @@ public void DrawTilesForeground(SpriteBatch buffer, int OffsetX, int OffsetY, in
 		}
 		buffer.draw(Tiles[59], PosX + (Tiles[59].getWidth()*length), PosY);
 		font.draw(buffer, text, PosX+((Tiles[59].getWidth()*length)/2), PosY + (Tiles[59].getHeight()/2));
-		//buffer.drawString(text , PosX+((Sizex*length)/2), PosY + (Sizey/2));
 		
 		int[] size = new int[] {PosX, PosY, PosX+(Tiles[59].getWidth()*length), PosY+(Tiles[59].getHeight())};
 		return size;

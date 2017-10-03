@@ -52,7 +52,7 @@ public class MainMenuState extends GameState {
 	
 	int[] button24 = null;
 	int[] checkbox25 = null;
-	boolean checkbox25Value = false;
+	boolean checkbox25Value = true;
 	
 	//the buttons state 3      OPTIONS MENU
 	int[] button31 = null; // Opens the Audio menu
@@ -82,12 +82,22 @@ public class MainMenuState extends GameState {
 		Audio.setVolume(MusicVolume * MasterVolume);
 		Audio.setLooping(true);
 		
+		if(checkbox25Value) {
+			Audio.pause();
+		}
+		
 	}
 	
 	public void update() {
 		handleInput();
 		if (Audio.getVolume() != (MusicVolume * MasterVolume)) {
+			if(checkbox25Value) {
+				Audio.setVolume(0);
+			}
 			Audio.setVolume(MusicVolume * MasterVolume);
+		}
+		if(checkbox25Value) {
+			Audio.setVolume(0);
 		}
 		
 	}
@@ -110,7 +120,6 @@ public class MainMenuState extends GameState {
 		
 		//Each if statement is another part of the menu
 		if (currentState == 0) { 
-			//Common.print("Drawing first button at " + width/2 + " by " + (height/20)*9);
 			button01 = gsm.Render.GUIButton(bbg, width/2, (height/20)*12, 5, true, "Singleplayer");
 			button02 = gsm.Render.GUIButton(bbg, width/2, (height/20)*10, 5, true, "");
 			button03 = gsm.Render.GUIButton(bbg, width/2, (height/20)*8, 5, true, "Options");
@@ -118,22 +127,18 @@ public class MainMenuState extends GameState {
 			
 			
 			NullDrawingGUI(1);//The buttons state 1
-			
 			NullDrawingGUI(2);//The buttons state 2
-			
 			NullDrawingGUI(3);//The buttons state 3
 		} 		
 		if (currentState == 1) { 
 			button11 = gsm.Render.GUIButton(bbg, width/2, (height/20)*12, 5, true, "Save 1");
 			button12 = gsm.Render.GUIButton(bbg, width/2, (height/20)*10, 5, true, "Save 2");
-			button13 = gsm.Render.GUIButton(bbg, width/2, (height/20)*8, 5, true, "Save 3");
+			button13 = gsm.Render.GUIButton(bbg, width/2, (height/20)*8, 5, true, "Test State");
 			button14 = gsm.Render.GUIButton(bbg, width/2, (height/20)*6, 5, true, "Back");
 			
 			
 			NullDrawingGUI(0);//The buttons state 0
-			
 			NullDrawingGUI(2);//The buttons state 2
-			
 			NullDrawingGUI(3);//The buttons state 3
 		}
 		
@@ -145,9 +150,7 @@ public class MainMenuState extends GameState {
 			checkbox25 = gsm.Render.GUICheckBox(bbg, width/2, (height/20)*4, checkbox25Value);
 			
 			NullDrawingGUI(0);//The buttons state 0
-			
 			NullDrawingGUI(1);//The buttons state 1
-			
 			NullDrawingGUI(3);//The buttons state 3
 		}
 		
@@ -158,9 +161,7 @@ public class MainMenuState extends GameState {
 			button34 = gsm.Render.GUIButton(bbg, width/2, (height/20)*6, 5, true, "Back");
 			
 			NullDrawingGUI(0);//The buttons state 0
-			
 			NullDrawingGUI(1);//The buttons state 1
-			
 			NullDrawingGUI(2);//The buttons state 2
 		}
 		
@@ -222,10 +223,10 @@ public class MainMenuState extends GameState {
 			//Button 3 of Menu State 1
 			if (GUIButtonCheck(gsm.MouseClick, button13)) {  //SAVE 3
 				Click.play((SoundVolume * MasterVolume),1,0);
-				gsm.Rwr.CreateSave("Save3");
-				gsm.ChosenSave = "Save3";
+				//gsm.Rwr.CreateSave("Save3");
+				//gsm.ChosenSave = "Save3";
 				//Audio.stop();
-				gsm.setState(GameStateManager.PLAY);
+				gsm.setState(GameStateManager.TEST);
 			}
 			
 			//Button 4 of Menu State 1
@@ -243,21 +244,18 @@ public class MainMenuState extends GameState {
 				if(gsm.MouseDrag[2] >= Slider21[1] && gsm.MouseDrag[2] <= Slider21[3]) {
 					float SliderValuetemp = ((float)(gsm.MouseDrag[1] - Slider21[0])/(Slider21[2] - Slider21[0]));
 					MasterVolume =  SliderValuetemp;
-					//Common.print("Updated Value is " + Slider22Value);
 				}
 			}
 			if(gsm.MouseDrag[1] >= Slider22[0] && gsm.MouseDrag[1] <= Slider22[2]) { // THIS IS THE MasterVolume SLIDER
 				if(gsm.MouseDrag[2] >= Slider22[1] && gsm.MouseDrag[2] <= Slider22[3]) {
 					float SliderValuetemp = ((float)(gsm.MouseDrag[1] - Slider22[0])/(Slider22[2] - Slider22[0]));
 					MusicVolume =  SliderValuetemp;
-					//Common.print("Updated Value is " + Slider22Value);
 				}
 			}
 			if(gsm.MouseDrag[1] >= Slider23[0] && gsm.MouseDrag[1] <= Slider23[2]) { // THIS IS THE MusicVolume SLIDER
 				if(gsm.MouseDrag[2] >= Slider23[1] && gsm.MouseDrag[2] <= Slider23[3]) {
 					float SliderValuetemp = ((float)(gsm.MouseDrag[1] - Slider23[0])/(Slider23[2] - Slider23[0]));
 					SoundVolume =  SliderValuetemp;
-					//Common.print("Updated Value is " + Slider22Value);
 				}
 			}
 		}
@@ -304,15 +302,15 @@ public class MainMenuState extends GameState {
 			}
 			
 			//Button 4 of Menu State 3
-			if(GUIButtonCheck(gsm.MouseClick, button34)) { //Blank Maybe Controls?
-				//Click.play((SoundVolume * MasterVolume),1,0);
+			if(GUIButtonCheck(gsm.MouseClick, button34)) { //Back
+				Click.play((SoundVolume * MasterVolume),1,0);
 				changeState(0);
 			}
 		}
 		
 		if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
 			//JukeBox.stop("MenuNavigate");
-			Click.play((SoundVolume * MasterVolume),1,0);
+			//Click.play((SoundVolume * MasterVolume),1,0);
 			//Check what button the user is on, runs its function
 		}
 		
