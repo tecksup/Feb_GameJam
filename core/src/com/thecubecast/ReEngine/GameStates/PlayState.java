@@ -1,9 +1,6 @@
 package com.thecubecast.ReEngine.GameStates;
 
 import com.thecubecast.ReEngine.Data.GameStateManager;
-import com.thecubecast.ReEngine.Tiled.GameMap;
-import com.thecubecast.ReEngine.Tiled.TileType;
-import com.thecubecast.ReEngine.Tiled.TiledGameMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -17,8 +14,6 @@ import java.awt.*;
 public class PlayState extends GameState {	
 	
 	private String CurrentSave = gsm.ChosenSave;
-	
-	GameMap gameMap;
 	
 	OrthographicCamera cam;
 	
@@ -60,8 +55,6 @@ public class PlayState extends GameState {
 	}
 	
 	public void init() {
-		
-		gameMap = new TiledGameMap();
 		
 		cam = new OrthographicCamera();
 		cam.setToOrtho(false, 1920, 1080);
@@ -107,8 +100,6 @@ public class PlayState extends GameState {
 		
 		//gsm.Render.DrawTiles(bbg, cameraX, cameraY, TileSize, WorldSize);
 		
-		gameMap.render(cam);
-		
 		//The "Player" and other entities or overlays must be drawn last. Think top layer 
 		gsm.Render.Player(bbg, (width/2), ((height/2) - (TileSize/2)), TileSize, TileSize, PlayerDirection);
 		
@@ -143,11 +134,7 @@ public class PlayState extends GameState {
 		
 		if(Gdx.input.justTouched()) {
 			Vector3 pos = cam.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
-			TileType type = gameMap.getTileTypeByLocation(1, pos.x, pos.y);
 			
-			if (type != null) { 
-				Common.print("You Clicked on tile with id " + type.getId() + " " + type.getName());
-			}
 		}
 		
 		
