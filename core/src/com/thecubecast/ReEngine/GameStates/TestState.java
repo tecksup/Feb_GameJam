@@ -14,8 +14,11 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.thecubecast.ReEngine.Data.Common;
 import com.thecubecast.ReEngine.Data.GameStateManager;
+import com.thecubecast.ReEngine.Data.Player;
 
 public class TestState extends GameState {
+	
+	Player player;
 	
 	float w;
     float h;
@@ -32,12 +35,13 @@ public class TestState extends GameState {
 	}
 	
 	public void init() {
+		player = new Player();
+		player.setLocation(0, 0);
+		Common.print("" + player.getLocation()[0]);
+		
         w = Gdx.graphics.getWidth();
         h = Gdx.graphics.getHeight();
 
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false,w,h);
-        camera.update();
         tiledMap = new TmxMapLoader().load("Saves/Save2/MegaMiner_FirstMap.tmx");
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 	}
@@ -51,13 +55,12 @@ public class TestState extends GameState {
 		 Gdx.gl.glClearColor(1, 0, 0, 1);
 	        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 	        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-	        gsm.Render.GUIDeco(g, 0, 0, "TEST");
 	        camera.update();
+	        gsm.Render.GUIDeco(g, 0, 0, "TEST");
 	        tiledMapRenderer.setView(camera);
 	        tiledMapRenderer.render();
-	        
-	        //gsm.Render.GUIDeco(g, 0, 0, "TEST");
 	}
+	
 	
 	public void handleInput() {
 
@@ -87,9 +90,11 @@ public class TestState extends GameState {
 			camera.update();
 		}
 		
+		if (Gdx.input.isKeyJustPressed(Keys.NUM_9)) { //KeyHit
+			tiledMap.getLayers().get(1).setVisible(!tiledMap.getLayers().get(1).isVisible());			
+		}
 		if (Gdx.input.isKeyJustPressed(Keys.ENTER)) { //KeyHit
-			tiledMap.getLayers().get(1).setVisible(!tiledMap.getLayers().get(1).isVisible());
-			
+			//tiledMap.getLayers().get("player");
 		}
 		
 		if (Gdx.input.isKeyPressed(Keys.UP)) { //KeyHit

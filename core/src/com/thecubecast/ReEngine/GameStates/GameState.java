@@ -4,6 +4,7 @@
 // be overridden.
 
 package com.thecubecast.ReEngine.GameStates;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.thecubecast.ReEngine.Data.GameStateManager;
 
