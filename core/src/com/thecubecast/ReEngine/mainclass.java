@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.thecubecast.ReEngine.Data.GameStateManager;
@@ -63,7 +64,7 @@ public class mainclass extends ApplicationAdapter implements InputProcessor{
 	
 	@Override
 	public void render () { // UPDATE Runs every frame. 60FPS
-		
+
 		//Gdx.gl.glClearColor( 1, 1, 1, 1 );
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
@@ -106,7 +107,6 @@ public class mainclass extends ApplicationAdapter implements InputProcessor{
 	
 	public void Draw(SpriteBatch bbg) {
 		
-		bbg.getProjectionMatrix().setToOrtho2D(0, 0, W, H);
 		//Figure out how to do this before you start exporting things to external files
 		gsm.draw(bbg, H, W, stateTime);
 	}
