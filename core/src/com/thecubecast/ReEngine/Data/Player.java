@@ -3,7 +3,7 @@ package com.thecubecast.ReEngine.Data;
 public class Player {
 	
 	int[] location = new int[] {0,0};
-	int direction = 0;
+	String direction = "up";
 	
 	//INVENTORY AND OTHER STUFF
 	
@@ -17,15 +17,19 @@ public class Player {
 	}
 	
 	public void setLocation(int x, int y) {
-		location[0] = x;
-		location[1] = y;
+		if (x < 0 || y < 0 || y > 88) {
+			//DO NOT MOVE!
+		} else {
+			location[0] = x;
+			location[1] = y;	
+		}
 	}
 	
-	public int getDirection() {
+	public String getDirection() {
 		return direction;
 	}
 	
-	public void setDirection(int direct) {
+	public void setDirection(String direct) {
 		direction = direct;
 	}
 	

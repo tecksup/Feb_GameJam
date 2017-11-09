@@ -47,7 +47,7 @@ public class PlayState extends GameState {
 	
 	
 	
-	private int PlayerDirection = 4;
+	private String PlayerDirection = "down";
 	private boolean MenuOpen = false;
 	
 	public PlayState(GameStateManager gsm) {
@@ -101,7 +101,7 @@ public class PlayState extends GameState {
 		//gsm.Render.DrawTiles(bbg, cameraX, cameraY, TileSize, WorldSize);
 		
 		//The "Player" and other entities or overlays must be drawn last. Think top layer 
-		gsm.Render.Player(bbg, (width/2), ((height/2) - (TileSize/2)), TileSize, TileSize, PlayerDirection);
+		gsm.Render.Player(bbg, (width/2), ((height/2) - (TileSize/2)), PlayerDirection);
 		
 		// Draws the Foreground
 		//gsm.Render.DrawTilesForeground(bbg, cameraX, cameraY, TileSize, WorldSize);

@@ -20,4 +20,8 @@ public abstract class GameState {
 	public abstract void update();
 	public abstract void draw(SpriteBatch g, int width, int height, float Time);
 	
+	public void RenderCam() {}
+
+	public void reSize(int h, int w) {}
+	
 }

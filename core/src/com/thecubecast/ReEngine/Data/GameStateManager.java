@@ -20,8 +20,8 @@ import com.thecubecast.ReEngine.Data.Common;
 
 public class GameStateManager {
 	
-	private GameState[] gameStates;
-	private int currentState;
+	public GameState[] gameStates;
+	public int currentState;
 	private int previousState;
 	
 	public String ChosenSave;
@@ -123,9 +123,21 @@ public class GameStateManager {
 		//MouseClick[0] = 0;
 	}
 	
+	public void drawCam() {
+		if(gameStates[currentState] != null) {
+			gameStates[currentState].RenderCam();
+		}
+	}
+	
 	public void draw(SpriteBatch bbg, int W, int H, float Time) {
 		if(gameStates[currentState] != null) {
 			gameStates[currentState].draw(bbg, H, W, Time);
+		}
+	}
+	
+	public void reSize(int H, int W) {
+		if(gameStates[currentState] != null) {
+			gameStates[currentState].reSize(H, W);
 		}
 	}
 }

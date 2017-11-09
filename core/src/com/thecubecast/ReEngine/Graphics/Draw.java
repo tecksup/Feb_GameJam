@@ -175,23 +175,23 @@ public void DrawTilesForeground(SpriteBatch buffer, int OffsetX, int OffsetY, in
 	}
 	
 	//This will handle the animations as well
-	public void Player(SpriteBatch buffer, int PosX, int PosY, int Sizex, int Sizey, int direction) {
-		if (direction == 1) {
+	public void Player(SpriteBatch buffer, int PosX, int PosY, String direction) {
+		if (direction.equals("up")) { //UP
 			//Common.print("player moved up");
-			buffer.draw(Tiles[53], PosX, PosY, Sizex, Sizey);
+			buffer.draw(Tiles[53], PosX, PosY);
 			//Common.print("player drawn at x:" + PosX + " and y:" + PosY + " at sizes " + Sizex + " " + Sizey + " .");
 		}
-		if (direction == 2) {
+		if (direction.equals("left")) {
 			//Common.print("player moved left");
-			buffer.draw(Tiles[55], PosX, PosY, Sizex, Sizey);
+			buffer.draw(Tiles[55], PosX, PosY);
 		}
-		if (direction == 3) {
+		if (direction.equals("down")) {
 			//Common.print("player moved down");
-			buffer.draw(Tiles[54], PosX, PosY, Sizex, Sizey);
+			buffer.draw(Tiles[54], PosX, PosY);
 		}
-		if (direction == 4) {
+		if (direction.equals("right")) {
 			//Common.print("player moved right");
-			buffer.draw(Tiles[56], PosX, PosY, Sizex, Sizey);
+			buffer.draw(Tiles[56], PosX, PosY);
 		}
 	}
 	

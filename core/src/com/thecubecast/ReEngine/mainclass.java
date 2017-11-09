@@ -76,6 +76,9 @@ public class mainclass extends ApplicationAdapter implements InputProcessor{
 		
 		stateTime += Gdx.graphics.getDeltaTime(); // Accumulate elapsed animation time
 				
+		if (gsm.currentState == 5) {
+			gsm.gameStates[5].RenderCam();
+		}
 		
 		batch.begin();
 		Draw(batch); //DRAW
@@ -105,8 +108,12 @@ public class mainclass extends ApplicationAdapter implements InputProcessor{
 		gsm.update(MouseX, MouseY, MouseDrag, MouseClick);
 	}
 	
+	public void DrawCam() {
+		//Draws the camera before the sprites, this lets us put textures over top of the map
+		gsm.drawCam();
+	}
+	
 	public void Draw(SpriteBatch bbg) {
-		
 		//Figure out how to do this before you start exporting things to external files
 		gsm.draw(bbg, H, W, stateTime);
 	}
@@ -119,6 +126,7 @@ public class mainclass extends ApplicationAdapter implements InputProcessor{
 		//callback.setWidth(width);
 		Common.print("Ran Resize!");
 		Common.print("" + width + " and H: " + height);
+		gsm.reSize(height, width);
 	}
 	
 	

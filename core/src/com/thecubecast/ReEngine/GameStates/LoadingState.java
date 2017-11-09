@@ -23,7 +23,7 @@ public class LoadingState extends GameState {
 	public void update() {
 		ticks = gsm.Tics;
 		if(ticks > 120) {
-			gsm.setState(GameStateManager.INTRO);
+			gsm.setState(GameStateManager.TEST);
 		}
 		handleInput();
 	}
