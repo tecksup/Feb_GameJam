@@ -4,19 +4,16 @@ package com.thecubecast.ReEngine.GameStates;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.tiled.AtlasTmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector3;
 import com.thecubecast.ReEngine.Data.Common;
 import com.thecubecast.ReEngine.Data.GameStateManager;
@@ -66,9 +63,9 @@ public class TestState extends GameState {
   		position = camera.position;
   		last_time = System.nanoTime();
 
-        tiledMap = new TmxMapLoader().load("Saves/Save2/MegaMiner_FirstMap.tmx");
-        //tiledMapRenderer.setView(projectionMatrix, 0, 0, w, h);
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
+        tiledMap = new AtlasTmxMapLoader().load("Saves/Save3/map.tmx");
+        //tiledMap.getTileSets().getTileSet(0).getTile(1).getTextureRegion().getTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap , 5f);
         groundLay = (TiledMapTileLayer)tiledMap.getLayers().get(1);
 	}
 	
@@ -222,10 +219,10 @@ public class TestState extends GameState {
 				Common.print("Hey you just got Coal!");
 				Cash = Cash + 5;
 			}
-			if (groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile() != null && groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId() != 9 && groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId() != 73) {
+			if (groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile() != null && groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId() != 9 && groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId() != 400) {
 				Common.print("Hey you just got a " + groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId());
 			}
-			groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).setTile(tiledMap.getTileSets().getTile(73));
+			groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).setTile(tiledMap.getTileSets().getTile(400));
 		}
 	}
 	
