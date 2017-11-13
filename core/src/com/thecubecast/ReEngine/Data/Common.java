@@ -39,4 +39,11 @@ public class Common {
 	    	 System.out.println(e);
 	     }
 	}
+	
+	public static int roundDown(float x) {
+		
+		int output = (int) Math.floor(x);
+		
+		return output;
+	}
 }

@@ -22,6 +22,6 @@ public abstract class GameState {
 	
 	public void RenderCam() {}
 
-	public void reSize(int h, int w) {}
+	public void reSize(SpriteBatch g, int h, int w) {}
 	
 }

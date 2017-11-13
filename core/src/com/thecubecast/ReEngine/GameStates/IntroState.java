@@ -5,13 +5,14 @@ package com.thecubecast.ReEngine.GameStates;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Matrix4;
 import com.thecubecast.ReEngine.Data.Common;
 import com.thecubecast.ReEngine.Data.GameStateManager;
 
 public class IntroState extends GameState {
 	
 	private int alpha;
-	private int ticks;
+	private int ticks = 0;
 	
 	static final int WORLD_WIDTH = 100;
 	static final int WORLD_HEIGHT = 100;
@@ -32,7 +33,7 @@ public class IntroState extends GameState {
 	
 	public void update() {
 		handleInput();
-		ticks = gsm.Tics;
+		ticks++;
 		if(ticks < FADE_IN) {
 			alpha = (int) (255 - 255 * (1.0 * ticks / FADE_IN));
 			if(alpha < 0) alpha = 0;
@@ -48,11 +49,12 @@ public class IntroState extends GameState {
 	}
 	
 	public void draw(SpriteBatch g, int width, int height, float Time) {
+		g.begin();
 		Gdx.gl.glClearColor(255f, 255f, 255f, 1);
 		
 		
 		gsm.Render.DrawSplash(g, 00, width/2, height/2, 0.8f, 0.8f, true);
-		
+		g.end();
 	}
 	
 	public void handleInput() {
@@ -64,4 +66,5 @@ public class IntroState extends GameState {
 		}
 
 	}
+	
 }

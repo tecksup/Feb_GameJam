@@ -2,22 +2,19 @@ package com.thecubecast.ReEngine.Data;
 
 public class Player {
 	
-	int[] location = new int[] {0,0};
+	float[] location = new float[] {0,0};
 	String direction = "up";
 	
 	//INVENTORY AND OTHER STUFF
 	
 	
 	//Get location
-	public int[] getLocation() {
-		int x = location[0];
-		int y = location[1];
+	public float[] getLocation() {
 		return location;
-		
 	}
 	
-	public void setLocation(int x, int y) {
-		if (x < 0 || y < 0 || y > 88) {
+	public void setLocation(float x, float y) {
+		if (x < 0 || y < 0 || y > 88 || x > 99) {
 			//DO NOT MOVE!
 		} else {
 			location[0] = x;

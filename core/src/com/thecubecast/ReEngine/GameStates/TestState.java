@@ -14,6 +14,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.thecubecast.ReEngine.Data.Common;
 import com.thecubecast.ReEngine.Data.GameStateManager;
@@ -24,23 +25,19 @@ public class TestState extends GameState {
 	Player player;
 	int Cash = 0;
 	
-	boolean Moving = true;
+	boolean Moving = false;
 	
-	float lerp = 0.002f;
+	float lerp = 0.005f;
 	Vector3 position;
 	long last_time;
-	
-	float w;
-    float h;
+	int deltaTime;
+
+    SpriteBatch guiBatch;
+    
+    OrthographicCamera camera;
     
     TiledMap tiledMap;
     TiledMapTileLayer groundLay;
-    Cell PlayerLoc;
-    
-    float camX;
-    float camY;
-    
-    OrthographicCamera camera;
     TiledMapRenderer tiledMapRenderer;
 
 	public TestState(GameStateManager gsm) {
@@ -48,22 +45,21 @@ public class TestState extends GameState {
 	}
 	
 	public void init() {
+		
+		guiBatch = new SpriteBatch();
+		
 		player = new Player();
 		player.setLocation(10, 75);
-		Common.print("" + player.getLocation()[0]);
-		
-        w = Gdx.graphics.getWidth();
-        h = Gdx.graphics.getHeight();
         
         camera = new OrthographicCamera();
-        camera.setToOrtho(false,w,h);
-        camX = camera.position.x;
-  		camY = camera.position.y;
-  		camera.position.set((player.getLocation()[0]*80)+40, (player.getLocation()[1]*80)+40, camera.position.z);
+        camera.setToOrtho(false,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+        
+        camera.position.set((player.getLocation()[0]*80)+40, (player.getLocation()[1]*80)+40, camera.position.z);
   		position = camera.position;
+        
   		last_time = System.nanoTime();
 
-        tiledMap = new AtlasTmxMapLoader().load("Saves/Save3/map.tmx");
+        tiledMap = new AtlasTmxMapLoader().load("Saves/Save2/MegaMiner_FirstMap.tmx");
         //tiledMap.getTileSets().getTileSet(0).getTile(1).getTextureRegion().getTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap , 5f);
         groundLay = (TiledMapTileLayer)tiledMap.getLayers().get(1);
@@ -73,28 +69,42 @@ public class TestState extends GameState {
 		handleInput();
 		
 		long time = System.nanoTime();
-	    int deltaTime = (int) ((time - last_time) / 1000000);
+	    deltaTime = (int) ((time - last_time) / 1000000);
 	    last_time = time;
-		
-		position.x += ((player.getLocation()[0]*80)+40 - position.x) * lerp * deltaTime;
-		position.y += ((player.getLocation()[1]*80)+40 - position.y) * lerp * deltaTime;
-		
-		camera.position.set(position.x, position.y, camera.position.z);
+	    
+	    FollowCam(camera);
+	    
 		camera.update();
-		
 	}
 	
 	public void draw(SpriteBatch g, int width, int height, float Time) {
+		RenderCam();
+		
+		g.begin();
+		g.setProjectionMatrix(camera.combined);
+		
+		gsm.Render.Player(g, Common.roundDown((player.getLocation()[0]*80)), Common.roundDown((player.getLocation()[1]*80)), player.getDirection());
 
-		gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)-(camera.position.x - camX)), Math.round((player.getLocation()[1]*80)-(camera.position.y - camY)), player.getDirection());
-	    //Overlay Layer
-	    gsm.Render.GUIDeco(g, 0, height-70," " + Cash + "$");
+		g.end();
+
+		//Overlay Layer
+		guiBatch.begin();
+	    gsm.Render.GUIDeco(guiBatch, 0, height-80," " + Cash + "$");
+	    guiBatch.end();
 	}
 	
 	public void RenderCam() {
 		camera.update();
         tiledMapRenderer.setView(camera);
         tiledMapRenderer.render();
+	}
+	
+	public void FollowCam(OrthographicCamera cam) {
+		position.x += ((player.getLocation()[0]*80)+40 - position.x) * lerp * deltaTime;		
+		position.y += ((player.getLocation()[1]*80)+40 - position.y) * lerp * deltaTime;
+		
+		cam.position.set(position.x, position.y, cam.position.z);
+		cam.update();
 	}
 	
 	public void handleInput() {
@@ -113,119 +123,86 @@ public class TestState extends GameState {
 		}
 		
 		if (Gdx.input.isKeyPressed(Keys.UP)) { //KeyHit
-			if (Gdx.input.isKeyPressed(Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Keys.CONTROL_RIGHT))
-				camera.translate(0,4);
-			else 
-				camera.translate(0,16);
+			camera.translate(0,16);
 		}
 		if (Gdx.input.isKeyPressed(Keys.DOWN)) { //KeyHit
-			if (Gdx.input.isKeyPressed(Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Keys.CONTROL_RIGHT))
-				camera.translate(0,-4);
-			else 
-				camera.translate(0,-16);
+			camera.translate(0,-16);
 		}
 		if (Gdx.input.isKeyPressed(Keys.LEFT)) { //KeyHit
-			if (Gdx.input.isKeyPressed(Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Keys.CONTROL_RIGHT))
-				camera.translate(-4,0);
-			else 
-				camera.translate(-16,0);
-			
+			camera.translate(-16,0);
 		}
 		if (Gdx.input.isKeyPressed(Keys.RIGHT)) { //KeyHit
-			if (Gdx.input.isKeyPressed(Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Keys.CONTROL_RIGHT))
-				camera.translate(4,0);
-			else 
-				camera.translate(16,0);
-			
+			camera.translate(16,0);	
 		}
 		
-		if (Moving) {
-			if (groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId() == -1) {
-	
-				if (Gdx.input.isKeyPressed(Keys.W)) { //KeyHit
-					if (!player.getDirection().equals("up")) {
-						player.setDirection("up");
-					} else {
-						player.setLocation(player.getLocation()[0], player.getLocation()[1] + 1);
-					}
+		if (!Moving) {
+			if (Gdx.input.isKeyJustPressed(Keys.W)) { //KeyHit
+				if (!player.getDirection().equals("up")) {
+					player.setDirection("up");
+				} else {
+					player.setDirection("up");
+					player.setLocation(player.getLocation()[0], player.getLocation()[1] + 1);
 				}
-				if (Gdx.input.isKeyPressed(Keys.S)) { //KeyHit
-					if (!player.getDirection().equals("down")) {
-						player.setDirection("down");
-					} else {
-						player.setLocation(player.getLocation()[0], player.getLocation()[1] - 1);
-					}
+			}
+			if (Gdx.input.isKeyJustPressed(Keys.S)) { //KeyHit
+				if (!player.getDirection().equals("down")) {
+					player.setDirection("down");
+				} else {
+					player.setDirection("down");
+					player.setLocation(player.getLocation()[0], player.getLocation()[1] - 1);
 				}
-				if (Gdx.input.isKeyPressed(Keys.A)) { //KeyHit
-					if (!player.getDirection().equals("left")) {
-						player.setDirection("left");
-					} else {
-						player.setLocation(player.getLocation()[0] -1, player.getLocation()[1]);
-					}
+			}
+			if (Gdx.input.isKeyJustPressed(Keys.A)) { //KeyHit
+				if (!player.getDirection().equals("left")) {
+					player.setDirection("left");
+				} else {
+					player.setDirection("left");
+					player.setLocation(player.getLocation()[0] -1, player.getLocation()[1]);
 				}
-				if (Gdx.input.isKeyPressed(Keys.D)) { //KeyHit
-					if (!player.getDirection().equals("right")) {
-						player.setDirection("right");
-					} else {
-						player.setLocation(player.getLocation()[0] + 1, player.getLocation()[1]);
-					}
-				}
-			} else {
-				
-				if (Gdx.input.isKeyJustPressed(Keys.W)) { //KeyHit
-					if (!player.getDirection().equals("up")) {
-						player.setDirection("up");
-					} else {
-						player.setLocation(player.getLocation()[0], player.getLocation()[1] + 1);
-					}
-				}
-				if (Gdx.input.isKeyJustPressed(Keys.S)) { //KeyHit
-					if (!player.getDirection().equals("down")) {
-						player.setDirection("down");
-					} else {
-						player.setLocation(player.getLocation()[0], player.getLocation()[1] - 1);
-					}
-				}
-				if (Gdx.input.isKeyJustPressed(Keys.A)) { //KeyHit
-					if (!player.getDirection().equals("left")) {
-						player.setDirection("left");
-					} else {
-						player.setLocation(player.getLocation()[0] -1, player.getLocation()[1]);
-					}
-				}
-				if (Gdx.input.isKeyJustPressed(Keys.D)) { //KeyHit
-					if (!player.getDirection().equals("right")) {
-						player.setDirection("right");
-					} else {
-						player.setLocation(player.getLocation()[0] + 1, player.getLocation()[1]);
-					}
+			}
+			if (Gdx.input.isKeyJustPressed(Keys.D)) { //KeyHit
+				if (!player.getDirection().equals("right")) {
+					player.setDirection("right");
+				} else {
+					player.setDirection("right");
+					player.setLocation(player.getLocation()[0] + 1, player.getLocation()[1]);
 				}
 			}
 			
-			if (groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile() == null) {
-				
+			if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() == null) {
+				//Checks if the tile is null
 			}
 			
 			//Checks if the tile the player is on matches an ID
-			if (groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile() != null && groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId() == 21) {
+			if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() != null && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() != 9 && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() == 21) {
 				Common.print("Hey you just got Silver!");
 				Cash = Cash + 25;
 			}
-			if (groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile() != null && groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId() == 22) {
+			if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() != null && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() != 9 && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() == 22) {
 				Common.print("Hey you just got Copper!");
 				Cash = Cash + 10;
 			}
-			if (groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile() != null && groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId() == 23) {
+			if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() != null && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() != 9 && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() == 23) {
 				Common.print("Hey you just got Coal!");
 				Cash = Cash + 5;
 			}
-			if (groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile() != null && groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId() != 9 && groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId() != 400) {
-				Common.print("Hey you just got a " + groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId());
+			if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() != null && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() != 9 && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() == 400) {
+				//Common.print("Hey you just got a " + groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId());
 			}
-			groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).setTile(tiledMap.getTileSets().getTile(400));
+			groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).setTile(tiledMap.getTileSets().getTile(400));
 		}
 	}
 	
 		
-	public void reSize(int wi, int he) {}
+	public void reSize(SpriteBatch g, int H, int W) {
+		float posX = camera.position.x;
+		float posY = camera.position.y;
+		float posZ = camera.position.z;
+		camera.setToOrtho(false);
+		camera.position.set(posX, posY, posZ);
+		
+		Matrix4 matrix = new Matrix4();
+		matrix.setToOrtho2D(0, 0, W, H);
+		guiBatch.setProjectionMatrix(matrix);
+	}
 }

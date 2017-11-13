@@ -16,6 +16,7 @@ import com.thecubecast.ReEngine.GameStates.TestState;
 import com.thecubecast.ReEngine.Graphics.Draw;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Matrix4;
 import com.thecubecast.ReEngine.Data.Common;
 
 public class GameStateManager {
@@ -38,8 +39,9 @@ public class GameStateManager {
 	public int[] MouseDrag;
 	public int[] MouseClick;
 	
-	//FrameTics
-	public int Tics;
+	//screen
+	public int Width;
+	public int Height;
 	
 	public static final int NUM_STATES = 6;
 	public static final int INTRO = 0;
@@ -65,7 +67,6 @@ public class GameStateManager {
 	}
 	
 	public void setState(int i) {
-		Tics = 0;
 		previousState = currentState;
 		unloadState(previousState);
 		currentState = i;
@@ -115,7 +116,6 @@ public class GameStateManager {
 		MouseY = MousY;
 		MouseDrag = Draging;
 		MouseClick = MousCl;
-		Tics++;
 		if(gameStates[currentState] != null) {
 			
 			gameStates[currentState].update();
@@ -123,21 +123,20 @@ public class GameStateManager {
 		//MouseClick[0] = 0;
 	}
 	
-	public void drawCam() {
-		if(gameStates[currentState] != null) {
-			gameStates[currentState].RenderCam();
-		}
-	}
-	
 	public void draw(SpriteBatch bbg, int W, int H, float Time) {
+		Width = W;
+		Height = H;
 		if(gameStates[currentState] != null) {
 			gameStates[currentState].draw(bbg, H, W, Time);
 		}
 	}
 	
-	public void reSize(int H, int W) {
+	public void reSize(SpriteBatch bbg, int H, int W) {
 		if(gameStates[currentState] != null) {
-			gameStates[currentState].reSize(H, W);
+			gameStates[currentState].reSize(bbg, H, W);
 		}
+		Matrix4 matrix = new Matrix4();
+		matrix.setToOrtho2D(0, 0, W, H);
+		bbg.setProjectionMatrix(matrix);
 	}
 }

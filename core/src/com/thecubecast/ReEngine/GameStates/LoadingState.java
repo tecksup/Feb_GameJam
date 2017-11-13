@@ -5,12 +5,13 @@ package com.thecubecast.ReEngine.GameStates;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Matrix4;
 import com.thecubecast.ReEngine.Data.Common;
 import com.thecubecast.ReEngine.Data.GameStateManager;
 
 public class LoadingState extends GameState {
 	
-	int ticks;
+	int ticks = 0;
 	
 	public LoadingState(GameStateManager gsm) {
 		super(gsm);
@@ -21,7 +22,7 @@ public class LoadingState extends GameState {
 	}
 	
 	public void update() {
-		ticks = gsm.Tics;
+		ticks++;
 		if(ticks > 120) {
 			gsm.setState(GameStateManager.TEST);
 		}
@@ -29,7 +30,9 @@ public class LoadingState extends GameState {
 	}
 	
 	public void draw(SpriteBatch g, int width, int height, float Time) {
+		g.begin();
 		gsm.Render.DrawAnimatedTile(g, gsm.Render.LoadingAnimation, 50, 50, 2.0f, 2.0f,  Time);
+		g.end();
 	}
 	
 	public void handleInput() {
@@ -39,4 +42,6 @@ public class LoadingState extends GameState {
 		}
 
 	}
+	
+	public void reSize(SpriteBatch g,int wi, int he) {}
 }

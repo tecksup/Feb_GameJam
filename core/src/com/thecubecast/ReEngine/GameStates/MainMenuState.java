@@ -114,6 +114,7 @@ public class MainMenuState extends GameState {
 	}
 	
 	public void draw(SpriteBatch bbg, int width, int height, float Time) {
+		bbg.begin();
 		
 		//gsm.Render.DrawBackground(bbg, width, height);
 		bbg.draw(gsm.Render.Images[03], 0, 0, width, height);
@@ -167,6 +168,8 @@ public class MainMenuState extends GameState {
 		
 		
 		gsm.Render.DrawAny(bbg, 72, "Tiles", gsm.MouseX, gsm.MouseY);
+		
+		bbg.end();
 	}
 	
 	public void handleInput() {
