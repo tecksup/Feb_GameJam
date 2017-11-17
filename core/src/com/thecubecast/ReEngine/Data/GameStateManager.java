@@ -62,8 +62,18 @@ public class GameStateManager {
 		Render.Init();
 		
 		gameStates = new GameState[NUM_STATES];
-		setState(LOADING); //THIS IS THE STATE WERE WE START WHEN THE GAME IS RUN
+		LoadState("STARTUP"); //THIS IS THE STATE WERE WE START WHEN THE GAME IS RUN
 		
+	}
+	
+	public void LoadState(String LoadIt) {
+		previousState = currentState;
+		unloadState(previousState);
+		currentState = LOADING;
+		//Set up the loading state 
+		gameStates[LOADING] = new LoadingState(this);
+		((LoadingState) gameStates[LOADING]).setLoad("STARTUP");
+		gameStates[LOADING].init();
 	}
 	
 	public void setState(int i) {
@@ -83,11 +93,6 @@ public class GameStateManager {
 		else if(i == PLAY) {
 			Common.print("Loaded state PLAY");
 			gameStates[i] = new PlayState(this);
-			gameStates[i].init();
-		}
-		else if(i == LOADING) {
-			Common.print("Loaded state LOADING");
-			gameStates[i] = new LoadingState(this);
 			gameStates[i].init();
 		}
 		

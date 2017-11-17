@@ -1,217 +1,208 @@
+// GameState that tests new mechanics.
+
 package com.thecubecast.ReEngine.GameStates;
 
-import com.thecubecast.ReEngine.Data.GameStateManager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.AtlasTmxMapLoader;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.thecubecast.ReEngine.Data.Common;
+import com.thecubecast.ReEngine.Data.GameStateManager;
+import com.thecubecast.ReEngine.Data.Player;
 
-import java.awt.*;
+public class PlayState extends GameState {
+	
+	Player player;
+	int Cash = 0;
+	
+	boolean Moving = false;
+	
+	float lerp = 0.005f;
+	Vector3 position;
+	long last_time;
+	int deltaTime;
 
+    SpriteBatch guiBatch;
+    
+    OrthographicCamera camera;
+    
+    TiledMap tiledMap;
+    TiledMapTileLayer groundLay;
+    TiledMapRenderer tiledMapRenderer;
 
-public class PlayState extends GameState {	
-	
-	private String CurrentSave = gsm.ChosenSave;
-	
-	OrthographicCamera cam;
-	
-	private int TileSize = 32; //This is the size of each tile, aswell as how far the camera moves per "turn"
-	private int WorldSize = 200; //radius expanding from the origin point (0,0) of the world
-	private int MousePosX;
-	private int MousePosY;
-	private int[] MouseDrag;
-	//private int PlayerPosX = 0;
-	//private int PlayerPosY = 0;
-	private int cameraX = 0;
-	private int cameraY = 0;
-	
-	
-	//Buttons
-	//Object[] Buttons = new Object[]; //This is supposed to be a array containing all the buttons
-										//So they can be interated through in the button checks
-	int[] button1 = null;
-	int[] button2 = null;
-	
-	//only loading in 4 chunks from the chunk the player is in, in each direction
-	//Max Loaded chunks will be 16, Total of 4096 Tiles in memory
-	//Each chunk only stores 16X16 tiles
-	
-	//The chunks do not need to be held in a map, Calculate the chunks that need to be loaded
-	//If they are near the players pos, When the camera distance becomes < a set distance - Unload the chunk
-	// Load the chunk if the camera get > a set distance 
-	
-	//The chunks will be individual files for now Loading the chunk from file
-	//Save/update the chunk to file, then unload it from memory
-	
-	
-	
-	private String PlayerDirection = "down";
-	private boolean MenuOpen = false;
-	
 	public PlayState(GameStateManager gsm) {
 		super(gsm);
 	}
 	
 	public void init() {
 		
-		cam = new OrthographicCamera();
-		cam.setToOrtho(false, 1920, 1080);
-		cam.update();
+		guiBatch = new SpriteBatch();
 		
-		//JukeBox.load("/Music/bgmusic.wav", "introsound");
-		//JukeBox.loop("introsound");
-		//JukeBox.setVolume("introsound", -30.0f);
+		player = new Player();
+		player.setLocation(10, 75);
+        
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+        
+        camera.position.set((player.getLocation()[0]*80)+40, (player.getLocation()[1]*80)+40, camera.position.z);
+  		position = camera.position;
+        
+  		last_time = System.nanoTime();
+
+        tiledMap = new AtlasTmxMapLoader().load("Saves/Save2/MegaMiner_FirstMap.tmx");
+        //tiledMap.getTileSets().getTileSet(0).getTile(1).getTextureRegion().getTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap , 5f);
+        groundLay = (TiledMapTileLayer)tiledMap.getLayers().get(1);
 	}
-	
 	
 	public void update() {
-		
-		MousePosX = gsm.MouseX;
-		MousePosY = gsm.MouseY;
-		MouseDrag = gsm.MouseDrag;
-		
 		handleInput();
 		
-		//This is were the camera location is updated
-		//Camera tracks to the players pos, instead of placing the player on the middle of the screen non-relative to the map layout
-		//cameraX = WIDTH/2; // Put PlayerPosX in the middle of the screen
-		//cameraY = HEIGHT/2; // Put PlayerPosY in the middle of the screen
-		
-		//IF STATEMENT THAT WILL BE PUT HERE WHEN INPUT HANDLING IS FIXED
-		//IT WILL QUIT THE GAME
-		
+		long time = System.nanoTime();
+	    deltaTime = (int) ((time - last_time) / 1000000);
+	    last_time = time;
+	    
+	    FollowCam(camera);
+	    
+		camera.update();
 	}
 	
-	public void draw(SpriteBatch bbg, int width, int height, float Time) {
+	public void draw(SpriteBatch g, int width, int height, float Time) {
+		RenderCam();
 		
-		/**
-		 * To use the camera
-		 * Subtract the location of the sprite by the cameras position.
-		 */
+		g.begin();
+		g.setProjectionMatrix(camera.combined);
 		
-		//The bottom layer
-		//Draw the background here
-		gsm.Render.DrawBackground(bbg, width, height);
+		gsm.Render.Player(g, Common.roundDown((player.getLocation()[0]*80)), Common.roundDown((player.getLocation()[1]*80)), player.getDirection());
+
+		g.end();
+
+		//Overlay Layer
+		guiBatch.begin();
+	    gsm.Render.GUIDeco(guiBatch, 0, height-80, gsm.ChosenSave + " - " + Cash + "$");
+	    guiBatch.end();
+	}
+	
+	public void RenderCam() {
+		camera.update();
+        tiledMapRenderer.setView(camera);
+        tiledMapRenderer.render();
+	}
+	
+	public void FollowCam(OrthographicCamera cam) {
+		position.x += ((player.getLocation()[0]*80)+40 - position.x) * lerp * deltaTime;		
+		position.y += ((player.getLocation()[1]*80)+40 - position.y) * lerp * deltaTime;
 		
-		//The Tiles are being drawn on this "Layer"
-		//A function that reads the map file, then places each tile on the screen
-		
-		//gsm.Render.DrawTiles(bbg, cameraX, cameraY, TileSize, WorldSize);
-		
-		//The "Player" and other entities or overlays must be drawn last. Think top layer 
-		gsm.Render.Player(bbg, (width/2), ((height/2) - (TileSize/2)), PlayerDirection);
-		
-		// Draws the Foreground
-		//gsm.Render.DrawTilesForeground(bbg, cameraX, cameraY, TileSize, WorldSize);
-		
-		//Debug Layer goes here
-		//gsm.Render.DrawChunkDebugLines(bbg, 0, 0, TileSize, cameraX, cameraY);
-		
-		//The GUI would go here
-		gsm.Render.GUIDeco(bbg, 0, 0, CurrentSave); //Any overlays such as Health, gold, fuel, etc.
-		if(MenuOpen) {
-			//bbg.fillRect((width/6)*2, (height/6)*2, (width/6)*2, (height/6)*2);
-			button1 = gsm.Render.GUIButton(bbg, width/2, height/2, 6,  true, "Return to Menu");
-			} // The Game MEnu
-		
-		//gsm.Render.DrawAny(bbg, 00, "Tiles", MousePosX, MousePosY);
-		
-		//gameMap.render(cam);
-		
-		
-		
-		
+		cam.position.set(position.x, position.y, cam.position.z);
+		cam.update();
 	}
 	
 	public void handleInput() {
-		
+
 		if(Gdx.input.isTouched()) {
-			cam.translate(-Gdx.input.getDeltaX(), Gdx.input.getDeltaY());
-			cam.update();
-		}
-		
-		if(Gdx.input.justTouched()) {
-			Vector3 pos = cam.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+			camera.translate(-Gdx.input.getDeltaX(), Gdx.input.getDeltaY());
+			camera.update();
 			
-		}
-		
-		
-		if(gsm.MouseClick[0] == 1 && MenuOpen) { //Runs all the button checks			
-			if(gsm.MouseClick[1] >= button1[0] && gsm.MouseClick[1] <= button1[2]) { //The button1
-				if(gsm.MouseClick[2] >= button1[1] && gsm.MouseClick[2] <= button1[3]) {
-					//Save the game
-					//stop all audio
-					gsm.setState(GameStateManager.MENU);
-				}
+			if (Gdx.input.getDeltaY() < 0) { // ZOOMS OUT
+				
 			}
 		}
 		
-		if (MouseDrag[0] == 1) {
-			//Common.print("Mouse draging at " + MousePosX + " " + MousePosY);
+		if (Gdx.input.isKeyJustPressed(Keys.NUM_9)) { //KeyHit
+			//tiledMap.getLayers().get(1).setVisible(!tiledMap.getLayers().get(1).isVisible());			
 		}
 		
-		//Moves the player on the map
-		if (Gdx.input.isKeyJustPressed(Keys.ESCAPE)) {
-			MenuOpen = !MenuOpen;
-			Common.sleep(50);
-		} else {}
+		if (Gdx.input.isKeyPressed(Keys.UP)) { //KeyHit
+			camera.translate(0,16);
+		}
+		if (Gdx.input.isKeyPressed(Keys.DOWN)) { //KeyHit
+			camera.translate(0,-16);
+		}
+		if (Gdx.input.isKeyPressed(Keys.LEFT)) { //KeyHit
+			camera.translate(-16,0);
+		}
+		if (Gdx.input.isKeyPressed(Keys.RIGHT)) { //KeyHit
+			camera.translate(16,0);	
+		}
 		
-		if (!MenuOpen) {
-			if (Gdx.input.isKeyPressed(Keys.RIGHT)) 
-			{ 
-				if (Gdx.input.isKeyPressed(Keys.LEFT))  {}
-				else {
-					if (PlayerDirection != 4) {
-						PlayerDirection = 4;
-					}
-					else {
-						cameraX += TileSize; 
-					}
+		if (!Moving) {
+			if (Gdx.input.isKeyJustPressed(Keys.W)) { //KeyHit
+				if (!player.getDirection().equals("up")) {
+					player.setDirection("up");
+				} else {
+					player.setDirection("up");
+					player.setLocation(player.getLocation()[0], player.getLocation()[1] + 1);
 				}
-			} 
-			
-			if (Gdx.input.isKeyPressed(Keys.LEFT))
-			{ 
-				if (Gdx.input.isKeyPressed(Keys.RIGHT)) {}
-				else {
-					if (PlayerDirection != 2) {
-						PlayerDirection = 2;	
-					}
-					else {
-						cameraX -= TileSize;
-					}
+			}
+			if (Gdx.input.isKeyJustPressed(Keys.S)) { //KeyHit
+				if (!player.getDirection().equals("down")) {
+					player.setDirection("down");
+				} else {
+					player.setDirection("down");
+					player.setLocation(player.getLocation()[0], player.getLocation()[1] - 1);
+				}
+			}
+			if (Gdx.input.isKeyJustPressed(Keys.A)) { //KeyHit
+				if (!player.getDirection().equals("left")) {
+					player.setDirection("left");
+				} else {
+					player.setDirection("left");
+					player.setLocation(player.getLocation()[0] -1, player.getLocation()[1]);
+				}
+			}
+			if (Gdx.input.isKeyJustPressed(Keys.D)) { //KeyHit
+				if (!player.getDirection().equals("right")) {
+					player.setDirection("right");
+				} else {
+					player.setDirection("right");
+					player.setLocation(player.getLocation()[0] + 1, player.getLocation()[1]);
 				}
 			}
 			
-			if (Gdx.input.isKeyPressed(Keys.UP))
-			{ 
-				if (Gdx.input.isKeyPressed(Keys.DOWN)) {}
-				else {
-					if (PlayerDirection != 1) {
-						PlayerDirection = 1;
-					}
-					else {
-						cameraY += TileSize;
-					}
-				}
+			if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() == null) {
+				//Checks if the tile is null
 			}
 			
-			
-			if (Gdx.input.isKeyPressed(Keys.DOWN))
-			{ 
-				if (Gdx.input.isKeyPressed(Keys.UP)) {}
-				else {
-					if (PlayerDirection != 3) {
-						PlayerDirection = 3;
-					}
-					else {
-						cameraY -= TileSize; 
-					}
-				}
-			} 
+			//Checks if the tile the player is on matches an ID
+			if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() != null && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() != 9 && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() == 21) {
+				Common.print("Hey you just got Silver!");
+				Cash = Cash + 25;
+			}
+			if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() != null && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() != 9 && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() == 22) {
+				Common.print("Hey you just got Copper!");
+				Cash = Cash + 10;
+			}
+			if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() != null && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() != 9 && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() == 23) {
+				Common.print("Hey you just got Coal!");
+				Cash = Cash + 5;
+			}
+			if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() != null && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() != 9 && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() == 400) {
+				//Common.print("Hey you just got a " + groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId());
+			}
+			groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).setTile(tiledMap.getTileSets().getTile(400));
 		}
 	}
-
+	
+		
+	public void reSize(SpriteBatch g, int H, int W) {
+		float posX = camera.position.x;
+		float posY = camera.position.y;
+		float posZ = camera.position.z;
+		camera.setToOrtho(false);
+		camera.position.set(posX, posY, posZ);
+		
+		Matrix4 matrix = new Matrix4();
+		matrix.setToOrtho2D(0, 0, W, H);
+		guiBatch.setProjectionMatrix(matrix);
+	}
 }

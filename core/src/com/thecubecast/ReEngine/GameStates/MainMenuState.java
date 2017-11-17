@@ -5,13 +5,18 @@ package com.thecubecast.ReEngine.GameStates;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.Input.Keys;
 import com.thecubecast.ReEngine.Data.Common;
 import com.thecubecast.ReEngine.Data.GameStateManager;
 
 
 public class MainMenuState extends GameState {
+	
+	OrthographicCamera camera;
 	
 	Sound Click;
 	Music Audio;
@@ -70,6 +75,9 @@ public class MainMenuState extends GameState {
 	
 	public void init() {
 		
+		camera = new OrthographicCamera();
+        camera.setToOrtho(false,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		
 		//Grab data from preferences file, Set Slider22Value accordingly
 		
 		Click = Gdx.audio.newSound(Gdx.files.internal("Music/click.wav"));
@@ -115,6 +123,7 @@ public class MainMenuState extends GameState {
 	
 	public void draw(SpriteBatch bbg, int width, int height, float Time) {
 		bbg.begin();
+		bbg.setProjectionMatrix(camera.combined);
 		
 		//gsm.Render.DrawBackground(bbg, width, height);
 		bbg.draw(gsm.Render.Images[03], 0, 0, width, height);
@@ -167,12 +176,22 @@ public class MainMenuState extends GameState {
 		}
 		
 		
-		gsm.Render.DrawAny(bbg, 72, "Tiles", gsm.MouseX, gsm.MouseY);
+		//gsm.Render.DrawAny(bbg, 72, "Tiles", gsm.MouseX, gsm.MouseY);
 		
 		bbg.end();
 	}
 	
 	public void handleInput() {
+		
+		Vector3 pos = new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0);
+		camera.unproject(pos);
+		
+		gsm.MouseX = (int) pos.x;
+		gsm.MouseY = (int) pos.y;
+		gsm.MouseClick[1] = (int) pos.x;
+		gsm.MouseClick[2] = (int) pos.y;
+		gsm.MouseDrag[1] = (int) pos.x;
+		gsm.MouseDrag[2] = (int) pos.y;
 		
 		if(gsm.MouseClick[0] == 1 && currentState == 0 && button01 != null) { //Runs all the button checks
 			
@@ -196,7 +215,7 @@ public class MainMenuState extends GameState {
 			
 			//Button 4 of Menu State 0
 			if (GUIButtonCheck(gsm.MouseClick, button04)) {  // EXIT/QUIT
-				//Click.play((SoundVolume * MasterVolume),1,0);
+				Click.play((SoundVolume * MasterVolume),1,0);
 				Common.print("Game Quit Button Pressed in menu!");
 				Common.ProperShutdown();
 			}
@@ -208,7 +227,7 @@ public class MainMenuState extends GameState {
 			//Button 1 of Menu State 1
 			if (GUIButtonCheck(gsm.MouseClick, button11)) {  //SAVE 1
 				Click.play((SoundVolume * MasterVolume),1,0);
-				gsm.Rwr.CreateSave("Save1");
+				//gsm.Rwr.CreateSave("Save1");
 				gsm.ChosenSave = "Save1";
 				//Audio.stop();
 				gsm.setState(GameStateManager.PLAY);
@@ -217,7 +236,7 @@ public class MainMenuState extends GameState {
 			//Button 2 of Menu State 1
 			if (GUIButtonCheck(gsm.MouseClick, button12)) {  //SAVE 2
 				Click.play((SoundVolume * MasterVolume),1,0);
-				gsm.Rwr.CreateSave("Save2");
+				//gsm.Rwr.CreateSave("Save2");
 				gsm.ChosenSave = "Save2";
 				//Audio.stop();
 				gsm.setState(GameStateManager.PLAY);
@@ -227,7 +246,7 @@ public class MainMenuState extends GameState {
 			if (GUIButtonCheck(gsm.MouseClick, button13)) {  //SAVE 3
 				Click.play((SoundVolume * MasterVolume),1,0);
 				//gsm.Rwr.CreateSave("Save3");
-				//gsm.ChosenSave = "Save3";
+				gsm.ChosenSave = "TEST";
 				//Audio.stop();
 				gsm.setState(GameStateManager.TEST);
 			}
@@ -389,6 +408,10 @@ public class MainMenuState extends GameState {
 			}
 		}
 		return false;
+	}
+	
+	public void reSize(SpriteBatch g, int H, int W) {
+		camera.setToOrtho(false);
 	}
 	
 }

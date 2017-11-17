@@ -28,7 +28,9 @@ public class Draw {
 		// Initialize the Animation with the frame interval and array of frames
 		LoadingAnimation = new Animation<TextureRegion>(0.1f, loadAnim(LoadingSheet, "cube_loading_sprite.png", 4, 1));
 		
-		
+	}
+	
+	public void Load() {
 		//The loops bellow grab the tiles and add them to the variable
 		for(int i=0; i < Tiles.length; ++i){
 			if (i >= 10) {
@@ -77,7 +79,6 @@ public class Draw {
 		catch(Exception e) {
 			//e.printStackTrace();
 		}
-		
 	}
 	
 	private TextureRegion[] loadAnim(Texture TexSheet, String FileLocation, int Cols, int Rows) {
@@ -235,11 +236,11 @@ public void DrawTilesForeground(SpriteBatch buffer, int OffsetX, int OffsetY, in
 		}
 		buffer.draw(Tiles[62], PosX + (Tiles[60].getWidth()*length), PosY);
 		//Draws the Dot
-		buffer.draw(Tiles[63], PosX + Math.round(((Tiles[60].getWidth()*(length))*SliderValue)), PosY);		
+		buffer.draw(Tiles[63], PosX + Math.round((((Tiles[60].getWidth()*(length)))*SliderValue)), PosY);		
 		
 		font.draw(buffer, label + ": " + Value, PosX, PosY + (70));
 		
-		int[] size = new int[] {PosX, PosY, PosX+(Tiles[60].getWidth()*(length + 1)), PosY+(Tiles[60].getHeight())}; 
+		int[] size = new int[] {PosX, PosY - (Tiles[60].getHeight()/4), PosX+(Tiles[60].getWidth()*(length + 1)), PosY+(Tiles[60].getHeight())}; 
 		return size;
 	}
 	

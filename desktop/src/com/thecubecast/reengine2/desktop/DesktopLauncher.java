@@ -8,10 +8,10 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.thecubecast.ReEngine.mainclass;
 
 public class DesktopLauncher {
-	public static void main (String[] arg) {
+	public static void main (String[] args) {
 		
 		//set variables from the settings file
-		boolean Display_Fullscreen = false;
+		boolean Display_Fullscreen = true;
 		boolean Display_WindowedFull = false;
 		int[] Windowed_Size = {900,600};
 		

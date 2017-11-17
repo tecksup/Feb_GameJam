@@ -47,12 +47,6 @@ public class mainclass extends ApplicationAdapter implements InputProcessor{
 		W = Gdx.graphics.getWidth();
 		H = Gdx.graphics.getHeight();
 		
-		//Camera Init
-		//camera = new OrthographicCamera(80, 45 * (H / W));
-		//camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
-		//camera.update();
-		
-		
 		//This is essentially the graphics object we draw too
 		batch = new SpriteBatch();
 		
@@ -89,7 +83,7 @@ public class mainclass extends ApplicationAdapter implements InputProcessor{
 	public void UpdateInput(){
 		
 		if (Gdx.input.isKeyJustPressed(Keys.ENTER)) { //KeyHit
-			Common.print("Pressed Enter");
+			//Common.print("Pressed Enter");
 		}
 		
 		if (Gdx.input.isKeyJustPressed(Keys.GRAVE)) { //KeyHit

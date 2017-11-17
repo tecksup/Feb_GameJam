@@ -89,7 +89,7 @@ public class TestState extends GameState {
 
 		//Overlay Layer
 		guiBatch.begin();
-	    gsm.Render.GUIDeco(guiBatch, 0, height-80," " + Cash + "$");
+	    gsm.Render.GUIDeco(guiBatch, 0, height-80, gsm.ChosenSave + " - " + Cash + "$");
 	    guiBatch.end();
 	}
 	
@@ -116,10 +116,6 @@ public class TestState extends GameState {
 			if (Gdx.input.getDeltaY() < 0) { // ZOOMS OUT
 				
 			}
-		}
-		
-		if (Gdx.input.isKeyJustPressed(Keys.NUM_9)) { //KeyHit
-			//tiledMap.getLayers().get(1).setVisible(!tiledMap.getLayers().get(1).isVisible());			
 		}
 		
 		if (Gdx.input.isKeyPressed(Keys.UP)) { //KeyHit
@@ -169,30 +165,61 @@ public class TestState extends GameState {
 				}
 			}
 			
-			if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() == null) {
-				//Checks if the tile is null
+			if (Gdx.input.isKeyJustPressed(Keys.F)) { //KeyHit
+				Common.print("You pressed f");
+				Common.print("\t " + isFacing());
+				if(isFacing() == 21) {
+					Common.print("Activated Silver!");
+				}
 			}
 			
 			//Checks if the tile the player is on matches an ID
-			if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() != null && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() != 9 && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() == 21) {
+			if (isOn() == 21) {
 				Common.print("Hey you just got Silver!");
 				Cash = Cash + 25;
 			}
-			if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() != null && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() != 9 && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() == 22) {
+			if (isOn() == 22) {
 				Common.print("Hey you just got Copper!");
 				Cash = Cash + 10;
 			}
-			if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() != null && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() != 9 && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() == 23) {
+			if (isOn() == 23) {
 				Common.print("Hey you just got Coal!");
 				Cash = Cash + 5;
 			}
-			if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() != null && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() != 9 && groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId() == 400) {
+			if (isOn() != 400) {
 				//Common.print("Hey you just got a " + groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId());
 			}
 			groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).setTile(tiledMap.getTileSets().getTile(400));
 		}
 	}
 	
+	public int isOn() {
+		if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() != null) {
+			return (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId());
+		} else {
+			return -1;
+		}
+		
+	}
+	
+	public int isFacing() {
+		if (player.getDirection().equals("up")) {
+			return (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])+1).getTile().getId());
+		}
+		else if (player.getDirection().equals("down")) {
+			return (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])-1).getTile().getId());	
+		}
+		else if (player.getDirection().equals("left")) {
+			return (groundLay.getCell(Common.roundDown(player.getLocation()[0])-1, Common.roundDown(player.getLocation()[1])).getTile().getId());
+		}
+		else if (player.getDirection().equals("right")) {
+			return (groundLay.getCell(Common.roundDown(player.getLocation()[0])+1, Common.roundDown(player.getLocation()[1])).getTile().getId());
+		}
+		else {
+			return -1;
+		}
+		
+	}
 		
 	public void reSize(SpriteBatch g, int H, int W) {
 		float posX = camera.position.x;
