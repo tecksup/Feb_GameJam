@@ -100,8 +100,21 @@ public class TestState extends GameState {
 	}
 	
 	public void FollowCam(OrthographicCamera cam) {
-		position.x += ((player.getLocation()[0]*80)+40 - position.x) * lerp * deltaTime;		
-		position.y += ((player.getLocation()[1]*80)+40 - position.y) * lerp * deltaTime;
+		int mapBoundX = groundLay.getWidth()*80;
+		int mapBoundY = (groundLay.getHeight()-18)*80;
+		
+		float PosibleX = position.x + ((player.getLocation()[0]*80)+40 - position.x) * lerp * deltaTime;
+		if (PosibleX - (Gdx.graphics.getWidth()/2) >= 0 && PosibleX - (Gdx.graphics.getWidth()/2) <= mapBoundX) {
+			position.x += ((player.getLocation()[0]*80)+40 - position.x) * lerp * deltaTime;
+		}
+		
+		float PosibleY = position.y + ((player.getLocation()[1]*80)+40 - position.y) * lerp * deltaTime;
+		if (PosibleY - (Gdx.graphics.getHeight()/2) >= 0 && PosibleY - (Gdx.graphics.getHeight()/2) <= mapBoundY) {
+			position.y += ((player.getLocation()[1]*80)+40 - position.y) * lerp * deltaTime;
+		}
+		
+		//position.x += ((player.getLocation()[0]*80)+40 - position.x) * lerp * deltaTime;		
+		//position.y += ((player.getLocation()[1]*80)+40 - position.y) * lerp * deltaTime;
 		
 		cam.position.set(position.x, position.y, cam.position.z);
 		cam.update();
@@ -119,16 +132,32 @@ public class TestState extends GameState {
 		}
 		
 		if (Gdx.input.isKeyPressed(Keys.UP)) { //KeyHit
-			camera.translate(0,16);
+			int mapBoundY = (groundLay.getHeight()-18)*80;
+			
+			if (position.y - (Gdx.graphics.getHeight()/2) + 16 >= 0 && position.y - (Gdx.graphics.getHeight()/2) <= mapBoundY) {
+				camera.translate(0,16);
+			}
 		}
 		if (Gdx.input.isKeyPressed(Keys.DOWN)) { //KeyHit
-			camera.translate(0,-16);
+			int mapBoundY = (groundLay.getHeight()-18)*80;
+			
+			if (position.y - (Gdx.graphics.getHeight()/2) - 16 >= 0 && position.y - (Gdx.graphics.getHeight()/2) <= mapBoundY) {
+				camera.translate(0,-16);
+			}
 		}
 		if (Gdx.input.isKeyPressed(Keys.LEFT)) { //KeyHit
-			camera.translate(-16,0);
+			int mapBoundX = groundLay.getWidth()*80;
+			
+			if (position.x - (Gdx.graphics.getWidth()/2) - 16 >= 0 && position.x - (Gdx.graphics.getWidth()/2) <= mapBoundX) {
+				camera.translate(-16,0);
+			}
 		}
 		if (Gdx.input.isKeyPressed(Keys.RIGHT)) { //KeyHit
-			camera.translate(16,0);	
+			int mapBoundX = groundLay.getWidth()*80;
+			
+			if (position.x - (Gdx.graphics.getWidth()/2) + 16 >= 0 && position.x - (Gdx.graphics.getWidth()/2) <= mapBoundX) {
+				camera.translate(16,0);
+			}
 		}
 		
 		if (!Moving) {
