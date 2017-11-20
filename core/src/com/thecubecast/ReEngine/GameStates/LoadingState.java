@@ -66,7 +66,8 @@ public class LoadingState extends GameState {
 	
 	public void draw(SpriteBatch g, int width, int height, float Time) {
 		g.begin();
-		gsm.Render.DrawAnimatedTile(g, gsm.Render.LoadingAnimation, 50, 50, 2.0f, 2.0f,  Time);
+		//gsm.Render.DrawAnimatedTile(g, gsm.Render.LoadingAnimation, 50, 50, 2.0f, 2.0f, Time);
+		gsm.Render.DrawAnimatedTile(g, gsm.Render.LoadingAnimation, 50, 50, 46, 46, Time);
 		g.end();
 	}
 	

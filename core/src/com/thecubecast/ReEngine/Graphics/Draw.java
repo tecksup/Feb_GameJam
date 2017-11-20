@@ -17,8 +17,12 @@ public class Draw {
 	public Animation<TextureRegion> LoadingAnimation; // Must declare frame type (TextureRegion)
 	Texture LoadingSheet;
 	
+	public Animation<TextureRegion> StarsAnimation; // Must declare frame type (TextureRegion)
+	Texture StarsSheet;
+	
 	//Always set to 1 above the number of spites in file
-	public Texture[] Tiles = new Texture[73];
+	public Texture[] Tiles = new Texture[74];
+	public Texture[] GUI = new Texture[12];
 	public Texture[] Images = new Texture[4];
 	
 	BitmapFont font = new BitmapFont();
@@ -27,6 +31,7 @@ public class Draw {
 		
 		// Initialize the Animation with the frame interval and array of frames
 		LoadingAnimation = new Animation<TextureRegion>(0.1f, loadAnim(LoadingSheet, "cube_loading_sprite.png", 4, 1));
+		StarsAnimation = new Animation<TextureRegion>(0.1f, loadAnim(StarsSheet, "Stars.png", 3, 1));
 		
 	}
 	
@@ -64,6 +69,25 @@ public class Draw {
 				try {
 					Common.print("Loaded images /Images/0"+ Integer.toString(i) +".png");
 					Images[i] = new Texture("Images/image_0"+ Integer.toString(i) +".png");
+				}
+				catch(Exception e) {
+					//e.printStackTrace();
+				}
+			}
+        }
+		for(int i=0; i < GUI.length; ++i){
+			if (i >= 10) {
+				try {
+					Common.print("Loaded GUI images Sprites/GUI/GUI_"+ Integer.toString(i) +".png");
+					GUI[i] = new Texture("Sprites/GUI/GUI_"+ Integer.toString(i) +".png");
+				}
+				catch(Exception e) {
+					//e.printStackTrace();
+				}
+			} else {
+				try {
+					Common.print("Loaded GUI images Sprites/GUI/GUI_0"+ Integer.toString(i) +".png");
+					GUI[i] = new Texture("Sprites/GUI/GUI_0"+ Integer.toString(i) +".png");
 				}
 				catch(Exception e) {
 					//e.printStackTrace();
@@ -109,7 +133,7 @@ public class Draw {
 		// Get current frame of animation for the current stateTime
 		TextureRegion currentFrame = animation_.getKeyFrame(stateTime, true);
 		
-		buffer.draw(currentFrame, x, y, currentFrame.getRegionWidth()*SizeX, currentFrame.getRegionHeight()*SizeY);
+		buffer.draw(currentFrame, x, y, SizeX, SizeY);
 	}
 	
 	public void DrawSplash(SpriteBatch buffer, int ID, int x, int y, float x2, float y2, boolean centered) { // The x2 and y2 is Percentage of 100
@@ -131,6 +155,9 @@ public class Draw {
 		}
 		if(Type.equals("Images")) {
 			buffer.draw(Images[ID], x, y);	
+		}
+		if(Type.equals("Gui")) {
+			buffer.draw(GUI[ID], x, y);	
 		}
 	}
 	
@@ -171,7 +198,7 @@ public class Draw {
 		}
 	}
 	
-public void DrawTilesForeground(SpriteBatch buffer, int OffsetX, int OffsetY, int TileSize, int WorldSize) {
+	public void DrawTilesForeground(SpriteBatch buffer, int OffsetX, int OffsetY, int TileSize, int WorldSize) {
 		//Function is for drawing the tiles that go in front of the player layer wise
 	}
 	
@@ -202,57 +229,82 @@ public void DrawTilesForeground(SpriteBatch buffer, int OffsetX, int OffsetY, in
 	
 	//The GUI or Menu would go here.
 	public void GUIDeco(SpriteBatch buffer, int PosX, int PosY, String Text) {
-		buffer.draw(Tiles[57], PosX, PosY);
-		buffer.draw(Tiles[58], PosX + Tiles[59].getWidth(), PosY);
-		buffer.draw(Tiles[58], PosX + (Tiles[59].getWidth()*2), PosY);
-		buffer.draw(Tiles[58], PosX + (Tiles[59].getWidth()*3), PosY);
-		buffer.draw(Tiles[58], PosX + (Tiles[59].getWidth()*4), PosY);
-		buffer.draw(Tiles[59], PosX + (Tiles[59].getWidth()*5), PosY);
+		buffer.draw(GUI[00], PosX, PosY);
+		buffer.draw(GUI[01], PosX + Tiles[59].getWidth(), PosY);
+		buffer.draw(GUI[01], PosX + (Tiles[59].getWidth()*2), PosY);
+		buffer.draw(GUI[01], PosX + (Tiles[59].getWidth()*3), PosY);
+		buffer.draw(GUI[01], PosX + (Tiles[59].getWidth()*4), PosY);
+		buffer.draw(GUI[02], PosX + (Tiles[59].getWidth()*5), PosY);
 		font.draw(buffer, "testing GUI - " + Text, PosX + Tiles[59].getWidth(), PosY + (Tiles[59].getHeight()/2));
 	}
 	
 	public int[] GUIButton(SpriteBatch buffer, int PosX, int PosY, int length, boolean center, String text) {
 		if (center) {
-			PosX = PosX - ((Tiles[57].getWidth()*length)/2);
+			PosX = PosX - ((GUI[00].getWidth()*length)/2);
 		}
-		buffer.draw(Tiles[57], PosX, PosY);
+		buffer.draw(GUI[00], PosX, PosY);
 		for (int i=1; i < (length); i++) {
-			buffer.draw(Tiles[58], PosX + (Tiles[58].getWidth()*i), PosY);
+			buffer.draw(GUI[01], PosX + (GUI[01].getWidth()*i), PosY);
 		}
-		buffer.draw(Tiles[59], PosX + (Tiles[59].getWidth()*length), PosY);
-		font.draw(buffer, text, PosX+((Tiles[59].getWidth()*length)/2), PosY + (Tiles[59].getHeight()/2));
+		buffer.draw(GUI[02], PosX + (GUI[02].getWidth()*length), PosY);
+		font.draw(buffer, text, PosX+((GUI[00].getWidth()*length)/2), PosY + (GUI[00].getHeight()/2));
 		
-		int[] size = new int[] {PosX, PosY, PosX+(Tiles[59].getWidth()*length), PosY+(Tiles[59].getHeight())};
+		int[] size = new int[] {PosX, PosY, PosX+(GUI[00].getWidth()*length), PosY+(GUI[00].getHeight())};
 		return size;
 	}
 	
 	public int[] GUISlider(SpriteBatch buffer, int PosX, int PosY, int length, boolean center, float SliderValue, String label, float Value) {
 		if (center) {
-			PosX = PosX - ((Tiles[60].getWidth()*length)/2);
+			PosX = PosX - ((GUI[03].getWidth()*length)/2);
 		}
-		buffer.draw(Tiles[60], PosX, PosY);
+		buffer.draw(GUI[03], PosX, PosY);
 		for (int i=1; i < (length + 1); i++) {
-			buffer.draw(Tiles[61], PosX + (Tiles[60].getWidth()*i), PosY);
+			buffer.draw(GUI[04], PosX + (GUI[04].getWidth()*i), PosY);
 		}
-		buffer.draw(Tiles[62], PosX + (Tiles[60].getWidth()*length), PosY);
+		buffer.draw(GUI[05], PosX + (GUI[04].getWidth()*length), PosY);
 		//Draws the Dot
-		buffer.draw(Tiles[63], PosX + Math.round((((Tiles[60].getWidth()*(length)))*SliderValue)), PosY);		
+		buffer.draw(GUI[06], PosX + Math.round((((GUI[05].getWidth()*(length)))*SliderValue)), PosY);		
 		
 		font.draw(buffer, label + ": " + Value, PosX, PosY + (70));
 		
-		int[] size = new int[] {PosX, PosY - (Tiles[60].getHeight()/4), PosX+(Tiles[60].getWidth()*(length + 1)), PosY+(Tiles[60].getHeight())}; 
+		int[] size = new int[] {PosX, PosY - (GUI[05].getHeight()/4), PosX+(GUI[05].getWidth()*(length + 1)), PosY+(GUI[05].getHeight())}; 
 		return size;
 	}
 	
 	public int[] GUICheckBox(SpriteBatch buffer, int PosX, int PosY, boolean Checked) {
 		if (Checked) {
-			buffer.draw(Tiles[68], PosX, PosY);
+			buffer.draw(GUI[11], PosX, PosY);
 		}
 		else {
-			buffer.draw(Tiles[67], PosX, PosY);	
+			buffer.draw(GUI[10], PosX, PosY);	
 		}
 		
-		int[] size = new int[] {PosX, PosY, PosX+(Tiles[68].getWidth()), PosY+(Tiles[68].getHeight())};
+		int[] size = new int[] {PosX, PosY, PosX+(GUI[10].getWidth()), PosY+(GUI[10].getHeight())};
 		return size;
+	}
+	
+	public void HUDAchievement(SpriteBatch buffer, int PosX, int PosY, String text, int iconID, float Opacity, boolean Anim, float Time) {
+		buffer.draw(GUI[00], PosX, PosY);
+		buffer.draw(GUI[01], PosX + Tiles[59].getWidth(), PosY);
+		buffer.draw(GUI[02], PosX + (Tiles[59].getWidth()*2), PosY);
+		if (Anim) {
+			if (iconID == 4 || iconID == 5 || iconID == 6) {
+				DrawAnimatedTile(buffer, StarsAnimation, PosX + (Tiles[59].getWidth()*2) + (Tiles[59].getWidth()/2), PosY + (Tiles[59].getWidth()/2)-(Tiles[59].getWidth()/8), Tiles[iconID].getWidth()/4, Tiles[iconID].getWidth()/4, Time);
+			} else {
+				Common.print("Not Configured To Animate");
+			}
+		} else {
+			buffer.draw(Tiles[iconID], PosX + (Tiles[59].getWidth()*2) + (Tiles[59].getWidth()/2), PosY + (Tiles[59].getWidth()/2)-(Tiles[59].getWidth()/8), Tiles[iconID].getWidth()/4, Tiles[iconID].getHeight()/4);
+		}
+		//buffer.draw(Tiles[iconID], PosX, PosY);
+		font.draw(buffer, text, PosX + 20, PosY + (Tiles[59].getHeight()/2)+5);
+	}
+	
+	public void HUDPopup(SpriteBatch buffer, int PosX, int PosY, String text) {
+		
+	}
+
+	public void HUDDescr(SpriteBatch buffer, int PosX, int PosY, String text) {
+		font.draw(buffer, text, PosX, PosY);
 	}
 }

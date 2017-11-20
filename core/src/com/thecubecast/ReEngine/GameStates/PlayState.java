@@ -48,8 +48,7 @@ public class PlayState extends GameState {
 		
 		guiBatch = new SpriteBatch();
 		
-		player = new Player();
-		player.setLocation(10, 75);
+		player = new Player(10, 75);
         
         camera = new OrthographicCamera();
         camera.setToOrtho(false,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());

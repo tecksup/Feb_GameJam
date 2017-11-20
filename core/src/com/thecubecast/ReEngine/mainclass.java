@@ -36,7 +36,7 @@ public class mainclass extends ApplicationAdapter implements InputProcessor{
 	@Override
 	public void create () { // INIT FUNCTION
 		
-		Cursor customCursor = Gdx.graphics.newCursor(new Pixmap(Gdx.files.internal("cursor.png")), 0, 0);
+		Cursor customCursor = Gdx.graphics.newCursor(new Pixmap(Gdx.files.internal("cursor0.png")), 0, 0);
 		Gdx.graphics.setCursor(customCursor);
 		
 		stateTime = 0f;

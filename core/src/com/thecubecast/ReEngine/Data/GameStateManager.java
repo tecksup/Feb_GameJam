@@ -14,7 +14,9 @@ import com.thecubecast.ReEngine.GameStates.MainMenuState;
 import com.thecubecast.ReEngine.GameStates.PlayState;
 import com.thecubecast.ReEngine.GameStates.TestState;
 import com.thecubecast.ReEngine.Graphics.Draw;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.thecubecast.ReEngine.Data.Common;
@@ -27,6 +29,8 @@ public class GameStateManager {
 	
 	public String ChosenSave;
 	
+	public float CurrentTime;
+	
 	//Public render function object
 	public Draw Render;
 	
@@ -38,6 +42,8 @@ public class GameStateManager {
 	public int MouseY;
 	public int[] MouseDrag;
 	public int[] MouseClick;
+	public int OldCursor = 0;
+	public int Cursor = 0;
 	
 	//screen
 	public int Width;
@@ -117,6 +123,11 @@ public class GameStateManager {
 	}
 	
 	public void update(int MousX, int MousY, int[] Draging, int[] MousCl) {
+		if (Cursor != OldCursor) {
+			OldCursor = Cursor;
+			com.badlogic.gdx.graphics.Cursor customCursor = Gdx.graphics.newCursor(new Pixmap(Gdx.files.internal("cursor" + Cursor + ".png")), 0, 0);
+    		Gdx.graphics.setCursor(customCursor);
+		}
 		MouseX = MousX;
 		MouseY = MousY;
 		MouseDrag = Draging;
@@ -131,6 +142,7 @@ public class GameStateManager {
 	public void draw(SpriteBatch bbg, int W, int H, float Time) {
 		Width = W;
 		Height = H;
+		CurrentTime = Time;
 		if(gameStates[currentState] != null) {
 			gameStates[currentState].draw(bbg, H, W, Time);
 		}

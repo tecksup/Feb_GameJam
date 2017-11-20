@@ -2,9 +2,14 @@
 
 package com.thecubecast.ReEngine.GameStates;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.AtlasTmxMapLoader;
@@ -16,11 +21,14 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.thecubecast.ReEngine.Data.Achievement;
 import com.thecubecast.ReEngine.Data.Common;
 import com.thecubecast.ReEngine.Data.GameStateManager;
 import com.thecubecast.ReEngine.Data.Player;
 
 public class TestState extends GameState {
+	
+	int tile = 0;
 	
 	Player player;
 	int Cash = 0;
@@ -34,6 +42,9 @@ public class TestState extends GameState {
 
     SpriteBatch guiBatch;
     
+    //HUD Elements
+    List<Achievement> Achievements = new ArrayList<Achievement>();
+    
     OrthographicCamera camera;
     
     TiledMap tiledMap;
@@ -44,12 +55,17 @@ public class TestState extends GameState {
 		super(gsm);
 	}
 	
+	public void AddAchievement(String text, int IconID, float Time, float Durration, boolean Anim) {
+		Achievement temp = new Achievement(text, IconID, Time,  Durration, Anim);
+		Achievements.add(Achievements.size(), temp);
+		Common.print("Added Achievement: " + text);
+	}
+	
 	public void init() {
 		
 		guiBatch = new SpriteBatch();
 		
-		player = new Player();
-		player.setLocation(10, 75);
+		player = new Player(11, 75);
         
         camera = new OrthographicCamera();
         camera.setToOrtho(false,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
@@ -75,6 +91,12 @@ public class TestState extends GameState {
 	    FollowCam(camera);
 	    
 		camera.update();
+		
+		for(int l=0; l< Achievements.size(); l++){
+		   if (Achievements.get(l).getTime() >= Achievements.get(l).getDuration()) {
+			   Achievements.remove(l);
+		   }
+	   }
 	}
 	
 	public void draw(SpriteBatch g, int width, int height, float Time) {
@@ -85,11 +107,42 @@ public class TestState extends GameState {
 		
 		gsm.Render.Player(g, Common.roundDown((player.getLocation()[0]*80)), Common.roundDown((player.getLocation()[1]*80)), player.getDirection());
 
+		//gsm.Render.DrawAny(g, tile, "Tiles", Common.roundDown((player.getLocation()[0]+1*80)),  Common.roundDown((player.getLocation()[1]*80)));
+		//gsm.Render.GUIDrawText(g, Common.roundDown((player.getLocation()[0]+1*80)),  Common.roundDown((player.getLocation()[1]*80)-40), "" + tile);
+		
 		g.end();
 
 		//Overlay Layer
 		guiBatch.begin();
 	    gsm.Render.GUIDeco(guiBatch, 0, height-80, gsm.ChosenSave + " - " + Cash + "$");
+	    if (Achievements.size() != 0) {
+			for(int l=0; l< Achievements.size(); l++){
+				Achievements.get(l).setTime(Time);
+				gsm.Render.HUDAchievement(guiBatch, width-260, (70 * l), Achievements.get(l).getText(), Achievements.get(l).getIconID(), Achievements.get(l).getOpacity(), Achievements.get(l).getAnim(), Time);
+			}
+	    	
+	    }
+
+	    if (Gdx.input.isKeyPressed(Keys.CONTROL_LEFT)) { //KeyHit
+	    	int TileID;
+	    	
+	    	gsm.Cursor = 2;
+	   
+	    	Vector3 pos = new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0);
+			camera.unproject(pos);
+			
+	    	if (groundLay.getCell(Common.roundDown(pos.x)/80, Common.roundDown(pos.y)/80).getTile() != null) {
+	    		TileID = groundLay.getCell(Common.roundDown(pos.x)/80, Common.roundDown(pos.y)/80).getTile().getId();
+	    		camera.project(pos);
+	    		gsm.Render.HUDDescr(guiBatch, Common.roundDown(pos.x)+15, Common.roundDown(pos.y)-15, "" + TileID);
+	    	} else {
+	    		camera.project(pos);
+		    	gsm.Render.HUDDescr(guiBatch,  Common.roundDown(pos.x), Common.roundDown(pos.y), "" );	
+	    	}
+		} else {
+			gsm.Cursor = 0;
+		}
+	    
 	    guiBatch.end();
 	}
 	
@@ -101,7 +154,7 @@ public class TestState extends GameState {
 	
 	public void FollowCam(OrthographicCamera cam) {
 		int mapBoundX = groundLay.getWidth()*80;
-		int mapBoundY = (groundLay.getHeight()-18)*80;
+		int mapBoundY = (groundLay.getHeight()-17)*80;
 		
 		float PosibleX = position.x + ((player.getLocation()[0]*80)+40 - position.x) * lerp * deltaTime;
 		if (PosibleX - (Gdx.graphics.getWidth()/2) >= 0 && PosibleX - (Gdx.graphics.getWidth()/2) <= mapBoundX) {
@@ -110,7 +163,9 @@ public class TestState extends GameState {
 		
 		float PosibleY = position.y + ((player.getLocation()[1]*80)+40 - position.y) * lerp * deltaTime;
 		if (PosibleY - (Gdx.graphics.getHeight()/2) >= 0 && PosibleY - (Gdx.graphics.getHeight()/2) <= mapBoundY) {
-			position.y += ((player.getLocation()[1]*80)+40 - position.y) * lerp * deltaTime;
+			position.y += (((player.getLocation()[1])*80)+40 - position.y) * lerp * deltaTime;
+		} else if (PosibleY - (Gdx.graphics.getHeight()/2) >= mapBoundY) {
+			position.y += (((player.getLocation()[1]+2)*80)+40 - position.y) * lerp * deltaTime;
 		}
 		
 		//position.x += ((player.getLocation()[0]*80)+40 - position.x) * lerp * deltaTime;		
@@ -121,7 +176,7 @@ public class TestState extends GameState {
 	}
 	
 	public void handleInput() {
-
+		
 		if(Gdx.input.isTouched()) {
 			camera.translate(-Gdx.input.getDeltaX(), Gdx.input.getDeltaY());
 			camera.update();
@@ -136,12 +191,16 @@ public class TestState extends GameState {
 			
 			if (position.y - (Gdx.graphics.getHeight()/2) + 16 >= 0 && position.y - (Gdx.graphics.getHeight()/2) <= mapBoundY) {
 				camera.translate(0,16);
+			} else if (position.y - (Gdx.graphics.getHeight()/2) >= mapBoundY) {
+				camera.translate(0,4);
 			}
 		}
 		if (Gdx.input.isKeyPressed(Keys.DOWN)) { //KeyHit
 			int mapBoundY = (groundLay.getHeight()-18)*80;
 			
 			if (position.y - (Gdx.graphics.getHeight()/2) - 16 >= 0 && position.y - (Gdx.graphics.getHeight()/2) <= mapBoundY) {
+				camera.translate(0,-16);
+			} else if (position.y - (Gdx.graphics.getHeight()/2) >= mapBoundY) {
 				camera.translate(0,-16);
 			}
 		}
@@ -195,30 +254,42 @@ public class TestState extends GameState {
 			}
 			
 			if (Gdx.input.isKeyJustPressed(Keys.F)) { //KeyHit
-				Common.print("You pressed f");
-				Common.print("\t " + isFacing());
-				if(isFacing() == 21) {
-					Common.print("Activated Silver!");
+				Common.print("Player is facing " + isFacing());
+				if(isFacing() == 74) {
+					AddAchievement("Activated Crate!", 73, gsm.CurrentTime, 1.5f, false);
 				}
+				if(isFacing() == 72 || isFacing() == 73) {
+					AddAchievement("Activated Teleporter!", 6, gsm.CurrentTime, 5f, true);
+				}
+			}
+			
+			if (Gdx.input.isKeyJustPressed(Keys.NUM_9)) { //KeyHit
+			//	tile++;
+				AddAchievement("Fake Achievement", 1, gsm.CurrentTime, 1f, false);
+			}
+			if (Gdx.input.isKeyJustPressed(Keys.NUM_8)) { //KeyHit
+			//	tile--;
 			}
 			
 			//Checks if the tile the player is on matches an ID
 			if (isOn() == 21) {
-				Common.print("Hey you just got Silver!");
+				AddAchievement("Hey you just got Silver!", 20, gsm.CurrentTime, 1.5f, false);
 				Cash = Cash + 25;
 			}
 			if (isOn() == 22) {
-				Common.print("Hey you just got Copper!");
+				AddAchievement("Hey you just got Copper!", 21, gsm.CurrentTime, 1.5f, false);
 				Cash = Cash + 10;
 			}
 			if (isOn() == 23) {
-				Common.print("Hey you just got Coal!");
+				AddAchievement("Hey you just got Coal!", 22, gsm.CurrentTime, 1.5f, false);
 				Cash = Cash + 5;
 			}
 			if (isOn() != 400) {
 				//Common.print("Hey you just got a " + groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId());
 			}
-			groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).setTile(tiledMap.getTileSets().getTile(400));
+			if (player.getLocation()[1] < player.MaxY) {
+				groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).setTile(tiledMap.getTileSets().getTile(400));	
+			}
 		}
 	}
 	
