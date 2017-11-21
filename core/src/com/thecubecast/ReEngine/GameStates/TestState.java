@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -28,12 +29,14 @@ import com.thecubecast.ReEngine.Data.Player;
 
 public class TestState extends GameState {
 	
+	Music Audio;
+	
 	int tile = 0;
 	
 	Player player;
 	int Cash = 0;
 	
-	boolean Moving = false;
+	float[] Moving = new float[] {0, 0, 0};
 	
 	float lerp = 0.005f;
 	Vector3 position;
@@ -63,6 +66,12 @@ public class TestState extends GameState {
 	
 	public void init() {
 		
+		Audio = Gdx.audio.newMusic(Gdx.files.internal("Music/wind.wav"));
+
+		Audio.play();
+		Audio.setVolume(gsm.MusicVolume * gsm.MasterVolume);
+		Audio.setLooping(true);
+		
 		guiBatch = new SpriteBatch();
 		
 		player = new Player(11, 75);
@@ -88,7 +97,20 @@ public class TestState extends GameState {
 	    deltaTime = (int) ((time - last_time) / 1000000);
 	    last_time = time;
 	    
-	    FollowCam(camera);
+	    if (Moving[0] == 1) {
+	    	float Distance = ((gsm.CurrentTime - Moving[1]) / Moving[2]) * 80;
+	    	if (player.getDirection().equals("up")) {
+	    		FollowCam(camera, Math.round((player.getLocation()[0]*80)+40), Math.round((player.getLocation()[1]*80)+40 + Distance));
+			} else if (player.getDirection().equals("down")) {
+				FollowCam(camera, Math.round((player.getLocation()[0]*80)+40), Math.round((player.getLocation()[1]*80)+40 - Distance));
+			} else if (player.getDirection().equals("left")) {
+				FollowCam(camera, Math.round((player.getLocation()[0]*80)+40 - Distance), Math.round(player.getLocation()[1]*80)+40);
+			} else if (player.getDirection().equals("right")) {
+				FollowCam(camera, Math.round((player.getLocation()[0]*80)+40 + Distance), Math.round(player.getLocation()[1]*80)+40);
+			}
+	    } else {
+	    	FollowCam(camera, Math.round((player.getLocation()[0]*80)+40), Math.round((player.getLocation()[1]*80)+40));	
+	    }
 	    
 		camera.update();
 		
@@ -105,8 +127,43 @@ public class TestState extends GameState {
 		g.begin();
 		g.setProjectionMatrix(camera.combined);
 		
-		gsm.Render.Player(g, Common.roundDown((player.getLocation()[0]*80)), Common.roundDown((player.getLocation()[1]*80)), player.getDirection());
-
+		
+		if (Moving[0] == 1) {
+			if (gsm.CurrentTime - Moving[1] <= Moving[2]) {
+				float Distance = ((gsm.CurrentTime - Moving[1]) / Moving[2]) * 80;
+				
+				if (player.getDirection().equals("up")) {
+					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80) + Distance), player.getDirection());
+				} else if (player.getDirection().equals("down")) {
+					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80) - Distance), player.getDirection());
+				} else if (player.getDirection().equals("left")) {
+					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80) - Distance), Math.round((player.getLocation()[1]*80)), player.getDirection());
+				} else if (player.getDirection().equals("right")) {
+					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80) + Distance), Math.round((player.getLocation()[1]*80)), player.getDirection());
+				}
+			} else {
+				Common.print("Player Location: " + (player.getLocation()[1]*80));
+				if (player.getDirection().equals("up")) {
+					player.setLocation(player.getLocation()[0], player.getLocation()[1] + 1);
+					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80)), player.getDirection());
+				} else if (player.getDirection().equals("down")) {
+					player.setLocation(player.getLocation()[0], player.getLocation()[1] - 1);
+					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80)), player.getDirection());
+				} else if (player.getDirection().equals("left")) {
+					player.setLocation(player.getLocation()[0] - 1, player.getLocation()[1]);
+					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80)), player.getDirection());
+				} else if (player.getDirection().equals("right")) {
+					player.setLocation(player.getLocation()[0] + 1, player.getLocation()[1]);
+					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80)), player.getDirection());
+				}
+				Moving[0] = 0;
+				Moving[1] = 0;
+				Moving[2] = 0;
+			}
+		} else {
+			gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80)), player.getDirection());
+		}
+		
 		//gsm.Render.DrawAny(g, tile, "Tiles", Common.roundDown((player.getLocation()[0]+1*80)),  Common.roundDown((player.getLocation()[1]*80)));
 		//gsm.Render.GUIDrawText(g, Common.roundDown((player.getLocation()[0]+1*80)),  Common.roundDown((player.getLocation()[1]*80)-40), "" + tile);
 		
@@ -134,10 +191,11 @@ public class TestState extends GameState {
 	    	if (groundLay.getCell(Common.roundDown(pos.x)/80, Common.roundDown(pos.y)/80).getTile() != null) {
 	    		TileID = groundLay.getCell(Common.roundDown(pos.x)/80, Common.roundDown(pos.y)/80).getTile().getId();
 	    		camera.project(pos);
-	    		gsm.Render.HUDDescr(guiBatch, Common.roundDown(pos.x)+15, Common.roundDown(pos.y)-15, "" + TileID);
+	    		gsm.Render.HUDDescr(guiBatch, Common.roundDown(pos.x)+15, Common.roundDown(pos.y)-15, "X: " + Common.roundDown(pos.x/80) + " Y: "+ Common.roundDown(pos.y/80));
+	    		gsm.Render.HUDDescr(guiBatch, Common.roundDown(pos.x)+15, Common.roundDown(pos.y)-30, "" + TileID);
 	    	} else {
+	    		gsm.Render.HUDDescr(guiBatch, Common.roundDown(pos.x)+15, Common.roundDown(pos.y)-15, "X: " + Common.roundDown(pos.x/80) + " Y: "+ Common.roundDown(pos.y/80));
 	    		camera.project(pos);
-		    	gsm.Render.HUDDescr(guiBatch,  Common.roundDown(pos.x), Common.roundDown(pos.y), "" );	
 	    	}
 		} else {
 			gsm.Cursor = 0;
@@ -152,20 +210,20 @@ public class TestState extends GameState {
         tiledMapRenderer.render();
 	}
 	
-	public void FollowCam(OrthographicCamera cam) {
+	public void FollowCam(OrthographicCamera cam, int playerx, int playery) {
 		int mapBoundX = groundLay.getWidth()*80;
 		int mapBoundY = (groundLay.getHeight()-17)*80;
 		
-		float PosibleX = position.x + ((player.getLocation()[0]*80)+40 - position.x) * lerp * deltaTime;
+		float PosibleX = position.x + (playerx - position.x) * lerp * deltaTime;
 		if (PosibleX - (Gdx.graphics.getWidth()/2) >= 0 && PosibleX - (Gdx.graphics.getWidth()/2) <= mapBoundX) {
-			position.x += ((player.getLocation()[0]*80)+40 - position.x) * lerp * deltaTime;
+			position.x += (playerx - position.x) * lerp * deltaTime;
 		}
 		
-		float PosibleY = position.y + ((player.getLocation()[1]*80)+40 - position.y) * lerp * deltaTime;
+		float PosibleY = position.y + (playery - position.y) * lerp * deltaTime;
 		if (PosibleY - (Gdx.graphics.getHeight()/2) >= 0 && PosibleY - (Gdx.graphics.getHeight()/2) <= mapBoundY) {
-			position.y += (((player.getLocation()[1])*80)+40 - position.y) * lerp * deltaTime;
+			position.y += (playery - position.y) * lerp * deltaTime;
 		} else if (PosibleY - (Gdx.graphics.getHeight()/2) >= mapBoundY) {
-			position.y += (((player.getLocation()[1]+2)*80)+40 - position.y) * lerp * deltaTime;
+			position.y += (playery+160 - position.y) * lerp * deltaTime;
 		}
 		
 		//position.x += ((player.getLocation()[0]*80)+40 - position.x) * lerp * deltaTime;		
@@ -219,37 +277,37 @@ public class TestState extends GameState {
 			}
 		}
 		
-		if (!Moving) {
-			if (Gdx.input.isKeyJustPressed(Keys.W)) { //KeyHit
+		if (Moving[0] == 0) {
+			if (Gdx.input.isKeyPressed(Keys.W)) { //KeyHit
 				if (!player.getDirection().equals("up")) {
 					player.setDirection("up");
 				} else {
 					player.setDirection("up");
-					player.setLocation(player.getLocation()[0], player.getLocation()[1] + 1);
+					Move();
 				}
 			}
-			if (Gdx.input.isKeyJustPressed(Keys.S)) { //KeyHit
+			if (Gdx.input.isKeyPressed(Keys.S)) { //KeyHit
 				if (!player.getDirection().equals("down")) {
 					player.setDirection("down");
 				} else {
 					player.setDirection("down");
-					player.setLocation(player.getLocation()[0], player.getLocation()[1] - 1);
+					Move();
 				}
 			}
-			if (Gdx.input.isKeyJustPressed(Keys.A)) { //KeyHit
+			if (Gdx.input.isKeyPressed(Keys.A)) { //KeyHit
 				if (!player.getDirection().equals("left")) {
 					player.setDirection("left");
 				} else {
 					player.setDirection("left");
-					player.setLocation(player.getLocation()[0] -1, player.getLocation()[1]);
+					Move();
 				}
 			}
-			if (Gdx.input.isKeyJustPressed(Keys.D)) { //KeyHit
+			if (Gdx.input.isKeyPressed(Keys.D)) { //KeyHit
 				if (!player.getDirection().equals("right")) {
 					player.setDirection("right");
 				} else {
 					player.setDirection("right");
-					player.setLocation(player.getLocation()[0] + 1, player.getLocation()[1]);
+					Move();
 				}
 			}
 			
@@ -276,11 +334,11 @@ public class TestState extends GameState {
 				AddAchievement("Hey you just got Silver!", 20, gsm.CurrentTime, 1.5f, false);
 				Cash = Cash + 25;
 			}
-			if (isOn() == 22) {
+			if (isOn() == 22 || isOn() == 12) {
 				AddAchievement("Hey you just got Copper!", 21, gsm.CurrentTime, 1.5f, false);
 				Cash = Cash + 10;
 			}
-			if (isOn() == 23) {
+			if (isOn() == 23 || isOn() == 11) {
 				AddAchievement("Hey you just got Coal!", 22, gsm.CurrentTime, 1.5f, false);
 				Cash = Cash + 5;
 			}
@@ -303,6 +361,15 @@ public class TestState extends GameState {
 	}
 	
 	public int isFacing() {
+		
+		if (player.getLocation()[0]-1 < 0 || player.getLocation()[0]-1 > 100) {
+			return -1;
+		}
+		
+		if (player.getLocation()[1]-1 < 0 || player.getLocation()[1]-1 > 100) {
+			return -1;
+		}
+		
 		if (player.getDirection().equals("up")) {
 			return (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])+1).getTile().getId());
 		}
@@ -321,6 +388,31 @@ public class TestState extends GameState {
 		
 	}
 		
+	public void Move() {
+		Moving[0] = 1;
+		Moving[1] = gsm.CurrentTime;
+		
+		if (isFacing() == -1) {
+			Moving[0] = 0;
+			Moving[1] = 0;
+			Moving[2] = 0;
+		}
+		
+		if (isFacing() == 9) {
+			Moving[2] = 0.6f;
+		} else if (isFacing() == 10) {
+			Moving[2] = 0.4f;
+		} else if (isFacing() == 21) {
+			Moving[2] = 0.6f;
+		} else if (isFacing() == 22 || isFacing() == 12) {
+			Moving[2] = 0.6f;
+		} else if (isFacing() == 23|| isFacing() == 11) {
+			Moving[2] = 0.6f;
+		} else {
+			Moving[2] = 0.2f;
+		}
+	}
+	
 	public void reSize(SpriteBatch g, int H, int W) {
 		float posX = camera.position.x;
 		float posY = camera.position.y;

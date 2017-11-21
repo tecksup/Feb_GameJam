@@ -23,6 +23,11 @@ import com.thecubecast.ReEngine.Data.Common;
 
 public class GameStateManager {
 	
+	//Audio
+	public float MasterVolume = 1.0f;
+	public float MusicVolume = 0.4f;
+	public float SoundVolume = 0.8f;
+	
 	public GameState[] gameStates;
 	public int currentState;
 	private int previousState;
