@@ -304,7 +304,7 @@ public class Draw {
 	public void MoneyFeedback(SpriteBatch buffer, int PosX, int PosY, String text, float DeltaTime) {
 		font.setColor(Color.YELLOW);
 		//font.setColor(0, 1, 1, 0.1f);
-		font.draw(buffer, text, PosX + 20, PosY + 20 + (DeltaTime/1.5f));
+		font.draw(buffer, text, PosX + 20, PosY + 20 + (DeltaTime/2f));
 		font.setColor(Color.WHITE);
 	}
 	
