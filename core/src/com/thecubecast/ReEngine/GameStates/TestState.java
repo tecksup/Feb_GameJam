@@ -26,6 +26,7 @@ import com.thecubecast.ReEngine.Data.Achievement;
 import com.thecubecast.ReEngine.Data.Common;
 import com.thecubecast.ReEngine.Data.GameStateManager;
 import com.thecubecast.ReEngine.Data.Player;
+import com.thecubecast.ReEngine.Data.KeysDown;
 
 public class TestState extends GameState {
 	
@@ -46,7 +47,12 @@ public class TestState extends GameState {
     SpriteBatch guiBatch;
     
     //HUD Elements
+    boolean menuOpen = false;
     List<Achievement> Achievements = new ArrayList<Achievement>();
+    List<Achievement> MoneyFeedback = new ArrayList<Achievement>();
+    
+    //Controls
+    List<KeysDown> KeysDw = new ArrayList<KeysDown>();
     
     OrthographicCamera camera;
     
@@ -64,6 +70,12 @@ public class TestState extends GameState {
 		Common.print("Added Achievement: " + text);
 	}
 	
+	public void AddMoneyFeedback(String text, float Time, float Durration) {
+		Achievement temp = new Achievement(text, 0, Time,  Durration, false);
+		MoneyFeedback.add(MoneyFeedback.size(), temp);
+		Common.print("Added MoneyFeedback: " + text);
+	}
+	
 	public void init() {
 		
 		Audio = Gdx.audio.newMusic(Gdx.files.internal("Music/wind.wav"));
@@ -74,7 +86,7 @@ public class TestState extends GameState {
 		
 		guiBatch = new SpriteBatch();
 		
-		player = new Player(11, 75);
+		player = new Player(30, 88);
         
         camera = new OrthographicCamera();
         camera.setToOrtho(false,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
@@ -118,7 +130,13 @@ public class TestState extends GameState {
 		   if (Achievements.get(l).getTime() >= Achievements.get(l).getDuration()) {
 			   Achievements.remove(l);
 		   }
-	   }
+		}
+
+		for(int l=0; l< MoneyFeedback.size(); l++){
+		   if (MoneyFeedback.get(l).getTime() >= MoneyFeedback.get(l).getDuration()) {
+			   MoneyFeedback.remove(l);
+		   }
+		}		
 	}
 	
 	public void draw(SpriteBatch g, int width, int height, float Time) {
@@ -142,7 +160,7 @@ public class TestState extends GameState {
 					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80) + Distance), Math.round((player.getLocation()[1]*80)), player.getDirection());
 				}
 			} else {
-				Common.print("Player Location: " + (player.getLocation()[1]*80));
+				//Common.print("Player Location: " + (player.getLocation()[1]*80));
 				if (player.getDirection().equals("up")) {
 					player.setLocation(player.getLocation()[0], player.getLocation()[1] + 1);
 					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80)), player.getDirection());
@@ -155,10 +173,41 @@ public class TestState extends GameState {
 				} else if (player.getDirection().equals("right")) {
 					player.setLocation(player.getLocation()[0] + 1, player.getLocation()[1]);
 					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80)), player.getDirection());
+				} 
+				
+				//Mines the tile before it moves on
+				MineTiles();
+				
+				if (Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.D)) {
+					if (player.getDirection().equals("up") && Gdx.input.isKeyPressed(Keys.W)) {
+						Move();
+					} else if (player.getDirection().equals("down") && Gdx.input.isKeyPressed(Keys.S)) {
+						Move();
+					} else if (player.getDirection().equals("left") && Gdx.input.isKeyPressed(Keys.A)) {
+						Move();
+					} else if (player.getDirection().equals("right") && Gdx.input.isKeyPressed(Keys.D)) {
+						Move();
+					} else {
+						if (Gdx.input.isKeyPressed(Keys.W)) { //KeyHit
+							player.setDirection("up");
+						}
+						if (Gdx.input.isKeyPressed(Keys.S)) { //KeyHit
+							player.setDirection("down");
+						}
+						if (Gdx.input.isKeyPressed(Keys.A)) { //KeyHit
+							player.setDirection("left");
+						}
+						if (Gdx.input.isKeyPressed(Keys.D)) { //KeyHit
+							player.setDirection("right");
+						}
+						Move();
+					}
+					
+				} else {
+					Moving[0] = 0;
+					Moving[1] = 0;
+					Moving[2] = 0;
 				}
-				Moving[0] = 0;
-				Moving[1] = 0;
-				Moving[2] = 0;
 			}
 		} else {
 			gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80)), player.getDirection());
@@ -179,7 +228,19 @@ public class TestState extends GameState {
 			}
 	    	
 	    }
-
+	    
+	    if (MoneyFeedback.size() != 0) {
+			for(int l=0; l< MoneyFeedback.size(); l++){
+				MoneyFeedback.get(l).setTime(Time);
+				gsm.Render.MoneyFeedback(guiBatch, width/2 + 40, height/2 + 40 + (30 * l), MoneyFeedback.get(l).getText(), MoneyFeedback.get(l).getDuration()/MoneyFeedback.get(l).getTime());
+			}
+	    	
+	    }
+	    
+	    if (menuOpen) {
+	    	
+	    }
+	    
 	    if (Gdx.input.isKeyPressed(Keys.CONTROL_LEFT)) { //KeyHit
 	    	int TileID;
 	    	
@@ -244,6 +305,10 @@ public class TestState extends GameState {
 			}
 		}
 		
+		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) { //KeyHit
+			menuOpen = !menuOpen;
+		}
+		
 		if (Gdx.input.isKeyPressed(Keys.UP)) { //KeyHit
 			int mapBoundY = (groundLay.getHeight()-18)*80;
 			
@@ -303,11 +368,19 @@ public class TestState extends GameState {
 				}
 			}
 			if (Gdx.input.isKeyPressed(Keys.D)) { //KeyHit
-				if (!player.getDirection().equals("right")) {
-					player.setDirection("right");
+				if (KeysDw.isEmpty()) {
+					KeysDown temp = new KeysDown(Keys.D, gsm.CurrentTime);
+					KeysDw.add(KeysDw.size(), temp);
 				} else {
-					player.setDirection("right");
-					Move();
+					if (KeysDw.get(KeysDw.size()-1).GetKeyTime(gsm.CurrentTime) >= 0.05f) {
+						if (!player.getDirection().equals("right")) {
+							player.setDirection("right");
+						} else {
+							player.setDirection("right");
+							Move();
+						}	
+						KeysDw.remove(KeysDw.get(KeysDw.size()-1));
+					}
 				}
 			}
 			
@@ -318,6 +391,7 @@ public class TestState extends GameState {
 				}
 				if(isFacing() == 72 || isFacing() == 73) {
 					AddAchievement("Activated Teleporter!", 6, gsm.CurrentTime, 5f, true);
+					player.setLocation(20, 20);
 				}
 			}
 			
@@ -328,26 +402,7 @@ public class TestState extends GameState {
 			if (Gdx.input.isKeyJustPressed(Keys.NUM_8)) { //KeyHit
 			//	tile--;
 			}
-			
-			//Checks if the tile the player is on matches an ID
-			if (isOn() == 21) {
-				AddAchievement("Hey you just got Silver!", 20, gsm.CurrentTime, 1.5f, false);
-				Cash = Cash + 25;
-			}
-			if (isOn() == 22 || isOn() == 12) {
-				AddAchievement("Hey you just got Copper!", 21, gsm.CurrentTime, 1.5f, false);
-				Cash = Cash + 10;
-			}
-			if (isOn() == 23 || isOn() == 11) {
-				AddAchievement("Hey you just got Coal!", 22, gsm.CurrentTime, 1.5f, false);
-				Cash = Cash + 5;
-			}
-			if (isOn() != 400) {
-				//Common.print("Hey you just got a " + groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId());
-			}
-			if (player.getLocation()[1] < player.MaxY) {
-				groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).setTile(tiledMap.getTileSets().getTile(400));	
-			}
+			MineTiles();
 		}
 	}
 	
@@ -413,6 +468,31 @@ public class TestState extends GameState {
 		}
 	}
 	
+	public void MineTiles() {
+		//Checks if the tile the player is on matches an ID
+		if (isOn() == 21) {
+			AddMoneyFeedback("+25", gsm.CurrentTime, 2.5f);
+			//AddAchievement("Hey you just got Silver!", 20, gsm.CurrentTime, 1.5f, false);
+			Cash = Cash + 25;
+		}
+		if (isOn() == 22 || isOn() == 12) {
+			AddMoneyFeedback("+10", gsm.CurrentTime, 2.5f);
+			//AddAchievement("Hey you just got Copper!", 21, gsm.CurrentTime, 1.5f, false);
+			Cash = Cash + 10;
+		}
+		if (isOn() == 23 || isOn() == 11) {
+			AddMoneyFeedback("+5", gsm.CurrentTime, 2.5f);
+			//AddAchievement("Hey you just got Coal!", 22, gsm.CurrentTime, 1.5f, false);
+			Cash = Cash + 5;
+		}
+		if (isOn() != 400) {
+			//Common.print("Hey you just got a " + groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId());
+		}
+		if (player.getLocation()[1] < player.MaxY) {
+			groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).setTile(tiledMap.getTileSets().getTile(400));	
+		}
+	}
+	
 	public void reSize(SpriteBatch g, int H, int W) {
 		float posX = camera.position.x;
 		float posY = camera.position.y;
@@ -423,5 +503,9 @@ public class TestState extends GameState {
 		Matrix4 matrix = new Matrix4();
 		matrix.setToOrtho2D(0, 0, W, H);
 		guiBatch.setProjectionMatrix(matrix);
+	}
+	
+	public void IsKeyPressed(Keys Keys) {
+		
 	}
 }

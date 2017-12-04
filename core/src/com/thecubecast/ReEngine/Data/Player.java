@@ -5,7 +5,7 @@ public class Player {
 	public final int MaxY = 88;
 	
 	float[] location = new float[] {0,0};
-	String direction = "up";
+	String direction = "right";
 	
 	public Player (int x, int y) {
 		location[0] = x;

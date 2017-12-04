@@ -2,6 +2,9 @@
 
 package com.thecubecast.ReEngine.GameStates;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -10,8 +13,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.Input.Keys;
+import com.thecubecast.ReEngine.Data.Achievement;
 import com.thecubecast.ReEngine.Data.Common;
 import com.thecubecast.ReEngine.Data.GameStateManager;
+import com.thecubecast.ReEngine.Graphics.MenuState;
 
 
 public class MainMenuState extends GameState {
@@ -26,13 +31,7 @@ public class MainMenuState extends GameState {
 	private int OldState;
 	private int currentState;
 	
-	public static final int Main = 0;
-	public static final int Single = 1;
-	public static final int Options = 2;
-	public static final int GAMEOVER = 3;
-	public static final int OPTIONS = 4;
-	public static final int TEST = 5;
-	
+	List<MenuState> Main = new ArrayList<MenuState>();
 	
 	//The buttons only run functions and contain drawing object, the Value variables hold and change data
 	//The buttons state 0     MAIN MENU

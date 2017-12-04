@@ -1,6 +1,7 @@
 package com.thecubecast.ReEngine.Graphics;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -298,6 +299,13 @@ public class Draw {
 		}
 		//buffer.draw(Tiles[iconID], PosX, PosY);
 		font.draw(buffer, text, PosX + 20, PosY + (Tiles[59].getHeight()/2)+5);
+	}
+	
+	public void MoneyFeedback(SpriteBatch buffer, int PosX, int PosY, String text, float DeltaTime) {
+		font.setColor(Color.YELLOW);
+		//font.setColor(0, 1, 1, 0.1f);
+		font.draw(buffer, text, PosX + 20, PosY + 20 + (DeltaTime/1.5f));
+		font.setColor(Color.WHITE);
 	}
 	
 	public void HUDPopup(SpriteBatch buffer, int PosX, int PosY, String text) {
