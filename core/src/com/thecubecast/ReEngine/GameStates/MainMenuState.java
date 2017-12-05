@@ -22,10 +22,6 @@ import com.thecubecast.ReEngine.Graphics.MenuState;
 public class MainMenuState extends GameState {
 	
 	OrthographicCamera camera;
-	
-	Sound Click;
-	Music Audio;
-	long AudioId;
 
 	//The Menu states
 	private int OldState;
@@ -76,34 +72,18 @@ public class MainMenuState extends GameState {
 		
 		//Grab data from preferences file, Set Slider22Value accordingly
 		
-		Click = Gdx.audio.newSound(Gdx.files.internal("Music/click.wav"));
-		
-		Audio = Gdx.audio.newMusic(Gdx.files.internal("Music/The-8-Bit-Digger.wav"));
-
 		//Music Audio = Gdx.audio.newMusic(Gdx.files.internal("Music/The-8-Bit-Digger.wav"));
-		Audio.play();
+		gsm.Audio.playMusic("8-bit-Digger", true);
 		//Audio.setVolume(Slider22Value);
-		Audio.setVolume(gsm.MusicVolume * gsm.MasterVolume);
-		Audio.setLooping(true);
 		
 		if(checkbox25Value) {
-			Audio.pause();
+			gsm.Audio.pauseMusic("8-bit-Digger");
 		}
 		
 	}
 	
 	public void update() {
-		handleInput();
-		if (Audio.getVolume() != (gsm.MusicVolume * gsm.MasterVolume)) {
-			if(checkbox25Value) {
-				Audio.setVolume(0);
-			}
-			Audio.setVolume(gsm.MusicVolume * gsm.MasterVolume);
-		}
-		if(checkbox25Value) {
-			Audio.setVolume(0);
-		}
-		
+		handleInput();		
 	}
 	
 	public void changeState(int state) {
@@ -149,9 +129,9 @@ public class MainMenuState extends GameState {
 		}
 		
 		if (currentState == 2) { 
-			Slider21 = gsm.Render.GUISlider(bbg, (width/2), (height/20)*12, 5, true, gsm.MasterVolume, "Master Volume", gsm.MasterVolume*100);
-			Slider22 = gsm.Render.GUISlider(bbg, (width/2), (height/20)*10, 5, true, gsm.MusicVolume, "Music", gsm.MusicVolume*100);
-			Slider23 = gsm.Render.GUISlider(bbg, (width/2), (height/20)*8, 5, true, gsm.SoundVolume, "Sound Effects", gsm.SoundVolume*100);
+			Slider21 = gsm.Render.GUISlider(bbg, (width/2), (height/20)*12, 5, true, gsm.Audio.MasterVolume, "Master Volume", gsm.Audio.MasterVolume*100);
+			Slider22 = gsm.Render.GUISlider(bbg, (width/2), (height/20)*10, 5, true, gsm.Audio.MusicVolume, "Music", gsm.Audio.MusicVolume*100);
+			Slider23 = gsm.Render.GUISlider(bbg, (width/2), (height/20)*8, 5, true, gsm.Audio.SoundVolume, "Sound Effects", gsm.Audio.SoundVolume*100);
 			button24 = gsm.Render.GUIButton(bbg, width/2, (height/20)*6, 5, true, "Back");
 			checkbox25 = gsm.Render.GUICheckBox(bbg, width/2, (height/20)*4, checkbox25Value);
 			
@@ -193,25 +173,25 @@ public class MainMenuState extends GameState {
 			
 			//Button 1 of Menu State 0
 			if (GUIButtonCheck(gsm.MouseClick, button01)) { // Singleplayer
-				Click.play((gsm.SoundVolume * gsm.MasterVolume),1,0);
+				gsm.Audio.play("Click");
 				changeState(1);
 			}
 			
 			//Button 2 of Menu State 0
 			if (GUIButtonCheck(gsm.MouseClick, button02)) { // Future Multiplayer Button, Currently Blank
-				Click.play((gsm.SoundVolume * gsm.MasterVolume),1,0);
+				gsm.Audio.play("Click");
 				Common.print("Button 2 Was clicked!");
 			}
 			
 			//Button 3 of Menu State 0
 			if (GUIButtonCheck(gsm.MouseClick, button03)) { // Options
-				Click.play((gsm.SoundVolume * gsm.MasterVolume),1,0);
+				gsm.Audio.play("Click");
 				changeState(3);
 			}
 			
 			//Button 4 of Menu State 0
 			if (GUIButtonCheck(gsm.MouseClick, button04)) {  // EXIT/QUIT
-				Click.play((gsm.SoundVolume * gsm.MasterVolume),1,0);
+				gsm.Audio.play("Click");
 				Common.print("Game Quit Button Pressed in menu!");
 				Common.ProperShutdown();
 			}
@@ -222,37 +202,34 @@ public class MainMenuState extends GameState {
 			
 			//Button 1 of Menu State 1
 			if (GUIButtonCheck(gsm.MouseClick, button11)) {  //SAVE 1
-				Click.play((gsm.SoundVolume * gsm.MasterVolume),1,0);
+				gsm.Audio.play("Click");
 				//gsm.Rwr.CreateSave("Save1");
 				gsm.ChosenSave = "Save1";
-				//Audio.stop();
-				Audio.dispose();
+				gsm.Audio.stopMusic("8-bit-Digger");
 				gsm.setState(GameStateManager.PLAY);
 			}
 			
 			//Button 2 of Menu State 1
 			if (GUIButtonCheck(gsm.MouseClick, button12)) {  //SAVE 2
-				Click.play((gsm.SoundVolume * gsm.MasterVolume),1,0);
+				gsm.Audio.play("Click");
 				//gsm.Rwr.CreateSave("Save2");
 				gsm.ChosenSave = "Save2";
-				//Audio.stop();
-				Audio.dispose();
+				gsm.Audio.stopMusic("8-bit-Digger");
 				gsm.setState(GameStateManager.PLAY);
 			}
 			
 			//Button 3 of Menu State 1
 			if (GUIButtonCheck(gsm.MouseClick, button13)) {  //SAVE 3
-				Click.play((gsm.SoundVolume * gsm.MasterVolume),1,0);
+				gsm.Audio.play("Click");
 				//gsm.Rwr.CreateSave("Save3");
 				gsm.ChosenSave = "TEST";
-				//Audio.stop();
-				Audio.dispose();
+				gsm.Audio.stopMusic("8-bit-Digger");
 				gsm.setState(GameStateManager.TEST);
 			}
 			
 			//Button 4 of Menu State 1
 			if (GUIButtonCheck(gsm.MouseClick, button14)) { //BACK
-				Click.play((gsm.SoundVolume * gsm.MasterVolume),1,0);
+				gsm.Audio.play("Click");
 				Back();
 			}
 			
@@ -264,19 +241,19 @@ public class MainMenuState extends GameState {
 			if(gsm.MouseDrag[1] >= Slider21[0] && gsm.MouseDrag[1] <= Slider21[2]) { // THIS IS THE MasterVolume SLIDER
 				if(gsm.MouseDrag[2] >= Slider21[1] && gsm.MouseDrag[2] <= Slider21[3]) {
 					float SliderValuetemp = ((float)(gsm.MouseDrag[1] - Slider21[0])/(Slider21[2] - Slider21[0]));
-					gsm.MasterVolume =  SliderValuetemp;
+					gsm.Audio.MasterVolume =  SliderValuetemp;
 				}
 			}
 			if(gsm.MouseDrag[1] >= Slider22[0] && gsm.MouseDrag[1] <= Slider22[2]) { // THIS IS THE MasterVolume SLIDER
 				if(gsm.MouseDrag[2] >= Slider22[1] && gsm.MouseDrag[2] <= Slider22[3]) {
 					float SliderValuetemp = ((float)(gsm.MouseDrag[1] - Slider22[0])/(Slider22[2] - Slider22[0]));
-					gsm.MusicVolume =  SliderValuetemp;
+					gsm.Audio.MusicVolume =  SliderValuetemp;
 				}
 			}
 			if(gsm.MouseDrag[1] >= Slider23[0] && gsm.MouseDrag[1] <= Slider23[2]) { // THIS IS THE MusicVolume SLIDER
 				if(gsm.MouseDrag[2] >= Slider23[1] && gsm.MouseDrag[2] <= Slider23[3]) {
 					float SliderValuetemp = ((float)(gsm.MouseDrag[1] - Slider23[0])/(Slider23[2] - Slider23[0]));
-					gsm.SoundVolume =  SliderValuetemp;
+					gsm.Audio.SoundVolume =  SliderValuetemp;
 				}
 			}
 		}
@@ -286,19 +263,19 @@ public class MainMenuState extends GameState {
 			
 			//Button 4 of Menu State 2
 			if (GUIButtonCheck(gsm.MouseClick, button24)) {
-				Click.play((gsm.SoundVolume * gsm.MasterVolume),1,0);
+				gsm.Audio.play("Click");
 				Back();
 			}
 			
 			//Checkbox 5 of Menu State 2
 			if(GUICheckBoxCheck(gsm.MouseClick, checkbox25)) {
-				Click.play((gsm.SoundVolume * gsm.MasterVolume),1,0);
+				gsm.Audio.play("Click");
 				checkbox25Value = !checkbox25Value;
 				if (checkbox25Value) {
-					Audio.pause();
+					gsm.Audio.pauseMusic("8-bit-Digger");
 					Common.print("Audio Paused");
 				} else {
-					Audio.play();
+					gsm.Audio.playMusic("8-bit-Digger", true);
 				}
 			}
 		}
@@ -307,24 +284,24 @@ public class MainMenuState extends GameState {
 			
 			//Button 1 of Menu State 3
 			if(GUIButtonCheck(gsm.MouseClick, button31)) { //Audio Settings
-				Click.play((gsm.SoundVolume * gsm.MasterVolume),1,0);
+				gsm.Audio.play("Click");
 				changeState(2);
 			}
 			
 			//Button 2 of Menu State 3
 			if(GUIButtonCheck(gsm.MouseClick, button32)) { //Video Settings
-				Click.play((gsm.SoundVolume * gsm.MasterVolume),1,0);
+				gsm.Audio.play("Click");
 				//changeState(4);
 			}
 			
 			//Button 3 of Menu State 3
 			if(GUIButtonCheck(gsm.MouseClick, button33)) { //Blank Maybe Controls?
-				Click.play((gsm.SoundVolume * gsm.MasterVolume),1,0);
+				gsm.Audio.play("Click");
 			}
 			
 			//Button 4 of Menu State 3
 			if(GUIButtonCheck(gsm.MouseClick, button34)) { //Back
-				Click.play((gsm.SoundVolume * gsm.MasterVolume),1,0);
+				gsm.Audio.play("Click");
 				changeState(0);
 			}
 		}

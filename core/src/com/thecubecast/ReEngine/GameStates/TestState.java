@@ -30,8 +30,6 @@ import com.thecubecast.ReEngine.Data.KeysDown;
 
 public class TestState extends GameState {
 	
-	Music Audio;
-	
 	int tile = 0;
 	
 	Player player;
@@ -78,11 +76,7 @@ public class TestState extends GameState {
 	
 	public void init() {
 		
-		Audio = Gdx.audio.newMusic(Gdx.files.internal("Music/wind.wav"));
-
-		Audio.play();
-		Audio.setVolume(gsm.MusicVolume * gsm.MasterVolume);
-		Audio.setLooping(true);
+		gsm.Audio.playMusic("Wind", true);
 		
 		guiBatch = new SpriteBatch();
 		
@@ -188,17 +182,26 @@ public class TestState extends GameState {
 					} else if (player.getDirection().equals("right") && Gdx.input.isKeyPressed(Keys.D)) {
 						Move();
 					} else {
-						if (Gdx.input.isKeyPressed(Keys.W)) { //KeyHit
-							player.setDirection("up");
+						if (Gdx.input.isKeyPressed(Keys.W) && Gdx.input.isKeyPressed(Keys.S)) {
+							
+						} else {
+							if (Gdx.input.isKeyPressed(Keys.W)) { //KeyHit
+								player.setDirection("up");
+							}
+							if (Gdx.input.isKeyPressed(Keys.S)) { //KeyHit
+								player.setDirection("down");
+							}
 						}
-						if (Gdx.input.isKeyPressed(Keys.S)) { //KeyHit
-							player.setDirection("down");
-						}
-						if (Gdx.input.isKeyPressed(Keys.A)) { //KeyHit
-							player.setDirection("left");
-						}
-						if (Gdx.input.isKeyPressed(Keys.D)) { //KeyHit
-							player.setDirection("right");
+						
+						if (Gdx.input.isKeyPressed(Keys.A) && Gdx.input.isKeyPressed(Keys.D)) {
+							
+						} else {
+							if (Gdx.input.isKeyPressed(Keys.A)) { //KeyHit
+								player.setDirection("left");
+							}
+							if (Gdx.input.isKeyPressed(Keys.D)) { //KeyHit
+								player.setDirection("right");
+							}
 						}
 						Move();
 					}
@@ -343,46 +346,57 @@ public class TestState extends GameState {
 		}
 		
 		if (Moving[0] == 0) {
-			if (Gdx.input.isKeyPressed(Keys.W)) { //KeyHit
-				if (!player.getDirection().equals("up")) {
-					player.setDirection("up");
-				} else {
-					player.setDirection("up");
-					Move();
+			
+			if (Gdx.input.isKeyPressed(Keys.W) && Gdx.input.isKeyPressed(Keys.S)) {
+				
+			} else {
+				if (Gdx.input.isKeyPressed(Keys.W)) { //KeyHit
+					if (!player.getDirection().equals("up")) {
+						player.setDirection("up");
+					} else {
+						player.setDirection("up");
+						Move();
+					}
 				}
-			}
-			if (Gdx.input.isKeyPressed(Keys.S)) { //KeyHit
-				if (!player.getDirection().equals("down")) {
-					player.setDirection("down");
-				} else {
-					player.setDirection("down");
-					Move();
-				}
-			}
-			if (Gdx.input.isKeyPressed(Keys.A)) { //KeyHit
-				if (!player.getDirection().equals("left")) {
-					player.setDirection("left");
-				} else {
-					player.setDirection("left");
-					Move();
-				}
-			}
-			if (Gdx.input.isKeyPressed(Keys.D)) { //KeyHit
-				if (KeysDw.isEmpty()) {
-					KeysDown temp = new KeysDown(Keys.D, gsm.CurrentTime);
-					KeysDw.add(KeysDw.size(), temp);
-				} else {
-					if (KeysDw.get(KeysDw.size()-1).GetKeyTime(gsm.CurrentTime) >= 0.05f) {
-						if (!player.getDirection().equals("right")) {
-							player.setDirection("right");
-						} else {
-							player.setDirection("right");
-							Move();
-						}	
-						KeysDw.remove(KeysDw.get(KeysDw.size()-1));
+				if (Gdx.input.isKeyPressed(Keys.S)) { //KeyHit
+					if (!player.getDirection().equals("down")) {
+						player.setDirection("down");
+					} else {
+						player.setDirection("down");
+						Move();
 					}
 				}
 			}
+			
+			if (Gdx.input.isKeyPressed(Keys.A) && Gdx.input.isKeyPressed(Keys.D)) {
+				
+			} else {
+				if (Gdx.input.isKeyPressed(Keys.A)) { //KeyHit
+					if (!player.getDirection().equals("left")) {
+						player.setDirection("left");
+					} else {
+						player.setDirection("left");
+						Move();
+					}
+				}
+				if (Gdx.input.isKeyPressed(Keys.D)) { //KeyHit
+					if (KeysDw.isEmpty()) {
+						KeysDown temp = new KeysDown(Keys.D, gsm.CurrentTime);
+						KeysDw.add(KeysDw.size(), temp);
+					} else {
+						if (KeysDw.get(KeysDw.size()-1).GetKeyTime(gsm.CurrentTime) >= 0.05f) {
+							if (!player.getDirection().equals("right")) {
+								player.setDirection("right");
+							} else {
+								player.setDirection("right");
+								Move();
+							}	
+							KeysDw.remove(KeysDw.get(KeysDw.size()-1));
+						}
+					}
+				}
+			}
+			
 			
 			if (Gdx.input.isKeyJustPressed(Keys.F)) { //KeyHit
 				Common.print("Player is facing " + isFacing());
@@ -446,6 +460,12 @@ public class TestState extends GameState {
 	public void Move() {
 		Moving[0] = 1;
 		Moving[1] = gsm.CurrentTime;
+
+		if(player.getLocation()[1]+1 > player.MaxY && player.getDirection().equals("up")) {
+			Moving[0] = 0;
+			Moving[1] = 0;
+			Moving[2] = 0;
+		}
 		
 		if (isFacing() == -1) {
 			Moving[0] = 0;

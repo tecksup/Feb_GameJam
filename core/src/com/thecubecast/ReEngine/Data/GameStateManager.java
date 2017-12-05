@@ -10,23 +10,16 @@ import com.thecubecast.ReEngine.GameStates.LoadingState;
 import com.thecubecast.ReEngine.GameStates.GameState;
 import com.thecubecast.ReEngine.GameStates.IntroState;
 import com.thecubecast.ReEngine.GameStates.MainMenuState;
-//import com.thecubecast.ReEngine.GameStates.OptionsState;
 import com.thecubecast.ReEngine.GameStates.PlayState;
 import com.thecubecast.ReEngine.GameStates.TestState;
 import com.thecubecast.ReEngine.Graphics.Draw;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.thecubecast.ReEngine.Data.Common;
 
 public class GameStateManager {
-	
-	//Audio
-	public float MasterVolume = 1.0f;
-	public float MusicVolume = 0.4f;
-	public float SoundVolume = 0.8f;
 	
 	public GameState[] gameStates;
 	public int currentState;
@@ -41,6 +34,9 @@ public class GameStateManager {
 	
 	//Public file handler
 	public ReadWrite Rwr;
+	
+	//Public Audio handler
+	public SoundManager Audio;
 	
 	//MousePos
 	public int MouseX;
@@ -67,9 +63,11 @@ public class GameStateManager {
 		//JukeBox.init();
 
 		Render = new Draw();
+		Audio = new SoundManager();
 		Rwr = new ReadWrite();
 		
 		Rwr.init();
+		Audio.init();
 		Render.Init();
 		
 		gameStates = new GameState[NUM_STATES];
@@ -142,6 +140,8 @@ public class GameStateManager {
 			gameStates[currentState].update();
 		}
 		//MouseClick[0] = 0;
+		
+		Audio.update();
 	}
 	
 	public void draw(SpriteBatch bbg, int W, int H, float Time) {
