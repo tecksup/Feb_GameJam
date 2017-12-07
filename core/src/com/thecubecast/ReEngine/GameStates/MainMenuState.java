@@ -1,4 +1,4 @@
-// GameState that shows logo.
+// GameState that shows Main Menu.
 
 package com.thecubecast.ReEngine.GameStates;
 
@@ -6,14 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.Input.Keys;
-import com.thecubecast.ReEngine.Data.Achievement;
 import com.thecubecast.ReEngine.Data.Common;
 import com.thecubecast.ReEngine.Data.GameStateManager;
 import com.thecubecast.ReEngine.Graphics.MenuState;
@@ -21,45 +17,18 @@ import com.thecubecast.ReEngine.Graphics.MenuState;
 
 public class MainMenuState extends GameState {
 	
-	OrthographicCamera camera;
+	OrthographicCamera cameraGui;
 
 	//The Menu states
 	private int OldState;
 	private int currentState;
 	
-	List<MenuState> Main = new ArrayList<MenuState>();
-	
 	//The buttons only run functions and contain drawing object, the Value variables hold and change data
 	//The buttons state 0     MAIN MENU
-	int[] button01 = null;
-	int[] button02 = null;
-	int[] button03 = null;
-	int[] button04 = null;
-	
-	//The buttons state 1     SINGLEPLAYER MENU
-	int[] button11 = null;
-	int[] button12 = null;
-	int[] button13 = null;
-	int[] button14 = null;
-	
-	//The buttons state 2      AUDIO MENU
-	int[] Slider21 = null;
-	int[] Slider22 = null;
-	int[] Slider23 = null;
-	
-	int[] button24 = null;
-	int[] checkbox25 = null;
-	boolean checkbox25Value = true;
-	
-	//the buttons state 3      OPTIONS MENU
-	int[] button31 = null; // Opens the Audio menu
-	int[] button32 = null; // Opens the Video menu
-	int[] button33 = null; // Blank for another menu Controls?
-	int[] button34 = null; // BACK BUTTON
-	
-	//The buttons state 4      VIDEO MENU
-	int[] checkbox41 = null;
-	boolean checkbox41Value = false;
+	List<MenuState> MainMenu = new ArrayList<MenuState>();
+	List<MenuState> AudioMenu = new ArrayList<MenuState>();
+	List<MenuState> Options = new ArrayList<MenuState>();
+	List<MenuState> SinglePlayer = new ArrayList<MenuState>();
 	
 	public MainMenuState(GameStateManager gsm) {
 		super(gsm);
@@ -67,24 +36,76 @@ public class MainMenuState extends GameState {
 	
 	public void init() {
 		
-		camera = new OrthographicCamera();
-        camera.setToOrtho(false,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		MenuInit();
 		
-		//Grab data from preferences file, Set Slider22Value accordingly
+		cameraGui = new OrthographicCamera();
+		cameraGui.setToOrtho(false,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		
-		//Music Audio = Gdx.audio.newMusic(Gdx.files.internal("Music/The-8-Bit-Digger.wav"));
 		gsm.Audio.playMusic("8-bit-Digger", true);
-		//Audio.setVolume(Slider22Value);
-		
-		if(checkbox25Value) {
+
+		if(AudioMenu.get(4).GetBool()) {
 			gsm.Audio.pauseMusic("8-bit-Digger");
 		}
 		
 	}
 	
 	public void update() {
-		handleInput();		
+		handleInput();
+		
+		//if (AudioMenu.get(4).GetBool() && gsm.Audio.isPlaying("8-bit-Digger")) {
+		//	gsm.Audio.pauseMusic("8-bit-Digger");
+		//	Common.print("Audio Paused");
+		//} else if (gsm.Audio.isPlaying("8-bit-Digger") != true){
+		//	gsm.Audio.playMusic("8-bit-Digger", true);
+		//}
 	}
+	
+	public void draw(SpriteBatch bbg, int width, int height, float Time) {
+		bbg.begin();
+		bbg.setProjectionMatrix(cameraGui.combined);
+		
+		//gsm.Render.DrawBackground(bbg, width, height);
+		bbg.draw(gsm.Render.Images[03], 0, 0, width, height);
+		
+		MenuDraw(bbg, width, height, Time);
+		
+		bbg.end();
+	}
+	
+	public void handleInput() {
+		
+		Vector3 pos = new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0);
+		cameraGui.unproject(pos);
+		
+		gsm.MouseX = (int) pos.x;
+		gsm.MouseY = (int) pos.y;
+		gsm.MouseClick[1] = (int) pos.x;
+		gsm.MouseClick[2] = (int) pos.y;
+		gsm.MouseDrag[1] = (int) pos.x;
+		gsm.MouseDrag[2] = (int) pos.y;
+		
+		MenuHandle();
+		
+		if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
+			//JukeBox.stop("MenuNavigate");
+			//Click.play((SoundVolume * MasterVolume),1,0);
+			//Check what button the user is on, runs its function
+		}
+		
+		if (Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
+			//JukeBox.stop("MenuNavigate");
+			
+			//Moves the Chosen button RIGHT
+		}
+		
+	}
+	
+	public void reSize(SpriteBatch g, int H, int W) {
+		cameraGui.setToOrtho(false);
+	}
+	
+	//BELOW IS MENU CODE
+	//SHOULD BE SOMEWHAT PORTABLE
 	
 	public void changeState(int state) {
 		OldState = currentState;
@@ -97,297 +118,186 @@ public class MainMenuState extends GameState {
 		currentState = state;
 	}
 	
-	public void draw(SpriteBatch bbg, int width, int height, float Time) {
-		bbg.begin();
-		bbg.setProjectionMatrix(camera.combined);
+	public void MenuInit() {
+		//Menu 1 / Main window
+		MainMenu.add(MainMenu.size(), new MenuState("Button", "Quit")); //Button 4
+		MainMenu.add(MainMenu.size(), new MenuState("Button", "Options")); //Button 3
+		MainMenu.add(MainMenu.size(), new MenuState("Button", "")); //Button 2
+		MainMenu.add(MainMenu.size(), new MenuState("Button", "Singleplayer")); //Button 1
 		
-		//gsm.Render.DrawBackground(bbg, width, height);
-		bbg.draw(gsm.Render.Images[03], 0, 0, width, height);
+		//Menu 3 / Options
+		AudioMenu.add(AudioMenu.size(), new MenuState("Button", "Back")); //Button 1
+		AudioMenu.add(AudioMenu.size(), new MenuState("Slider", "SoundVolume"));
+		AudioMenu.add(AudioMenu.size(), new MenuState("Slider", "MusicVolume"));
+		AudioMenu.add(AudioMenu.size(), new MenuState("Slider", "MasterVolume"));
+		AudioMenu.add(AudioMenu.size(), new MenuState("CheckBox", "Muted")); //CheckBox
+			AudioMenu.get(AudioMenu.size()-1).SetBool(true);			// Set it to false
 		
+		//Menu 2 / Options
+		Options.add(Options.size(), new MenuState("Button", "Back")); //Button 1
+		Options.add(Options.size(), new MenuState("Button", "Controls")); //Button 2
+		Options.add(Options.size(), new MenuState("Button", "Graphics")); //Button 3
+		Options.add(Options.size(), new MenuState("Button", "Audio")); //Button 3
+		
+		//Menu 4 / Options
+		SinglePlayer.add(SinglePlayer.size(), new MenuState("Button", "Back")); //Button 1
+		SinglePlayer.add(SinglePlayer.size(), new MenuState("Button", "Test State")); //Button 2
+		SinglePlayer.add(SinglePlayer.size(), new MenuState("Button", "Save 2")); //Button 3
+		SinglePlayer.add(SinglePlayer.size(), new MenuState("Button", "Save 1")); //Button 3
+	}
+	
+	public void MenuDraw(SpriteBatch bbg, int width, int height, float Time) {
 		//Each if statement is another part of the menu
 		if (currentState == 0) { 
-			button01 = gsm.Render.GUIButton(bbg, width/2, (height/20)*12, 5, true, "Singleplayer");
-			button02 = gsm.Render.GUIButton(bbg, width/2, (height/20)*10, 5, true, "");
-			button03 = gsm.Render.GUIButton(bbg, width/2, (height/20)*8, 5, true, "Options");
-			button04 = gsm.Render.GUIButton(bbg, width/2, (height/20)*6, 5, true, "Quit");
-			
-			
-			NullDrawingGUI(1);//The buttons state 1
-			NullDrawingGUI(2);//The buttons state 2
-			NullDrawingGUI(3);//The buttons state 3
-		} 		
+			gsm.Render.drawGuiMenus(MainMenu, bbg, height, width, gsm);
+		}
 		if (currentState == 1) { 
-			button11 = gsm.Render.GUIButton(bbg, width/2, (height/20)*12, 5, true, "Save 1");
-			button12 = gsm.Render.GUIButton(bbg, width/2, (height/20)*10, 5, true, "Save 2");
-			button13 = gsm.Render.GUIButton(bbg, width/2, (height/20)*8, 5, true, "Test State");
-			button14 = gsm.Render.GUIButton(bbg, width/2, (height/20)*6, 5, true, "Back");
-			
-			
-			NullDrawingGUI(0);//The buttons state 0
-			NullDrawingGUI(2);//The buttons state 2
-			NullDrawingGUI(3);//The buttons state 3
+			gsm.Render.drawGuiMenus(Options, bbg, height, width, gsm);
 		}
-		
 		if (currentState == 2) { 
-			Slider21 = gsm.Render.GUISlider(bbg, (width/2), (height/20)*12, 5, true, gsm.Audio.MasterVolume, "Master Volume", gsm.Audio.MasterVolume*100);
-			Slider22 = gsm.Render.GUISlider(bbg, (width/2), (height/20)*10, 5, true, gsm.Audio.MusicVolume, "Music", gsm.Audio.MusicVolume*100);
-			Slider23 = gsm.Render.GUISlider(bbg, (width/2), (height/20)*8, 5, true, gsm.Audio.SoundVolume, "Sound Effects", gsm.Audio.SoundVolume*100);
-			button24 = gsm.Render.GUIButton(bbg, width/2, (height/20)*6, 5, true, "Back");
-			checkbox25 = gsm.Render.GUICheckBox(bbg, width/2, (height/20)*4, checkbox25Value);
-			
-			NullDrawingGUI(0);//The buttons state 0
-			NullDrawingGUI(1);//The buttons state 1
-			NullDrawingGUI(3);//The buttons state 3
+			gsm.Render.drawGuiMenus(AudioMenu, bbg, height, width, gsm);
 		}
-		
 		if (currentState == 3) { 
-			button31 = gsm.Render.GUIButton(bbg, width/2, (height/20)*12, 5, true, "Audio Settings");
-			button32 = gsm.Render.GUIButton(bbg, width/2, (height/20)*10, 5, true, "Video Settings");
-			button33 = gsm.Render.GUIButton(bbg, width/2, (height/20)*8, 5, true, "Controls");
-			button34 = gsm.Render.GUIButton(bbg, width/2, (height/20)*6, 5, true, "Back");
-			
-			NullDrawingGUI(0);//The buttons state 0
-			NullDrawingGUI(1);//The buttons state 1
-			NullDrawingGUI(2);//The buttons state 2
+			gsm.Render.drawGuiMenus(SinglePlayer, bbg, height, width, gsm);
 		}
-		
-		
-		//gsm.Render.DrawAny(bbg, 72, "Tiles", gsm.MouseX, gsm.MouseY);
-		
-		bbg.end();
 	}
-	
-	public void handleInput() {
-		
-		Vector3 pos = new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0);
-		camera.unproject(pos);
-		
-		gsm.MouseX = (int) pos.x;
-		gsm.MouseY = (int) pos.y;
-		gsm.MouseClick[1] = (int) pos.x;
-		gsm.MouseClick[2] = (int) pos.y;
-		gsm.MouseDrag[1] = (int) pos.x;
-		gsm.MouseDrag[2] = (int) pos.y;
-		
-		if(gsm.MouseClick[0] == 1 && currentState == 0 && button01 != null) { //Runs all the button checks
-			
-			//Button 1 of Menu State 0
-			if (GUIButtonCheck(gsm.MouseClick, button01)) { // Singleplayer
-				gsm.Audio.play("Click");
-				changeState(1);
-			}
-			
-			//Button 2 of Menu State 0
-			if (GUIButtonCheck(gsm.MouseClick, button02)) { // Future Multiplayer Button, Currently Blank
-				gsm.Audio.play("Click");
-				Common.print("Button 2 Was clicked!");
-			}
-			
-			//Button 3 of Menu State 0
-			if (GUIButtonCheck(gsm.MouseClick, button03)) { // Options
-				gsm.Audio.play("Click");
-				changeState(3);
-			}
-			
-			//Button 4 of Menu State 0
-			if (GUIButtonCheck(gsm.MouseClick, button04)) {  // EXIT/QUIT
-				gsm.Audio.play("Click");
-				Common.print("Game Quit Button Pressed in menu!");
-				Common.ProperShutdown();
-			}
-		}
-		
-		
-		if(gsm.MouseClick[0] == 1 && currentState == 1 && button11 != null) { //Runs all the button checks in the SinglePlayer Menu
-			
-			//Button 1 of Menu State 1
-			if (GUIButtonCheck(gsm.MouseClick, button11)) {  //SAVE 1
-				gsm.Audio.play("Click");
-				//gsm.Rwr.CreateSave("Save1");
-				gsm.ChosenSave = "Save1";
-				gsm.Audio.stopMusic("8-bit-Digger");
-				gsm.setState(GameStateManager.PLAY);
-			}
-			
-			//Button 2 of Menu State 1
-			if (GUIButtonCheck(gsm.MouseClick, button12)) {  //SAVE 2
-				gsm.Audio.play("Click");
-				//gsm.Rwr.CreateSave("Save2");
-				gsm.ChosenSave = "Save2";
-				gsm.Audio.stopMusic("8-bit-Digger");
-				gsm.setState(GameStateManager.PLAY);
-			}
-			
-			//Button 3 of Menu State 1
-			if (GUIButtonCheck(gsm.MouseClick, button13)) {  //SAVE 3
-				gsm.Audio.play("Click");
-				//gsm.Rwr.CreateSave("Save3");
-				gsm.ChosenSave = "TEST";
-				gsm.Audio.stopMusic("8-bit-Digger");
-				gsm.setState(GameStateManager.TEST);
-			}
-			
-			//Button 4 of Menu State 1
-			if (GUIButtonCheck(gsm.MouseClick, button14)) { //BACK
-				gsm.Audio.play("Click");
-				Back();
-			}
-			
-			
-		}
-		
-		
-		if(gsm.MouseDrag[0] == 1 && currentState == 2 && Slider21 != null) { //Runs all the button checks
-			if(gsm.MouseDrag[1] >= Slider21[0] && gsm.MouseDrag[1] <= Slider21[2]) { // THIS IS THE MasterVolume SLIDER
-				if(gsm.MouseDrag[2] >= Slider21[1] && gsm.MouseDrag[2] <= Slider21[3]) {
-					float SliderValuetemp = ((float)(gsm.MouseDrag[1] - Slider21[0])/(Slider21[2] - Slider21[0]));
-					gsm.Audio.MasterVolume =  SliderValuetemp;
-				}
-			}
-			if(gsm.MouseDrag[1] >= Slider22[0] && gsm.MouseDrag[1] <= Slider22[2]) { // THIS IS THE MasterVolume SLIDER
-				if(gsm.MouseDrag[2] >= Slider22[1] && gsm.MouseDrag[2] <= Slider22[3]) {
-					float SliderValuetemp = ((float)(gsm.MouseDrag[1] - Slider22[0])/(Slider22[2] - Slider22[0]));
-					gsm.Audio.MusicVolume =  SliderValuetemp;
-				}
-			}
-			if(gsm.MouseDrag[1] >= Slider23[0] && gsm.MouseDrag[1] <= Slider23[2]) { // THIS IS THE MusicVolume SLIDER
-				if(gsm.MouseDrag[2] >= Slider23[1] && gsm.MouseDrag[2] <= Slider23[3]) {
-					float SliderValuetemp = ((float)(gsm.MouseDrag[1] - Slider23[0])/(Slider23[2] - Slider23[0]));
-					gsm.Audio.SoundVolume =  SliderValuetemp;
-				}
-			}
-		}
-		if(gsm.MouseClick[0] == 1 && currentState == 2 && button24 != null) { //Runs all the button checks
 
-			//The slider21 and slider22 and slider23 code was moved up into a function that allows the dragging
+	public void MenuHandle() {
+		if(currentState == 0) { //Runs all the button checks
 			
-			//Button 4 of Menu State 2
-			if (GUIButtonCheck(gsm.MouseClick, button24)) {
-				gsm.Audio.play("Click");
-				Back();
+			for (int i = 0; i < MainMenu.size(); i++) {
+				if (gsm.MouseDrag[0] == 1) {
+					Common.print("draggin");
+					if (MainMenu.get(i).getType().equals("Slider") && gsm.Render.GuiSliderCheck(gsm.MouseDrag, MainMenu.get(i).getData())) {
+					}
+					
+				}
+				if (gsm.MouseClick[0] == 1) {
+					if (MainMenu.get(i).getType().equals("Button") && gsm.Render.GUIButtonCheck(gsm.MouseClick, MainMenu.get(i).getData())) {
+						gsm.Audio.play("Click");
+						if (MainMenu.get(i).getString().equals("Singleplayer")) {
+							changeState(3);
+						}
+						if (MainMenu.get(i).getString().equals("")) {
+							
+						}
+						if (MainMenu.get(i).getString().equals("Options")) {
+							changeState(1);
+						}
+						if (MainMenu.get(i).getString().equals("Quit")) {
+							Common.print("Game Quit Button Pressed in Main Menu!");
+							Common.ProperShutdown();
+						}
+						
+					}
+					if (MainMenu.get(i).getType().equals("CheckBox") && gsm.Render.GUICheckBoxCheck(gsm.MouseClick, MainMenu.get(i).getData())) {
+						gsm.Audio.play("Click");
+						MainMenu.get(i).SetBool(!MainMenu.get(i).GetBool());
+					}
+				}
 			}
+		
+		} else if(currentState == 1) { //Runs all the button checks in the SinglePlayer Menu
 			
-			//Checkbox 5 of Menu State 2
-			if(GUICheckBoxCheck(gsm.MouseClick, checkbox25)) {
-				gsm.Audio.play("Click");
-				checkbox25Value = !checkbox25Value;
-				if (checkbox25Value) {
-					gsm.Audio.pauseMusic("8-bit-Digger");
-					Common.print("Audio Paused");
-				} else {
-					gsm.Audio.playMusic("8-bit-Digger", true);
+			for (int i = 0; i < Options.size(); i++) {
+				if (gsm.MouseDrag[0] == 1) {
+					if (Options.get(i).getType().equals("Slider") && gsm.Render.GuiSliderCheck(gsm.MouseDrag, Options.get(i).getData())) {
+					}
+				}
+				if (gsm.MouseClick[0] == 1) {
+					if (Options.get(i).getType().equals("Button") && gsm.Render.GUIButtonCheck(gsm.MouseClick, Options.get(i).getData())) {
+						gsm.Audio.play("Click");
+						if (Options.get(i).getString().equals("Audio")) {
+							changeState(2);
+						}
+						if (Options.get(i).getString().equals("Graphics")) {
+							
+						}
+						if (Options.get(i).getString().equals("Controls")) {
+							
+						}
+						if (Options.get(i).getString().equals("Back")) {
+							changeState(0);
+						}
+						
+					}
+					if (Options.get(i).getType().equals("CheckBox")  && gsm.Render.GUICheckBoxCheck(gsm.MouseClick, Options.get(i).getData())) {
+						gsm.Audio.play("Click");
+						Options.get(i).SetBool(!Options.get(i).GetBool());
+					}
+				}
+			}
+		} else if(currentState == 2) { //Runs all the button checks in the Audio Menu
+			
+			for (int i = 0; i < AudioMenu.size(); i++) {
+				if (gsm.MouseDrag[0] == 1) {
+					if (AudioMenu.get(i).getType().equals("Slider") && gsm.Render.GuiSliderCheck(gsm.MouseDrag, AudioMenu.get(i).getData())) {
+
+						//Check if the slider is MasterVolume
+						if (AudioMenu.get(i).getString().equals("MasterVolume")) {
+							gsm.Audio.MasterVolume = gsm.Render.GuiSliderReading(gsm.MouseDrag, AudioMenu.get(i).getData());
+						}
+						if (AudioMenu.get(i).getString().equals("MusicVolume")) {
+							gsm.Audio.MusicVolume = gsm.Render.GuiSliderReading(gsm.MouseDrag, AudioMenu.get(i).getData());
+						}
+						if (AudioMenu.get(i).getString().equals("SoundVolume")) {
+							gsm.Audio.SoundVolume = gsm.Render.GuiSliderReading(gsm.MouseDrag, AudioMenu.get(i).getData());
+						}
+					}
+				}
+				if (gsm.MouseClick[0] == 1) {
+					if (AudioMenu.get(i).getType().equals("Button") && gsm.Render.GUIButtonCheck(gsm.MouseClick, AudioMenu.get(i).getData())) {
+						gsm.Audio.play("Click");
+						if (AudioMenu.get(i).getString().equals("Back")) {
+							Back();
+						}
+						
+					}
+					if (AudioMenu.get(i).getType().equals("CheckBox")  && gsm.Render.GUICheckBoxCheck(gsm.MouseClick, AudioMenu.get(i).getData())) {
+						gsm.Audio.play("Click");
+						AudioMenu.get(i).SetBool(!AudioMenu.get(i).GetBool());
+					}
+				}
+			}
+		} else if(currentState == 3) { //Runs all the button checks in the Audio Menu
+			
+			for (int i = 0; i < SinglePlayer.size(); i++) {
+				if (gsm.MouseDrag[0] == 1) {
+					if (SinglePlayer.get(i).getType().equals("Slider") && gsm.Render.GuiSliderCheck(gsm.MouseDrag, SinglePlayer.get(i).getData())) {
+					}
+				}
+				if (gsm.MouseClick[0] == 1) {
+					if (SinglePlayer.get(i).getType().equals("Button") && gsm.Render.GUIButtonCheck(gsm.MouseClick, SinglePlayer.get(i).getData())) {
+						gsm.Audio.play("Click");
+						if (SinglePlayer.get(i).getString().equals("Save 1")) {
+							gsm.ChosenSave = "Save1";
+							gsm.Audio.stopMusic("8-bit-Digger");
+							gsm.setState(GameStateManager.PLAY);
+						}
+						if (SinglePlayer.get(i).getString().equals("Save 2")) {
+							gsm.ChosenSave = "Save2";
+							gsm.Audio.stopMusic("8-bit-Digger");
+							gsm.setState(GameStateManager.PLAY);
+						}
+						if (SinglePlayer.get(i).getString().equals("Test State")) {
+							gsm.ChosenSave = "TEST";
+							gsm.Audio.stopMusic("8-bit-Digger");
+							gsm.setState(GameStateManager.TEST);
+						}
+						if (SinglePlayer.get(i).getString().equals("Back")) {
+							Back();
+						}
+						
+					}
+					if (SinglePlayer.get(i).getType().equals("CheckBox")  && gsm.Render.GUICheckBoxCheck(gsm.MouseClick, SinglePlayer.get(i).getData())) {
+						gsm.Audio.play("Click");
+						SinglePlayer.get(i).SetBool(!SinglePlayer.get(i).GetBool());
+					}
 				}
 			}
 		}
-		
-		if(gsm.MouseClick[0] == 1 && currentState == 3 && button31 != null) { //Runs all the button checks
-			
-			//Button 1 of Menu State 3
-			if(GUIButtonCheck(gsm.MouseClick, button31)) { //Audio Settings
-				gsm.Audio.play("Click");
-				changeState(2);
-			}
-			
-			//Button 2 of Menu State 3
-			if(GUIButtonCheck(gsm.MouseClick, button32)) { //Video Settings
-				gsm.Audio.play("Click");
-				//changeState(4);
-			}
-			
-			//Button 3 of Menu State 3
-			if(GUIButtonCheck(gsm.MouseClick, button33)) { //Blank Maybe Controls?
-				gsm.Audio.play("Click");
-			}
-			
-			//Button 4 of Menu State 3
-			if(GUIButtonCheck(gsm.MouseClick, button34)) { //Back
-				gsm.Audio.play("Click");
-				changeState(0);
-			}
-		}
-		
-		if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
-			//JukeBox.stop("MenuNavigate");
-			//Click.play((SoundVolume * MasterVolume),1,0);
-			//Check what button the user is on, runs its function
-		}
-		
-		if (Gdx.input.isKeyJustPressed(Keys.NUM_0)) {
-			//JukeBox.stop("MenuNavigate");
-			currentState = 0;
-			//Moves the Chosen button UP
-		}
-		if (Gdx.input.isKeyJustPressed(Keys.NUM_1)) {
-			//JukeBox.stop("MenuNavigate");
-			currentState = 1;
-			//Moves the Chosen button DOWN
-		}
-		if (Gdx.input.isKeyJustPressed(Keys.NUM_2)) {
-			//JukeBox.stop("MenuNavigate");
-
-			currentState = 2;
-			
-			//Moves the Chosen button LEFT
-		}
-		if (Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
-			//JukeBox.stop("MenuNavigate");
-			
-			//Moves the Chosen button RIGHT
-		}
-		
 	}
 	
-	public void NullDrawingGUI(int State) {
-		if(State == 0) {
-			button01 = null;
-			button02 = null;
-			button03 = null;
-			button04 = null;
-		}
-		if(State == 1) {
-			button11 = null;
-			button12 = null;
-			button13 = null;
-			button14 = null;
-		}
-		if(State == 2) {
-			Slider21 = null;
-			Slider22 = null;
-			Slider23 = null;
-			button24 = null;
-			checkbox25 = null;
-		}
-		if(State == 3) {
-			button31 = null;
-			button32 = null;
-			button33 = null;
-			button34 = null;
-		}
-		if(State == 4) {
-			checkbox41 = null;
-		}
-	}
-	
-	public boolean GUIButtonCheck(int[] mouse, int[] button) {
-		if(mouse[1] >= button[0] && mouse[1] <= button[2]) {
-			if(mouse[2] >= button[1] && mouse[2] <= button[3]) { //Audio Settings
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public boolean GUICheckBoxCheck(int[] mouse, int[] checkbox) {
-		if(mouse[1] >= checkbox[0] && mouse[1] <= checkbox[2]) { // THE CHECK BOX
-			if(mouse[2] >= checkbox[1] && mouse[2] <= checkbox[3]) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public void reSize(SpriteBatch g, int H, int W) {
-		camera.setToOrtho(false);
-	}
+	//Ends the Gui Shit
 	
 }

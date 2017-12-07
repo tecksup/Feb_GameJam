@@ -7,10 +7,13 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.thecubecast.ReEngine.Data.Common;
+import com.thecubecast.ReEngine.Data.GameStateManager;
 
 import java.awt.*;
 import java.io.File;
+import java.util.List;
 
 public class Draw {
 	
@@ -199,10 +202,6 @@ public class Draw {
 		}
 	}
 	
-	public void DrawTilesForeground(SpriteBatch buffer, int OffsetX, int OffsetY, int TileSize, int WorldSize) {
-		//Function is for drawing the tiles that go in front of the player layer wise
-	}
-	
 	//This will handle the animations as well
 	public void Player(SpriteBatch buffer, int PosX, int PosY, String direction) {
 		if (direction.equals("up")) { //UP
@@ -307,12 +306,71 @@ public class Draw {
 		font.draw(buffer, text, PosX + 20, PosY + 20 + (DeltaTime/2f));
 		font.setColor(Color.WHITE);
 	}
-	
-	public void HUDPopup(SpriteBatch buffer, int PosX, int PosY, String text) {
-		
-	}
 
 	public void HUDDescr(SpriteBatch buffer, int PosX, int PosY, String text) {
 		font.draw(buffer, text, PosX, PosY);
 	}
+	
+	public void MenuBackground(SpriteBatch buffer, int PosX, int PosY, int Pos2X, int Pos2Y) {
+		Color col = buffer.getColor();
+		buffer.setColor(new Color(0, 0, 0, 0.55f));
+		buffer.draw(Tiles[07], 0, 0, PosX, PosY);
+		buffer.setColor(col);
+	}
+	
+	public void drawGuiMenus(List<MenuState> State, SpriteBatch bbg, int height, int width, GameStateManager gsm) {
+		for (int i = 0; i < State.size(); i++) {
+			if (State.get(i).getType().equals("Slider")) {
+				if (State.get(i).getString().equals("MasterVolume")) {
+					State.get(i).draw(GUISlider(bbg, (width/2), (height/20)*(i*2)+(height/4), 5, true, gsm.Audio.MasterVolume, State.get(i).getString(), gsm.Audio.MasterVolume*100));	
+				}
+				if (State.get(i).getString().equals("SoundVolume")) {
+					State.get(i).draw(GUISlider(bbg, (width/2), (height/20)*(i*2)+(height/4), 5, true, gsm.Audio.SoundVolume, State.get(i).getString(), gsm.Audio.SoundVolume*100));	
+				}
+				if (State.get(i).getString().equals("MusicVolume")) {
+					State.get(i).draw(GUISlider(bbg, (width/2), (height/20)*(i*2)+(height/4), 5, true, gsm.Audio.MusicVolume, State.get(i).getString(), gsm.Audio.MusicVolume*100));	
+				}
+			}
+			if (State.get(i).getType().equals("Button")) {
+				State.get(i).draw(GUIButton(bbg, width/2, (height/20)*(i*2)+(height/4), 5, true, State.get(i).getString()));
+			}
+			if (State.get(i).getType().equals("CheckBox")) {
+				State.get(i).draw(GUICheckBox(bbg, width/2, (height/20)*(i*2)+(height/4), State.get(i).GetBool()));
+			}
+		}	
+	}
+	
+	//Draw Calculation Methods
+	public boolean GUIButtonCheck(int[] mouse, int[] button) {
+		if(mouse[1] >= button[0] && mouse[1] <= button[2]) {
+			if(mouse[2] >= button[1] && mouse[2] <= button[3]) { //Audio Settings
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean GUICheckBoxCheck(int[] mouse, int[] checkbox) {
+		if(mouse[1] >= checkbox[0] && mouse[1] <= checkbox[2]) { // THE CHECK BOX
+			if(mouse[2] >= checkbox[1] && mouse[2] <= checkbox[3]) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean GuiSliderCheck(int[] mouseDrag, int[] Slider) {
+		if(mouseDrag[1] >= Slider[0] && mouseDrag[1] <= Slider[2]) { // THIS IS THE MasterVolume SLIDER
+			if(mouseDrag[2] >= Slider[1] && mouseDrag[2] <= Slider[3]) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public float GuiSliderReading(int[] mouseDrag, int[] Slider) {
+		float SliderValuetemp = ((float)(mouseDrag[1] - Slider[0])/(Slider[2] - Slider[0]));
+		return SliderValuetemp;
+	}
+	
 }

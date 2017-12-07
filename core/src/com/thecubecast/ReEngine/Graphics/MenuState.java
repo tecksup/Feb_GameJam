@@ -1,86 +1,44 @@
 package com.thecubecast.ReEngine.Graphics;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MenuState {
 	
-	String MenuName;
+	String Type;
+	String Title;
 	
-	public MenuState (String Name) {
-		MenuName = Name;
+	//If its a checkbox
+	boolean checked;
+	
+	//if its a Slider
+	
+	
+	int[] Data;
+	
+	public MenuState (String type, String title) {
+		Title = title;
+		Type = type;
 	}
 	
-	public void Init() {
-		if (MenuName.equals("Main")) {
-			
-		} else if (MenuName.equals("Single")) {
-			
-		} else if (MenuName.equals("Options")) {
-			
-		} else if (MenuName.equals("Audio")) {
-			
-		} else if (MenuName.equals("Video")) {
-			
-		} else if (MenuName.equals("Controls")) {
-			
-		} else if (MenuName.equals("Multi")) {
-			
-		}	
+	public void SetBool(boolean check) {
+		checked = check;
 	}
 	
-	public void update() {
-		if (MenuName.equals("Main")) {
-			
-		} else if (MenuName.equals("Single")) {
-			
-		} else if (MenuName.equals("Options")) {
-			
-		} else if (MenuName.equals("Audio")) {
-			
-		} else if (MenuName.equals("Video")) {
-			
-		} else if (MenuName.equals("Controls")) {
-			
-		} else if (MenuName.equals("Multi")) {
-			
-		}
-		
+	public boolean GetBool() {
+		return checked;
 	}
 	
-	public void draw() {
-		if (MenuName.equals("Main")) {
-			
-		} else if (MenuName.equals("Single")) {
-			
-		} else if (MenuName.equals("Options")) {
-			
-		} else if (MenuName.equals("Audio")) {
-			
-		} else if (MenuName.equals("Video")) {
-			
-		} else if (MenuName.equals("Controls")) {
-			
-		} else if (MenuName.equals("Multi")) {
-			
-		}
+	public String getType() {
+		return Type;
 	}
 	
-	public void HandleInput() {
-		if (MenuName.equals("Main")) {
-			
-		} else if (MenuName.equals("Single")) {
-			
-		} else if (MenuName.equals("Options")) {
-			
-		} else if (MenuName.equals("Audio")) {
-			
-		} else if (MenuName.equals("Video")) {
-			
-		} else if (MenuName.equals("Controls")) {
-			
-		} else if (MenuName.equals("Multi")) {
-			
-		}
+	public String getString() {
+		return Title;
+	}
+	
+	public void draw(int[] drawed) {
+		Data = drawed;
+	}
+	
+	public int[] getData() {
+		return Data;
 	}
 }

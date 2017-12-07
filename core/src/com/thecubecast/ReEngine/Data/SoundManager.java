@@ -80,6 +80,24 @@ public class SoundManager {
 		}
 	}
 	
+	public boolean isPlaying(String Music) {
+		if(Music.equals("8-bit-Digger")) {
+			if(eightbitDiggerAudio.isPlaying()) {
+				return true;
+			} else {
+				return false;
+			}
+		} else if(Music.equals("Wind")) {
+			if(WindAudio.isPlaying()) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+	
 	public void pauseMusic (String Music) {
 		if(Music.equals("8-bit-Digger")) {
 			eightbitDiggerAudio.pause();

@@ -89,7 +89,6 @@ public class mainclass extends ApplicationAdapter implements InputProcessor{
 		if (Gdx.input.isKeyJustPressed(Keys.GRAVE)) { //KeyHit
 			Common.ProperShutdown();
 		}
-		
 	}
 	
 	public void Update() {
