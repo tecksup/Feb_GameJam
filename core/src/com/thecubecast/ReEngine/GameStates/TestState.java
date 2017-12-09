@@ -34,11 +34,8 @@ public class TestState extends GameState {
 	List<MenuState> MainMenu = new ArrayList<MenuState>();
 	List<MenuState> AudioMenu = new ArrayList<MenuState>();
 	List<MenuState> Options = new ArrayList<MenuState>();
-	
-	int tile = 0;
-	
+
 	Player player;
-	int Cash = 0;
 	
 	float[] Moving = new float[] {0, 0, 0};
 	
@@ -75,6 +72,7 @@ public class TestState extends GameState {
 	
 	public void AddMoneyFeedback(String text, float Time, float Durration) {
 		Achievement temp = new Achievement(text, 0, Time,  Durration, false);
+		gsm.Audio.play("CashGet");
 		MoneyFeedback.add(MoneyFeedback.size(), temp);
 		Common.print("Added MoneyFeedback: " + text);
 	}
@@ -145,8 +143,6 @@ public class TestState extends GameState {
 		
 		g.begin();
 		g.setProjectionMatrix(camera.combined);
-		
-		
 		if (Moving[0] == 1) {
 			if (gsm.CurrentTime - Moving[1] <= Moving[2]) {
 				float Distance = ((gsm.CurrentTime - Moving[1]) / Moving[2]) * 80;
@@ -231,7 +227,20 @@ public class TestState extends GameState {
 		//Overlay Layer
 		guiBatch.begin();
 		guiBatch.setProjectionMatrix(cameraGui.combined);
-	    gsm.Render.GUIDeco(guiBatch, 0, height-80, gsm.ChosenSave + " - " + Cash + "$");
+		
+	    gsm.Render.GUIDeco(guiBatch, 0, height-80, gsm.ChosenSave + " - " + player.Cash + "$");
+	    gsm.Render.GUIDeco(guiBatch, 0+400, 0, "Gas:" + player.Gas);
+	    //gsm.Render.HUDNotification(guiBatch, width/2, height-100, 300 ,"Hey does this really wrap itself it would be so cool if it did so now i have to write a realllllllly long string to fill it up and make it wrap", gsm.ticks);
+	    
+	    gsm.Render.HUDFuel(guiBatch, 0, 0, player.Gas, false);
+	    if (player.Gas < ((player.MaxGas+45)/8)) {
+	    	gsm.Render.warningText(guiBatch, width/2, height - 40, "Warning Fuel Very Low!" , gsm.ticks);
+
+	    } else if (player.Gas < ((player.MaxGas+45)/4)) {
+	    	gsm.Render.warningText(guiBatch, width/2, height - 40, "Fuel Warning!" , gsm.ticks);
+
+	    }
+	 
 	    if (Achievements.size() != 0) {
 			for(int l=0; l< Achievements.size(); l++){
 				Achievements.get(l).setTime(Time);
@@ -284,7 +293,7 @@ public class TestState extends GameState {
 	
 	public void FollowCam(OrthographicCamera cam, int playerx, int playery) {
 		int mapBoundX = groundLay.getWidth()*80;
-		int mapBoundY = (groundLay.getHeight()-17)*80;
+		int mapBoundY = (groundLay.getHeight()-18)*80;
 		
 		float PosibleX = position.x + (playerx - position.x) * lerp * deltaTime;
 		if (PosibleX - (Gdx.graphics.getWidth()/2) >= 0 && PosibleX - (Gdx.graphics.getWidth()/2) <= mapBoundX) {
@@ -373,19 +382,35 @@ public class TestState extends GameState {
 				
 			} else {
 				if (Gdx.input.isKeyPressed(Keys.W)) { //KeyHit
-					if (!player.getDirection().equals("up")) {
-						player.setDirection("up");
+					if (KeysDw.isEmpty()) {
+						KeysDown temp = new KeysDown(Keys.W, gsm.CurrentTime);
+						KeysDw.add(KeysDw.size(), temp);
 					} else {
-						player.setDirection("up");
-						Move();
+						if (KeysDw.get(KeysDw.size()-1).GetKeyTime(gsm.CurrentTime) >= 0.05f) {
+							if (!player.getDirection().equals("up")) {
+								player.setDirection("up");
+							} else {
+								player.setDirection("up");
+								Move();
+							}	
+							KeysDw.remove(KeysDw.get(KeysDw.size()-1));
+						}
 					}
 				}
 				if (Gdx.input.isKeyPressed(Keys.S)) { //KeyHit
-					if (!player.getDirection().equals("down")) {
-						player.setDirection("down");
+					if (KeysDw.isEmpty()) {
+						KeysDown temp = new KeysDown(Keys.S, gsm.CurrentTime);
+						KeysDw.add(KeysDw.size(), temp);
 					} else {
-						player.setDirection("down");
-						Move();
+						if (KeysDw.get(KeysDw.size()-1).GetKeyTime(gsm.CurrentTime) >= 0.05f) {
+							if (!player.getDirection().equals("down")) {
+								player.setDirection("down");
+							} else {
+								player.setDirection("down");
+								Move();
+							}	
+							KeysDw.remove(KeysDw.get(KeysDw.size()-1));
+						}
 					}
 				}
 			}
@@ -394,11 +419,19 @@ public class TestState extends GameState {
 				
 			} else {
 				if (Gdx.input.isKeyPressed(Keys.A)) { //KeyHit
-					if (!player.getDirection().equals("left")) {
-						player.setDirection("left");
+					if (KeysDw.isEmpty()) {
+						KeysDown temp = new KeysDown(Keys.A, gsm.CurrentTime);
+						KeysDw.add(KeysDw.size(), temp);
 					} else {
-						player.setDirection("left");
-						Move();
+						if (KeysDw.get(KeysDw.size()-1).GetKeyTime(gsm.CurrentTime) >= 0.05f) {
+							if (!player.getDirection().equals("left")) {
+								player.setDirection("left");
+							} else {
+								player.setDirection("left");
+								Move();
+							}	
+							KeysDw.remove(KeysDw.get(KeysDw.size()-1));
+						}
 					}
 				}
 				if (Gdx.input.isKeyPressed(Keys.D)) { //KeyHit
@@ -423,7 +456,8 @@ public class TestState extends GameState {
 			if (Gdx.input.isKeyJustPressed(Keys.F)) { //KeyHit
 				Common.print("Player is facing " + isFacing());
 				if(isFacing() == 74) {
-					AddAchievement("Activated Crate!", 73, gsm.CurrentTime, 1.5f, false);
+					//AddAchievement("Activated Crate!", 73, gsm.CurrentTime, 1.5f, false);
+					AddMoneyFeedback("" + player.topUp(), gsm.CurrentTime, 2.5f);
 				}
 				if(isFacing() == 72 || isFacing() == 73) {
 					AddAchievement("Activated Teleporter!", 6, gsm.CurrentTime, 5f, true);
@@ -480,6 +514,9 @@ public class TestState extends GameState {
 	}
 		
 	public void Move() {
+		
+		boolean Ore = false;
+		
 		Moving[0] = 1;
 		Moving[1] = gsm.CurrentTime;
 
@@ -496,17 +533,39 @@ public class TestState extends GameState {
 		}
 		
 		if (isFacing() == 9) {
-			Moving[2] = 0.6f;
+			Moving[2] = 0.7f;
+		} else if (isFacing() == 1 || isFacing() == 2) {
+			Moving[2] = 0.5f;
 		} else if (isFacing() == 10) {
-			Moving[2] = 0.4f;
-		} else if (isFacing() == 21) {
-			Moving[2] = 0.6f;
-		} else if (isFacing() == 22 || isFacing() == 12) {
-			Moving[2] = 0.6f;
-		} else if (isFacing() == 23|| isFacing() == 11) {
-			Moving[2] = 0.6f;
-		} else {
+			Moving[2] = 0.8f;
+		} else if (isFacing() == 21) { //Silver
+			Ore = true;
+			Moving[2] = 0.9f;
+		} else if (isFacing() == 22 || isFacing() == 12) { // Copper
+			Ore = true;
+			Moving[2] = 0.9f;
+		} else if (isFacing() == 23 || isFacing() == 11) { // Coal
+			Ore = true;
+			Moving[2] = 0.9f;
+		} else if (isFacing() >= 70 || isFacing() == 3 || isFacing() <= 4) {
 			Moving[2] = 0.2f;
+		} else {
+			Moving[2] = 0.8f;
+		}
+		
+		if (player.getLocation()[1] < player.MaxY) {
+			if (Ore) {
+				player.Gas -= 2;
+			} else {
+				player.Gas -= 1;
+			}
+		}
+		
+		if (player.Gas <= -45 && player.getLocation()[1] < player.MaxY) {
+			player.setLocation(30, 88);
+			player.Cash = player.Cash - (player.Cash/4);
+			player.Gas += 25;
+			AddMoneyFeedback("-" + (player.Cash /= 4), gsm.CurrentTime, 2.5f);
 		}
 	}
 	
@@ -515,23 +574,23 @@ public class TestState extends GameState {
 		if (isOn() == 21) {
 			AddMoneyFeedback("+25", gsm.CurrentTime, 2.5f);
 			//AddAchievement("Hey you just got Silver!", 20, gsm.CurrentTime, 1.5f, false);
-			Cash = Cash + 25;
+			player.Cash += 25;
 		}
 		if (isOn() == 22 || isOn() == 12) {
 			AddMoneyFeedback("+10", gsm.CurrentTime, 2.5f);
 			//AddAchievement("Hey you just got Copper!", 21, gsm.CurrentTime, 1.5f, false);
-			Cash = Cash + 10;
+			player.Cash += 10;
 		}
 		if (isOn() == 23 || isOn() == 11) {
 			AddMoneyFeedback("+5", gsm.CurrentTime, 2.5f);
 			//AddAchievement("Hey you just got Coal!", 22, gsm.CurrentTime, 1.5f, false);
-			Cash = Cash + 5;
+			player.Cash += 5;
 		}
-		if (isOn() != 400) {
+		if (isOn() != 75) {
 			//Common.print("Hey you just got a " + groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId());
 		}
 		if (player.getLocation()[1] < player.MaxY) {
-			groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).setTile(tiledMap.getTileSets().getTile(400));	
+			groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).setTile(tiledMap.getTileSets().getTile(75));	
 		}
 	}
 	

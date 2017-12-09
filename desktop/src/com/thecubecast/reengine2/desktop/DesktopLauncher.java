@@ -13,7 +13,7 @@ public class DesktopLauncher {
 		//set variables from the settings file
 		boolean Display_Fullscreen = true;
 		boolean Display_WindowedFull = false;
-		int[] Windowed_Size = {900,600};
+		int[] Windowed_Size = {900,620};
 		
 		final LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		

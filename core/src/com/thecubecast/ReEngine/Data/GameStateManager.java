@@ -31,6 +31,7 @@ public class GameStateManager {
 	
 	//Public render function object
 	public Draw Render;
+	public int ticks = 0;
 	
 	//Public file handler
 	public ReadWrite Rwr;
@@ -126,6 +127,7 @@ public class GameStateManager {
 	}
 	
 	public void update(int MousX, int MousY, int[] Draging, int[] MousCl) {
+		ticks++;
 		if (Cursor != OldCursor) {
 			OldCursor = Cursor;
 			com.badlogic.gdx.graphics.Cursor customCursor = Gdx.graphics.newCursor(new Pixmap(Gdx.files.internal("cursor" + Cursor + ".png")), 0, 0);

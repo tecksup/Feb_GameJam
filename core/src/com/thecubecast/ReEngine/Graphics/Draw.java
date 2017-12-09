@@ -26,8 +26,8 @@ public class Draw {
 	
 	//Always set to 1 above the number of spites in file
 	public Texture[] Tiles = new Texture[74];
-	public Texture[] GUI = new Texture[12];
-	public Texture[] Images = new Texture[4];
+	public Texture[] GUI = new Texture[25];
+	public Texture[] Images = new Texture[5];
 	
 	BitmapFont font = new BitmapFont();
 	
@@ -300,13 +300,55 @@ public class Draw {
 		font.draw(buffer, text, PosX + 20, PosY + (Tiles[59].getHeight()/2)+5);
 	}
 	
+	public void HUDNotification(SpriteBatch buffer, int PosX, int PosY, int size, String text, float tics) {
+		//buffer.draw(GUI[00], PosX, PosY);
+		//buffer.draw(GUI[01], PosX + Tiles[59].getWidth(), PosY);
+		//buffer.draw(GUI[02], PosX + (Tiles[59].getWidth()*2), PosY);
+		//font.draw(buffer, text, PosX + 20, PosY + (Tiles[59].getHeight()/2)+5);
+		if (tics % 50 == 0) {
+			font.setColor(1, 1, 1, 0);
+		}
+		font.draw(buffer, text, PosX, PosY, size, 0, true);
+		font.setColor(Color.WHITE);
+	}
+	
+	public void HUDFuel(SpriteBatch buffer, int PosX, int PosY, int Angle, boolean Flash) {
+		int scale = 1;
+		if (Flash) {
+			buffer.draw(GUI[20], PosX, PosY);
+			buffer.draw(GUI[21], PosX + Tiles[59].getWidth(), PosY);
+			buffer.draw(GUI[22], PosX, PosY + Tiles[59].getWidth());
+			buffer.draw(GUI[23], PosX + Tiles[59].getWidth(), PosY + Tiles[59].getWidth());
+		} else {
+			buffer.draw(GUI[16], PosX, PosY, Tiles[59].getWidth()*scale, Tiles[59].getHeight()*scale);
+			buffer.draw(GUI[17], PosX + (Tiles[59].getWidth()*scale), PosY, Tiles[59].getWidth()*scale, Tiles[59].getHeight()*scale);
+			buffer.draw(GUI[18], PosX, PosY + (Tiles[59].getHeight()*scale), Tiles[59].getWidth()*scale, Tiles[59].getHeight()*scale);
+			buffer.draw(GUI[19], PosX + (Tiles[59].getWidth()*scale), PosY + (Tiles[59].getHeight()*scale), Tiles[59].getWidth()*scale, Tiles[59].getHeight()*scale);
+			//buffer.draw(GUI[16], PosX, PosY);
+			//buffer.draw(GUI[17], PosX + Tiles[59].getWidth(), PosY);
+			//buffer.draw(GUI[18], PosX, PosY + Tiles[59].getWidth());
+			//buffer.draw(GUI[19], PosX + Tiles[59].getWidth(), PosY + Tiles[59].getHeight());
+		}
+		buffer.draw(GUI[15], PosX, PosY, PosX+(5*scale), PosY+(5*scale), (Tiles[59].getWidth()*scale), (Tiles[59].getWidth()*scale), 1, 1, Angle, 0, 0, (Tiles[59].getWidth()*scale), (Tiles[59].getWidth()*scale), false, false);
+		//buffer.draw(GUI[15], PosX, PosY, Tiles[59].getWidth()*scale, Tiles[59].getHeight()*scale);
+		
+	}
+	
 	public void MoneyFeedback(SpriteBatch buffer, int PosX, int PosY, String text, float DeltaTime) {
 		font.setColor(Color.YELLOW);
 		//font.setColor(0, 1, 1, 0.1f);
-		font.draw(buffer, text, PosX + 20, PosY + 20 + (DeltaTime/2f));
+		font.draw(buffer, text  + "$", PosX + 20, PosY + 20 + (DeltaTime/2f));
 		font.setColor(Color.WHITE);
 	}
 
+	public void warningText(SpriteBatch buffer, int PosX, int PosY, String text, float tics) {
+		if (tics % 10 == 0) {
+			font.setColor(Color.RED);
+		}
+		font.draw(buffer, text, PosX + 20, PosY + 20);
+		font.setColor(Color.WHITE);
+	}
+	
 	public void HUDDescr(SpriteBatch buffer, int PosX, int PosY, String text) {
 		font.draw(buffer, text, PosX, PosY);
 	}
@@ -322,20 +364,21 @@ public class Draw {
 		for (int i = 0; i < State.size(); i++) {
 			if (State.get(i).getType().equals("Slider")) {
 				if (State.get(i).getString().equals("MasterVolume")) {
-					State.get(i).draw(GUISlider(bbg, (width/2), (height/20)*(i*2)+(height/4), 5, true, gsm.Audio.MasterVolume, State.get(i).getString(), gsm.Audio.MasterVolume*100));	
+					State.get(i).draw(GUISlider(bbg, (width/2), 15 + (40)*(i*2)+(height/3), 5, true, gsm.Audio.MasterVolume, State.get(i).getString(), gsm.Audio.MasterVolume*100));	
 				}
 				if (State.get(i).getString().equals("SoundVolume")) {
-					State.get(i).draw(GUISlider(bbg, (width/2), (height/20)*(i*2)+(height/4), 5, true, gsm.Audio.SoundVolume, State.get(i).getString(), gsm.Audio.SoundVolume*100));	
+					State.get(i).draw(GUISlider(bbg, (width/2), 15 + (40)*(i*2)+(height/3), 5, true, gsm.Audio.SoundVolume, State.get(i).getString(), gsm.Audio.SoundVolume*100));	
 				}
 				if (State.get(i).getString().equals("MusicVolume")) {
-					State.get(i).draw(GUISlider(bbg, (width/2), (height/20)*(i*2)+(height/4), 5, true, gsm.Audio.MusicVolume, State.get(i).getString(), gsm.Audio.MusicVolume*100));	
+					State.get(i).draw(GUISlider(bbg, (width/2), 15 + (40)*(i*2)+(height/3), 5, true, gsm.Audio.MusicVolume, State.get(i).getString(), gsm.Audio.MusicVolume*100));	
 				}
 			}
 			if (State.get(i).getType().equals("Button")) {
-				State.get(i).draw(GUIButton(bbg, width/2, (height/20)*(i*2)+(height/4), 5, true, State.get(i).getString()));
+				State.get(i).draw(GUIButton(bbg, width/2, 15 + (40)*(i*2)+(height/3), 5, true, State.get(i).getString()));
 			}
 			if (State.get(i).getType().equals("CheckBox")) {
-				State.get(i).draw(GUICheckBox(bbg, width/2, (height/20)*(i*2)+(height/4), State.get(i).GetBool()));
+				Common.print("" + height/20);
+				State.get(i).draw(GUICheckBox(bbg, width/2, 15 + (40)*(i*2)+(height/3), State.get(i).GetBool()));
 			}
 		}	
 	}

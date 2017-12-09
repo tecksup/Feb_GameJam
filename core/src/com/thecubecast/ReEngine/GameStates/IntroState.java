@@ -53,7 +53,7 @@ public class IntroState extends GameState {
 		Gdx.gl.glClearColor(255f, 255f, 255f, 1);
 		
 		
-		gsm.Render.DrawSplash(g, 00, width/2, height/2, 0.8f, 0.8f, true);
+		gsm.Render.DrawSplash(g, 00, width/2, height/2, 0.1f, 0.1f, true);
 		g.end();
 	}
 	
