@@ -8,10 +8,19 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Random;
+
+import org.apache.commons.io.FileUtils;
+
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 
 public class ReadWrite {
 	
+	static Random rand;
+	
 	public void init() { //Create the folders that hold everything neatly
+		rand = new Random();
 		Path path = Paths.get("Saves");
 		//Path p3 = Paths.get(URI.create("http:///dev.thecubecast.com/Login.php?User=BLANK"));
 		
@@ -54,97 +63,276 @@ public class ReadWrite {
 		new File("Saves/"+Title).mkdir();
 		new File("Saves/"+Title+"/Chunks").mkdir();
 		Common.print("Created '"+ Title +"' save!");
-		//creates the chunk folder and populates it with the starting chunks.
-		//for (int i=1; i < 10; i++) {
-		//	if(i == 1 || i == 2 || i == 3) {
-			//	int id[] = new int[] {0,i};
-			//	CreateChunk(Title, id, 16);
-		//	}
-			int id1[] = new int[] {-1,1};
-			CreateChunk(Title, id1, 16);
-			id1 = null;
-			int id2[] = new int[] {1,1};
-			CreateChunk(Title, id2, 16);
-			id2 = null;
-			int id3[] = new int[] {2,1};
-			CreateChunk(Title, id3, 16);
-			id3 = null;
-			int id4[] = new int[] {-1,-1};
-			CreateChunk(Title, id4, 16);
-			id4 = null;
-			int id5[] = new int[] {1,-1};
-			CreateChunk(Title, id5, 16);
-			id5 = null;
-			int id6[] = new int[] {2,-1};
-			CreateChunk(Title, id6, 16);
-			id6 = null;
-			int id7[] = new int[] {-1,-2};
-			CreateChunk(Title, id7, 16);
-			id7 = null;
-			int id8[] = new int[] {1,-2};
-			CreateChunk(Title, id8, 16);
-			id8 = null;
-			int id9[] = new int[] {2,-2};
-			CreateChunk(Title, id9, 16);
-			id9 = null;
+
 		
 		//returns true or false depending on whether world files were successfully loaded
 		return true;
 		//the chunks are loaded independently from the world creation.
 	}
 	
-	//Creates a new chunk
-	public boolean CreateChunk(String Save, int[] id, int ChunkSize) {
+	//Does the Tiled Serialization
+	public boolean CreateWorld(String Save, int width, int height) {
 		
-		if(id[1] > 1) {
-			//Don't create the chunks that don't need to exist
+		Path checkPath = Paths.get("Saves/" + Save, "");
+		if (Files.notExists(checkPath) != true) {
+			return false;
 		}
 		
-		if(id[1] == 1) {
-			//These are the chunks above y=0, They have nothing.
-			//Maybe Buildings at some point, trees. Decoration
-			ArrayList<String> lines = new ArrayList<String>();
-			for (int i=1; i < (ChunkSize + 1); i++) {
-				if (i < (ChunkSize)) {
-					lines.add("0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0");
-				} else {
-					lines.add("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~"); // This sets up a impenetrable block	
-				}
-			}
-			try {
-				Files.write(Paths.get("Saves/"+Save+"/Chunks", "Chunk_"+id[0]+"_"+id[1]+".dat"), lines, Charset.forName("UTF-8"), StandardOpenOption.CREATE);
-			} catch (IOException e) {e.printStackTrace();}
+		int heightLeftToFill = height;
+		
+		Path path = Paths.get("Saves/" + Save, "map.tmx");
+		new File("Saves/"+Save).mkdir();
+		new File("Saves/"+Save+"/tileset").mkdir();
+		
+		File source = new File("WorldGen/untitled.tsx");
+		File dest = new File("Saves/" + Save + "");
+		File source1 = new File("WorldGen/tileset/packed.atlas");
+		File source2 = new File("WorldGen/tileset/packed.png");
+		File dest1 = new File("Saves/" + Save + "/tileset");
+		try {
+		    FileUtils.copyFileToDirectory(source, dest);
+		    FileUtils.copyFileToDirectory(source1, dest1);
+		    FileUtils.copyFileToDirectory(source2, dest1);
+		} catch (IOException e) {
+		    e.printStackTrace();
 		}
 		
-		if(id[1] < 0) {
-			ArrayList<String> lines = new ArrayList<String>();
-			for (int i=1; i < (ChunkSize + 1); i++) {
-				lines.add("0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0");
-			}
-			try {
-				Files.write(Paths.get("Saves/"+Save+"/Chunks", "Chunk_"+id[0]+"_"+id[1]+".dat"), lines, Charset.forName("UTF-8"), StandardOpenOption.CREATE);
-			} catch (IOException e) {e.printStackTrace();}
-		}
-		return true;
+		ArrayList<String> lines = new ArrayList<String>();
+        lines.add("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><map height=\"" + height + "\" nextobjectid=\"10\" orientation=\"orthogonal\" renderorder=\"right-down\" tiledversion=\"1.0.3\" tileheight=\"16\" tilewidth=\"16\" version=\"1.0\" width=\"" + width + "\"><properties><property name=\"atlas\" value=\"tileset/packed.atlas\"/></properties> <Custom playerSpawnX=\"" + (width/2) + "\" playerSpawnY=\"" + (height-11) + "\"  />\r\n" + 
+        		" <tileset firstgid=\"1\" source=\"untitled.tsx\"/>\r\n" + 
+        		" <layer height=\"" + height + "\" name=\"BACKGROUND\" width=\"" + width + "\">\r\n" + 
+        		"  <data encoding=\"csv\">");
+        
+        for(int y = 0; y <= 11; y++) {//	Generates the Sky tiles above the grass
+        	String line = "";
+        	for(int x = 0; x < width; x++) { 
+        		line = line + "8,";
+        	}
+        	lines.add(line);
+        	heightLeftToFill--;
+        }        		
+        
+        String BackGrass = "";
+        for(int x = 0; x < width; x++) {  // 	Generates the background grass layer
+        	BackGrass = BackGrass + "25,";
+    	}
+    	lines.add(BackGrass);
+    	heightLeftToFill--;
+        
+    	int tempHeightLeft = heightLeftToFill;
+    	for(int y = 0; y <= (tempHeightLeft-1); y++) {//	Generates the background underground tiles above the grass
+        	String line = "";
+        	for(int x = 0; x < width; x++) { 
+        		if (width%3 == 1) {
+        			line = line + "61,";
+        		} else if (width%3 == 2) {
+        			line = line + "61,62,";
+        			x++;
+        		} else {
+        			line = line + "61,62,63,";
+        			x++;
+        			x++;
+        		}
+        	}
+        	lines.add(line);
+        	heightLeftToFill--;
+        }    
+    	
+        lines.add("</data>\r\n" + 
+        		" </layer>\r\n" + 
+        		" <layer height=\"" + height + "\" name=\"TILES\" width=\"" + width + "\">\r\n" + 
+        		"<properties>\r\n" + 
+        		"   <property name=\"Cash\" type=\"int\" value=\"50\"/>\r\n" + 
+        		"   <property name=\"Fuel\" type=\"float\" value=\"45\"/>\r\n" + 
+        		"   <property name=\"SavedX\" type=\"float\" value=\"" + (width/2 - 6) + "\"/>\r\n" + //DEFAULT WAS 30
+        		"   <property name=\"SavedY\" type=\"float\" value=\"" + (height - 12) + "\"/>\r\n" +   //DEFAULT IS height-12
+        		"  </properties>" + 
+        		"  <data encoding=\"csv\">");
+        
+        
+        	//Below is the Tiles layer
+        	//Below is the Tiles layer
+        	
+        	
+        heightLeftToFill = height;
+        for(int y = 0; y <= 11; y++) {//	Generates the Sky tiles above the grass
+        	String line = "";
+        	
+        	for(int x = 0; x < width; x++) { 
+        		if (y == 10) { 
+        			if (x == (width/2) - 9) {
+        				line = line + "78,";
+        			} else if (x == (width/2) - 8) {
+        				line = line + "79,";
+        			} else if (x == (width/2) - 7) {
+        				line = line + "80,";
+        			} else {
+        				line = line + "95,";
+        			}
+        		} else if (y == 11) {
+        			int temp = rand.nextInt(4);
+        			if (x == (width/2)) {
+        				line = line + "74,";
+        			} else if (x == (width/2) - 9) {
+        				line = line + "75,";
+        			} else if (x == (width/2) - 8) {
+        				line = line + "76,";
+        			} else if (x == (width/2) - 7) {
+        				line = line + "77,";
+        			} else if (temp == 0) {
+        				line = line + "3,";
+        			} else if (temp == 1) {
+        				line = line + "4,";
+        			} else if (temp == 2) {
+        				line = line + "95,";
+        			} else if (temp == 3) {
+        				line = line + "95,";
+        			}
+        			
+        		} else {
+        			line = line + "95,";
+        		}
+        	}
+        	lines.add(line);
+        	heightLeftToFill--;
+        }
+        
+        String Grass = "";
+        for(int x = 0; x < width; x++) { // 	Generates the Grass Tiles on the surface
+        	Grass = Grass + "2,";
+    	}
+    	lines.add(Grass);
+    	heightLeftToFill--;
+    	
+    	
+    	//THIS IS WERE THE RANDOM SHIT STARTS HAPPENING
+    	//THIS IS WERE THE RANDOM SHIT STARTS HAPPENING
+    	//THIS IS WERE THE RANDOM SHIT STARTS HAPPENING
+    	
+    	int tempHeightLeftFront = heightLeftToFill;
+        for(int y = 0; y <= (tempHeightLeftFront-1); y++) {//	Generates the dirt tiles under the grass
+        	//y is the amount of lines we have to work with until we reach the max world size.
+        	
+        	String line = "";
+        	for(int x = 0; x < width; x++) { 
+        		if (y <= 1) {
+        			line = line + "1,";
+        		} else if (y >= 1 && y <= 10) { // BETWEEN LAYERS 3 & 10 ARE DIRT WITH COAL AND STONE
+        			int temp = rand.nextInt(16);
+        			if (temp == 1 || temp == 3) {
+        				line = line + "11,"; //COAL
+        			} else if (temp == 2 ) {
+        				line = line + "10,"; //STONE VEIN
+        			} else {
+        				line = line + "1,";
+        			}
+        			
+        		} else if (y >= 10) {
+        			if (y == 11) { 
+        				int temp = rand.nextInt(3);
+        				if (temp == 0 || temp == 1) {
+            				line = line + "1,"; //Dirt
+            			} else {
+            				line = line + "9,"; //STONE
+            			}
+        			}
+        			if (y > 11) {
+        				int temp = rand.nextInt(26);
+        				if (temp == 0 || temp == 1) {
+            				line = line + "21,"; //Silver
+            			} else if (temp == 2 || temp == 3) {
+            				line = line + "22,"; //Copper
+            			}else {
+            				line = line + "9,"; //STONE
+            			}
+        			}
+        		}
+        	}
+        	
+        	
+        	lines.add(line);
+        	heightLeftToFill--;
+        }
+        
+        
+        //THIS IS WERE THE RANDOM SHIT STOPS HAPPENING
+    	//THIS IS WERE THE RANDOM SHIT STOPS HAPPENING
+    	//THIS IS WERE THE RANDOM SHIT STOPS HAPPENING
+        
+        
+        lines.add("</data>\r\n" + //Just wrapping up the file
+        		" </layer>\r\n" + 
+        		"</map>");
+        
+		try {
+			Files.deleteIfExists(path);
+			Files.write(path, lines, Charset.forName("UTF-8"), StandardOpenOption.CREATE);
+		} catch (IOException e) {e.printStackTrace();}
+		return false;
 	}
 	
-	//Loads the chunk from file and adds its 2d array to memory
-	public boolean LoadChunk(int[] id) {
-		//int[] id is the chunk id, EX (1, -4) or 1 chunk to the right and down 4 from origin 
+	public boolean saveMap(TiledMap tiledMap, String Save, Player player) {
 		
-		return true;
-	}
-	
-	//This is run when the player mines a block, changing the 2d array of the chunk
-	//This takes the 2d array and rewrites the chunk on file
-	public boolean UpdateChunk() {
+		int width = tiledMap.getProperties().get("width", Integer.class);
+		int height = tiledMap.getProperties().get("height", Integer.class);
+
+		Path path = Paths.get("Saves/" + Save, "map.tmx");
 		
-		return true;
-	}
-	
-	//This unloads the chunk from memory
-	public boolean UnloadChunk() {
-		
-		return true;
+		ArrayList<String> lines = new ArrayList<String>();
+        lines.add("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><map height=\"" + height + "\" nextobjectid=\"10\" orientation=\"orthogonal\" renderorder=\"right-down\" tiledversion=\"1.0.3\" tileheight=\"16\" tilewidth=\"16\" version=\"1.0\" width=\"" + width + "\"><properties><property name=\"atlas\" value=\"tileset/packed.atlas\"/></properties> <Custom playerSpawnX=\"" + (width/2) + "\" playerSpawnY=\"" + (height-11) + "\"  />\r\n" + 
+        		" <tileset firstgid=\"1\" source=\"untitled.tsx\"/>\r\n" + 
+        		" <layer height=\"" + height + "\" name=\"BACKGROUND\" width=\"" + width + "\">\r\n" + 
+        		"  <data encoding=\"csv\">");
+        
+        TiledMapTileLayer BackLay = (TiledMapTileLayer)tiledMap.getLayers().get(0);
+        for(int y = 0; y < height; y++) {//	Generates the Background tiles
+        	String line = "";
+        	for(int x = 0; x < width; x++) { 
+        		int tempTileID = BackLay.getCell(x, y).getTile().getId();
+        		line = line + tempTileID + ",";
+        	}
+        	lines.add(line);
+        }        		
+        
+        
+        
+        
+        
+        
+        //Splits the file between background and Tiled layer
+        lines.add("</data>\r\n" + 
+        		" </layer>\r\n" + 
+        		" <layer height=\"" + height + "\" name=\"TILES\" width=\"" + width + "\">\r\n" + 
+        		"<properties>\r\n" + 
+        		"   <property name=\"Cash\" type=\"int\" value=\"" + player.Cash + "\"/>\r\n" + 
+        		"   <property name=\"Fuel\" type=\"float\" value=\"" + player.Gas + "\"/>\r\n" + 
+        		"   <property name=\"SavedX\" type=\"float\" value=\"" + player.getLocation()[0] + "\"/>\r\n" + //DEFAULT WAS 30
+        		"   <property name=\"SavedY\" type=\"float\" value=\"" + player.getLocation()[1] + "\"/>\r\n" +   //DEFAULT IS height-12
+        		"  </properties>" + 
+        		"  <data encoding=\"csv\">");
+        
+        
+        
+        
+        
+        TiledMapTileLayer FrontLay = (TiledMapTileLayer)tiledMap.getLayers().get("TILES");
+        for(int y = 0; y < height; y++) {//	Generates the main tiles
+        	String line = "";
+        	for(int x = 0; x < width; x++) { 
+        		int tempTileID = FrontLay.getCell(x, y).getTile().getId();
+        		line = line + tempTileID + ",";
+        	}
+        	lines.add(line);
+        }      
+        
+        lines.add("</data>\r\n" + //Just wrapping up the file
+        		" </layer>\r\n" + 
+        		"</map>");
+        
+		try {
+			Files.deleteIfExists(path);
+			Files.write(path, lines, Charset.forName("UTF-8"), StandardOpenOption.CREATE);
+		} catch (IOException e) {e.printStackTrace();}
+		return false;
 	}
 }

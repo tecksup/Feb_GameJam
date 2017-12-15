@@ -2,6 +2,13 @@
 
 package com.thecubecast.ReEngine.GameStates;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +23,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.XmlWriter;
 import com.thecubecast.ReEngine.Data.Achievement;
 import com.thecubecast.ReEngine.Data.Common;
 import com.thecubecast.ReEngine.Data.GameStateManager;
@@ -35,6 +43,12 @@ public class TestState extends GameState {
 	List<MenuState> AudioMenu = new ArrayList<MenuState>();
 	List<MenuState> Options = new ArrayList<MenuState>();
 
+	//The Hud States
+	public boolean HUDOpen = false;
+	private int HUDOldState;
+	private int HUDcurrentState;
+	List<MenuState> InventoryHUD = new ArrayList<MenuState>();
+	
 	Player player;
 	
 	float[] Moving = new float[] {0, 0, 0};
@@ -47,7 +61,9 @@ public class TestState extends GameState {
     SpriteBatch guiBatch;
     
     //HUD Elements
-    boolean menuOpen = false;
+    public boolean menuOpen = false;
+    int tics = 0;
+    boolean flashfuel = false;
     List<Achievement> Achievements = new ArrayList<Achievement>();
     List<Achievement> MoneyFeedback = new ArrayList<Achievement>();
     
@@ -79,13 +95,28 @@ public class TestState extends GameState {
 	
 	public void init() {
 		
+		//gsm.Rwr.CreateWorld(gsm.ChosenSave, 200, 200);
+		
+		 // tiledMap = new AtlasTmxMapLoader().load("Saves/Save2/MegaMiner_FirstMap.tmx");
+        tiledMap = new AtlasTmxMapLoader().load("Saves/" + gsm.ChosenSave + "/map.tmx");
+        //tiledMap.getTileSets().getTileSet(0).getTile(1).getTextureRegion().getTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap , 5f);
+        groundLay = (TiledMapTileLayer)tiledMap.getLayers().get(1);
+		
+        int SavedCash = (Integer) groundLay.getProperties().get("Cash");
+        float SavedGas = (Float) groundLay.getProperties().get("Fuel");
+        float SavedX = (Float) groundLay.getProperties().get("SavedX");
+        float SavedY = (Float) groundLay.getProperties().get("SavedY");
+        
+        Common.print("SavedCash: " + SavedCash);
+        
 		MenuInit();
 		
 		gsm.Audio.playMusic("Wind", true);
 		
 		guiBatch = new SpriteBatch();
 		
-		player = new Player(30, 88);
+		player = new Player(SavedX, SavedY, SavedGas, SavedCash, tiledMap.getProperties().get("height", Integer.class)-12, tiledMap.getProperties().get("width", Integer.class)); //30 88
         
         camera = new OrthographicCamera();
         camera.setToOrtho(false,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
@@ -94,11 +125,6 @@ public class TestState extends GameState {
   		position = camera.position;
         
   		last_time = System.nanoTime();
-
-        tiledMap = new AtlasTmxMapLoader().load("Saves/Save2/MegaMiner_FirstMap.tmx");
-        //tiledMap.getTileSets().getTileSet(0).getTile(1).getTextureRegion().getTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap , 5f);
-        groundLay = (TiledMapTileLayer)tiledMap.getLayers().get(1);
 	}
 	
 	public void update() {
@@ -229,16 +255,40 @@ public class TestState extends GameState {
 		guiBatch.setProjectionMatrix(cameraGui.combined);
 		
 	    gsm.Render.GUIDeco(guiBatch, 0, height-80, gsm.ChosenSave + " - " + player.Cash + "$");
-	    gsm.Render.GUIDeco(guiBatch, 0+400, 0, "Gas:" + player.Gas);
 	    //gsm.Render.HUDNotification(guiBatch, width/2, height-100, 300 ,"Hey does this really wrap itself it would be so cool if it did so now i have to write a realllllllly long string to fill it up and make it wrap", gsm.ticks);
 	    
-	    gsm.Render.HUDFuel(guiBatch, 0, 0, player.Gas, false);
-	    if (player.Gas < ((player.MaxGas+45)/8)) {
-	    	gsm.Render.warningText(guiBatch, width/2, height - 40, "Warning Fuel Very Low!" , gsm.ticks);
+	    if (player.Gas+45 < 5) {
+	    	tics++;
+	    	if (tics == 8) {
+	    		tics = 0;
+	    		flashfuel = !flashfuel;
+	    	}
+	    	gsm.Render.HUDFuel(guiBatch, 0, 0, player.Gas, flashfuel);
 
-	    } else if (player.Gas < ((player.MaxGas+45)/4)) {
-	    	gsm.Render.warningText(guiBatch, width/2, height - 40, "Fuel Warning!" , gsm.ticks);
+	    } else if (player.Gas+45 < 25) {
+	    	tics++;
+	    	if (tics == 15) {
+	    		tics = 0;
+	    		flashfuel = !flashfuel;
+	    	}
+	    	gsm.Render.HUDFuel(guiBatch, 0, 0, player.Gas, flashfuel);
+	    	
+	    	//gsm.Render.warningText(guiBatch, width/2, height - 40, "Warning Fuel Very Low!" , gsm.ticks);
 
+	    } else if (player.Gas+45 < 35) {
+	    	tics++;
+	    	if (tics == 30) {
+	    		tics = 0;
+	    		flashfuel = !flashfuel;
+	    	}
+	    	gsm.Render.HUDFuel(guiBatch, 0, 0, player.Gas, flashfuel);
+	    	
+	    	//gsm.Render.warningText(guiBatch, width/2, height - 40, "Fuel Warning!" , gsm.ticks);
+
+	    } else {
+	    	tics = 0;
+	    	flashfuel = false;
+	    	 gsm.Render.HUDFuel(guiBatch, 0, 0, player.Gas, flashfuel);
 	    }
 	 
 	    if (Achievements.size() != 0) {
@@ -259,6 +309,10 @@ public class TestState extends GameState {
 	    
 	    if (menuOpen) {
 	    	MenuDraw(guiBatch, width, height, Time);
+	    }
+	    
+	    if (HUDOpen) {
+	    	HUDDraw(guiBatch, width, height, Time);
 	    }
 	    
 	    if (Gdx.input.isKeyPressed(Keys.CONTROL_LEFT)) { //KeyHit
@@ -330,6 +384,10 @@ public class TestState extends GameState {
 	    	MenuHandle();
 	    }
 		
+		if (HUDOpen) {
+			MenuHandle();
+		}
+		
 		if(Gdx.input.isTouched()) {
 			//camera.translate(-Gdx.input.getDeltaX(), Gdx.input.getDeltaY());
 			//camera.update();
@@ -340,7 +398,13 @@ public class TestState extends GameState {
 		}
 		
 		if (Gdx.input.isKeyJustPressed(Keys.ESCAPE)) { //KeyHit
-			menuOpen = !menuOpen;
+			if (HUDOpen) {
+				HUDOpen = false;
+			} else {
+				menuOpen = !menuOpen;
+			}
+			//HUDOpen = false;
+			//menuOpen = !menuOpen;
 		}
 		
 		if (Gdx.input.isKeyPressed(Keys.UP)) { //KeyHit
@@ -463,14 +527,28 @@ public class TestState extends GameState {
 					AddAchievement("Activated Teleporter!", 6, gsm.CurrentTime, 5f, true);
 					player.setLocation(20, 20);
 				}
+				if(isFacing() == 75 || isFacing() == 76 || isFacing() == 77) {
+					AddAchievement("Opened Shop!", 6, gsm.CurrentTime, 5f, true);
+					HUDcurrentState = 0;
+					HUDOpen = true;
+				}
+			}
+			
+			if (Gdx.input.isKeyJustPressed(Keys.I)) { //KeyHit
+				AddAchievement("Opened Inventory!", 6, gsm.CurrentTime, 5f, true);
+				HUDcurrentState = 5;
+				HUDOpen = !HUDOpen;
 			}
 			
 			if (Gdx.input.isKeyJustPressed(Keys.NUM_9)) { //KeyHit
 			//	tile++;
-				AddAchievement("Fake Achievement", 1, gsm.CurrentTime, 1f, false);
+				SaveGame();
+				
+				//AddAchievement("Fake Achievement", 1, gsm.CurrentTime, 1f, false);
 			}
 			if (Gdx.input.isKeyJustPressed(Keys.NUM_8)) { //KeyHit
 			//	tile--;
+				
 			}
 			MineTiles();
 		}
@@ -487,25 +565,34 @@ public class TestState extends GameState {
 	
 	public int isFacing() {
 		
-		if (player.getLocation()[0]-1 < 0 || player.getLocation()[0]-1 > 100) {
-			return -1;
-		}
-		
-		if (player.getLocation()[1]-1 < 0 || player.getLocation()[1]-1 > 100) {
-			return -1;
-		}
-		
 		if (player.getDirection().equals("up")) {
-			return (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])+1).getTile().getId());
+			if (player.getLocation()[1]+1 > player.MaxY) {
+				return -1;
+			} else {
+				return (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])+1).getTile().getId());
+			}
 		}
 		else if (player.getDirection().equals("down")) {
-			return (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])-1).getTile().getId());	
+			if (player.getLocation()[1]-1 < 0) {
+				return -1;
+			} else {
+				return (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])-1).getTile().getId());
+			}
 		}
 		else if (player.getDirection().equals("left")) {
-			return (groundLay.getCell(Common.roundDown(player.getLocation()[0])-1, Common.roundDown(player.getLocation()[1])).getTile().getId());
+			if (player.getLocation()[0]-1 < 0) {
+				return -1;
+			} else {
+				return (groundLay.getCell(Common.roundDown(player.getLocation()[0])-1, Common.roundDown(player.getLocation()[1])).getTile().getId());
+			}
 		}
 		else if (player.getDirection().equals("right")) {
-			return (groundLay.getCell(Common.roundDown(player.getLocation()[0])+1, Common.roundDown(player.getLocation()[1])).getTile().getId());
+			if (player.getLocation()[0]+1 >
+			player.MaxX) {
+				return -1;
+			} else {
+				return (groundLay.getCell(Common.roundDown(player.getLocation()[0])+1, Common.roundDown(player.getLocation()[1])).getTile().getId());
+			}
 		}
 		else {
 			return -1;
@@ -514,7 +601,7 @@ public class TestState extends GameState {
 	}
 		
 	public void Move() {
-		
+
 		boolean Ore = false;
 		
 		Moving[0] = 1;
@@ -549,6 +636,8 @@ public class TestState extends GameState {
 			Moving[2] = 0.9f;
 		} else if (isFacing() >= 70 || isFacing() == 3 || isFacing() <= 4) {
 			Moving[2] = 0.2f;
+		} else if (isFacing() == 95) {
+			Moving[2] = 0.2f;
 		} else {
 			Moving[2] = 0.8f;
 		}
@@ -556,15 +645,23 @@ public class TestState extends GameState {
 		if (player.getLocation()[1] < player.MaxY) {
 			if (Ore) {
 				player.Gas -= 2;
+				Common.print("Gas Lost 2" );
 			} else {
-				player.Gas -= 1;
+				if (isFacing() == 95) {
+					Common.print("Gas Lost " + 0.2f );
+					player.Gas -= 0.2f;
+				} else {
+					player.Gas -= 1;
+					Common.print("Gas Lost 1" );
+				} 
 			}
 		}
 		
 		if (player.Gas <= -45 && player.getLocation()[1] < player.MaxY) {
-			player.setLocation(30, 88);
+			player.setLocation(tiledMap.getProperties().get("height", Integer.class)/2 -5, tiledMap.getProperties().get("height", Integer.class)-12);
+			//player.clearinventory();
 			player.Cash = player.Cash - (player.Cash/4);
-			player.Gas += 25;
+			player.Gas += 30;
 			AddMoneyFeedback("-" + (player.Cash /= 4), gsm.CurrentTime, 2.5f);
 		}
 	}
@@ -586,12 +683,20 @@ public class TestState extends GameState {
 			//AddAchievement("Hey you just got Coal!", 22, gsm.CurrentTime, 1.5f, false);
 			player.Cash += 5;
 		}
-		if (isOn() != 75) {
+		if (isOn() != 95) {
 			//Common.print("Hey you just got a " + groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId());
 		}
-		if (player.getLocation()[1] < player.MaxY) {
-			groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).setTile(tiledMap.getTileSets().getTile(75));	
+		if (player.getLocation()[1] < tiledMap.getProperties().get("height", Integer.class)-12) {
+			groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).setTile(tiledMap.getTileSets().getTile(95));	
 		}
+	}
+	
+	public void SaveGame() {
+		gsm.Rwr.saveMap(tiledMap, gsm.ChosenSave, player);
+		tiledMap = new AtlasTmxMapLoader().load("Saves/" + gsm.ChosenSave + "/map.tmx");
+		gsm.Rwr.saveMap(tiledMap, gsm.ChosenSave, player);
+		AddAchievement("Saved the game!", 54, gsm.CurrentTime, 1f, false);
+		
 	}
 	
 	//BELOW IS MENU CODE
@@ -600,6 +705,11 @@ public class TestState extends GameState {
 	public void changeState(int state) {
 		OldState = currentState;
 		currentState = state;
+	}
+	
+	public void changeHUDState(int state) {
+		HUDOldState = HUDcurrentState;
+		HUDcurrentState = state;
 	}
 	
 	public void Back() {
@@ -630,121 +740,161 @@ public class TestState extends GameState {
 		Options.add(Options.size(), new MenuState("Button", "Graphics")); //Button 3
 		Options.add(Options.size(), new MenuState("Button", "Audio")); //Button 3
 		
+		
+		InventoryHUD.add(InventoryHUD.size(), new MenuState("Button", "Exit"));
+		InventoryHUD.add(InventoryHUD.size(), new MenuState("Button", "Inventory"));
 	}
 	
 	public void MenuDraw(SpriteBatch guiBatch, int width, int height, float Time) {
 		
 		//Each if statement is another part of the menu
 		if (currentState == 0) { 
-			gsm.Render.MenuBackground(guiBatch, width, height, width, height);
+			gsm.Render.MenuBackground(guiBatch, width, height, width, height, 0.55f);
 			gsm.Render.drawGuiMenus(MainMenu, guiBatch, height, width, gsm);
 		}
 		if (currentState == 1) { 
-			gsm.Render.MenuBackground(guiBatch, width, height, width, height);
+			gsm.Render.MenuBackground(guiBatch, width, height, width, height, 0.55f);
 			gsm.Render.drawGuiMenus(Options, guiBatch, height, width, gsm);
 		}
 		if (currentState == 2) { 
-			gsm.Render.MenuBackground(guiBatch, width, height, width, height);
+			gsm.Render.MenuBackground(guiBatch, width, height, width, height, 0.55f);
 			gsm.Render.drawGuiMenus(AudioMenu, guiBatch, height, width, gsm);
 		}
 		
-		if (currentState == 2) { 
-			//In game menu
-		}
 	}
 
-	public void MenuHandle() {
-		if(currentState == 0) { //Runs all the button checks
-			
-			for (int i = 0; i < MainMenu.size(); i++) {
-				if (gsm.MouseDrag[0] == 1) {
-					Common.print("draggin");
-					if (MainMenu.get(i).getType().equals("Slider") && gsm.Render.GuiSliderCheck(gsm.MouseDrag, MainMenu.get(i).getData())) {
-					}
-					
-				}
-				if (gsm.MouseClick[0] == 1) {
-					if (MainMenu.get(i).getType().equals("Button") && gsm.Render.GUIButtonCheck(gsm.MouseClick, MainMenu.get(i).getData())) {
-						gsm.Audio.play("Click");
-						if (MainMenu.get(i).getString().equals("Resume")) {
-							menuOpen = !menuOpen;
-						}
-						if (MainMenu.get(i).getString().equals("Options")) {
-							changeState(1);
-						}
-						if (MainMenu.get(i).getString().equals("Return to Main Menu")) {
-							Common.print("return to menu");
-							gsm.Audio.stopMusic("Wind");
-							gsm.setState(GameStateManager.MENU);
-						}
-						
-					}
-					if (MainMenu.get(i).getType().equals("CheckBox") && gsm.Render.GUICheckBoxCheck(gsm.MouseClick, MainMenu.get(i).getData())) {
-						gsm.Audio.play("Click");
-						MainMenu.get(i).SetBool(!MainMenu.get(i).GetBool());
-					}
-				}
-			}
+	public void HUDDraw(SpriteBatch guiBatch, int width, int height, float Time) {
 		
-		} else if(currentState == 1) { //Runs all the button checks in the SinglePlayer Menu
+		if (HUDcurrentState == 5) { 
+			gsm.Render.MenuBackground(guiBatch, width, height, width, height, 0.25f);
+			gsm.Render.drawGuiMenus(InventoryHUD, guiBatch, height, width, gsm);
+		}
+	}
+	
+	public void MenuHandle() {
+		
+		if (HUDOpen) {
 			
-			for (int i = 0; i < Options.size(); i++) {
-				if (gsm.MouseDrag[0] == 1) {
-					if (Options.get(i).getType().equals("Slider") && gsm.Render.GuiSliderCheck(gsm.MouseDrag, Options.get(i).getData())) {
-					}
-				}
-				if (gsm.MouseClick[0] == 1) {
-					if (Options.get(i).getType().equals("Button") && gsm.Render.GUIButtonCheck(gsm.MouseClick, Options.get(i).getData())) {
-						gsm.Audio.play("Click");
-						if (Options.get(i).getString().equals("Audio")) {
-							changeState(2);
-						}
-						if (Options.get(i).getString().equals("Graphics")) {
+			if(HUDcurrentState == 5) { //INVENTORY
+				for (int i = 0; i < InventoryHUD.size(); i++) {
+					
+					if (gsm.MouseClick[0] == 1) {
+						if (InventoryHUD.get(i).getType().equals("Button") && gsm.Render.GUIButtonCheck(gsm.MouseClick, InventoryHUD.get(i).getData())) {
+							gsm.Audio.play("Click");
+							if (InventoryHUD.get(i).getString().equals("Inventory")) {
+								
+							}
+							if (InventoryHUD.get(i).getString().equals("Exit")) {
+								HUDOpen = false;
+							}
 							
 						}
-						if (Options.get(i).getString().equals("Controls")) {
-							
+						if (InventoryHUD.get(i).getType().equals("CheckBox") && gsm.Render.GUICheckBoxCheck(gsm.MouseClick, InventoryHUD.get(i).getData())) {
+							gsm.Audio.play("Click");
+							InventoryHUD.get(i).SetBool(!InventoryHUD.get(i).GetBool());
 						}
-						if (Options.get(i).getString().equals("Back")) {
-							changeState(0);
-						}
-						
 					}
-					if (Options.get(i).getType().equals("CheckBox")  && gsm.Render.GUICheckBoxCheck(gsm.MouseClick, Options.get(i).getData())) {
-						gsm.Audio.play("Click");
-						Options.get(i).SetBool(!Options.get(i).GetBool());
-					}
-				}
+				}	
 			}
-		} else if(currentState == 2) { //Runs all the button checks in the Audio Menu
 			
-			for (int i = 0; i < AudioMenu.size(); i++) {
-				if (gsm.MouseDrag[0] == 1) {
-					if (AudioMenu.get(i).getType().equals("Slider") && gsm.Render.GuiSliderCheck(gsm.MouseDrag, AudioMenu.get(i).getData())) {
-
-						//Check if the slider is MasterVolume
-						if (AudioMenu.get(i).getString().equals("MasterVolume")) {
-							gsm.Audio.MasterVolume = gsm.Render.GuiSliderReading(gsm.MouseDrag, AudioMenu.get(i).getData());
-						}
-						if (AudioMenu.get(i).getString().equals("MusicVolume")) {
-							gsm.Audio.MusicVolume = gsm.Render.GuiSliderReading(gsm.MouseDrag, AudioMenu.get(i).getData());
-						}
-						if (AudioMenu.get(i).getString().equals("SoundVolume")) {
-							gsm.Audio.SoundVolume = gsm.Render.GuiSliderReading(gsm.MouseDrag, AudioMenu.get(i).getData());
-						}
-					}
-				}
-				if (gsm.MouseClick[0] == 1) {
-					if (AudioMenu.get(i).getType().equals("Button") && gsm.Render.GUIButtonCheck(gsm.MouseClick, AudioMenu.get(i).getData())) {
-						gsm.Audio.play("Click");
-						if (AudioMenu.get(i).getString().equals("Back")) {
-							Back();
+			
+			
+			
+		}
+		
+		if (menuOpen) {
+			if(currentState == 0) { //Runs all the button checks
+				
+				for (int i = 0; i < MainMenu.size(); i++) {
+					if (gsm.MouseDrag[0] == 1) {
+						if (MainMenu.get(i).getType().equals("Slider") && gsm.Render.GuiSliderCheck(gsm.MouseDrag, MainMenu.get(i).getData())) {
 						}
 						
 					}
-					if (AudioMenu.get(i).getType().equals("CheckBox")  && gsm.Render.GUICheckBoxCheck(gsm.MouseClick, AudioMenu.get(i).getData())) {
-						gsm.Audio.play("Click");
-						AudioMenu.get(i).SetBool(!AudioMenu.get(i).GetBool());
+					if (gsm.MouseClick[0] == 1) {
+						if (MainMenu.get(i).getType().equals("Button") && gsm.Render.GUIButtonCheck(gsm.MouseClick, MainMenu.get(i).getData())) {
+							gsm.Audio.play("Click");
+							if (MainMenu.get(i).getString().equals("Resume")) {
+								menuOpen = !menuOpen;
+							}
+							if (MainMenu.get(i).getString().equals("Options")) {
+								changeState(1);
+							}
+							if (MainMenu.get(i).getString().equals("Return to Main Menu")) {
+								SaveGame();
+								Common.print("return to menu");
+								gsm.Audio.stopMusic("Wind");
+								gsm.setState(GameStateManager.MENU);
+							}
+							
+						}
+						if (MainMenu.get(i).getType().equals("CheckBox") && gsm.Render.GUICheckBoxCheck(gsm.MouseClick, MainMenu.get(i).getData())) {
+							gsm.Audio.play("Click");
+							MainMenu.get(i).SetBool(!MainMenu.get(i).GetBool());
+						}
+					}
+				}
+			
+			} else if(currentState == 1) { //Runs all the button checks in the SinglePlayer Menu
+				
+				for (int i = 0; i < Options.size(); i++) {
+					if (gsm.MouseDrag[0] == 1) {
+						if (Options.get(i).getType().equals("Slider") && gsm.Render.GuiSliderCheck(gsm.MouseDrag, Options.get(i).getData())) {
+						}
+					}
+					if (gsm.MouseClick[0] == 1) {
+						if (Options.get(i).getType().equals("Button") && gsm.Render.GUIButtonCheck(gsm.MouseClick, Options.get(i).getData())) {
+							gsm.Audio.play("Click");
+							if (Options.get(i).getString().equals("Audio")) {
+								changeState(2);
+							}
+							if (Options.get(i).getString().equals("Graphics")) {
+								
+							}
+							if (Options.get(i).getString().equals("Controls")) {
+								
+							}
+							if (Options.get(i).getString().equals("Back")) {
+								changeState(0);
+							}
+							
+						}
+						if (Options.get(i).getType().equals("CheckBox")  && gsm.Render.GUICheckBoxCheck(gsm.MouseClick, Options.get(i).getData())) {
+							gsm.Audio.play("Click");
+							Options.get(i).SetBool(!Options.get(i).GetBool());
+						}
+					}
+				}
+			} else if(currentState == 2) { //Runs all the button checks in the Audio Menu
+				
+				for (int i = 0; i < AudioMenu.size(); i++) {
+					if (gsm.MouseDrag[0] == 1) {
+						if (AudioMenu.get(i).getType().equals("Slider") && gsm.Render.GuiSliderCheck(gsm.MouseDrag, AudioMenu.get(i).getData())) {
+
+							//Check if the slider is MasterVolume
+							if (AudioMenu.get(i).getString().equals("MasterVolume")) {
+								gsm.Audio.MasterVolume = gsm.Render.GuiSliderReading(gsm.MouseDrag, AudioMenu.get(i).getData());
+							}
+							if (AudioMenu.get(i).getString().equals("MusicVolume")) {
+								gsm.Audio.MusicVolume = gsm.Render.GuiSliderReading(gsm.MouseDrag, AudioMenu.get(i).getData());
+							}
+							if (AudioMenu.get(i).getString().equals("SoundVolume")) {
+								gsm.Audio.SoundVolume = gsm.Render.GuiSliderReading(gsm.MouseDrag, AudioMenu.get(i).getData());
+							}
+						}
+					}
+					if (gsm.MouseClick[0] == 1) {
+						if (AudioMenu.get(i).getType().equals("Button") && gsm.Render.GUIButtonCheck(gsm.MouseClick, AudioMenu.get(i).getData())) {
+							gsm.Audio.play("Click");
+							if (AudioMenu.get(i).getString().equals("Back")) {
+								Back();
+							}
+							
+						}
+						if (AudioMenu.get(i).getType().equals("CheckBox")  && gsm.Render.GUICheckBoxCheck(gsm.MouseClick, AudioMenu.get(i).getData())) {
+							gsm.Audio.play("Click");
+							AudioMenu.get(i).SetBool(!AudioMenu.get(i).GetBool());
+						}
 					}
 				}
 			}

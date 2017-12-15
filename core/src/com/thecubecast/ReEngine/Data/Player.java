@@ -3,17 +3,22 @@ package com.thecubecast.ReEngine.Data;
 public class Player {
 	
 	public int MaxGas = 45;
-	public int Gas = 45;
+	public float Gas = 45;
 	public int Cash = 50;
 	
-	public final int MaxY = 88;
+	public int MaxY;
+	public int MaxX;
 	
 	float[] location = new float[] {0,0};
 	String direction = "right";
 	
-	public Player (int x, int y) {
+	public Player (float x, float y, float SavedGas, int SavedCash, int maxY, int maxX) {
 		location[0] = x;
-		location[1] = y;	
+		location[1] = y;
+		Gas = SavedGas;
+		Cash = SavedCash;
+		MaxY = maxY;
+		MaxX = maxX;
 	}
 	
 	//INVENTORY AND OTHER STUFF
@@ -21,8 +26,8 @@ public class Player {
 	
 	//Gas 
 	
-	public int addGas(int gasToAdd) {
-		int fakeGas = Gas + gasToAdd;
+	public float addGas(int gasToAdd) {
+		float fakeGas = Gas + gasToAdd;
 		if (fakeGas > MaxGas) {
 			Gas = MaxGas;
 			return fakeGas - MaxGas;
@@ -33,15 +38,15 @@ public class Player {
 	}
 	
 	public int topUp() {
-		int fuBalance = Cash - (MaxGas/2);
+		int fuBalance = Cash - (MaxGas+45/2);
 		if (fuBalance > 0) {
 			Gas = MaxGas;
 			Cash -= (MaxGas/2);
-			return 60;
+			return 45;
 		} else {
-			int fakeGas = MaxGas - Gas;
+			float fakeGas = (MaxGas+45) - Gas;
 			int StartCash = Cash;
-			int fBalance = Cash - fakeGas/2;
+			float fBalance = Cash - fakeGas/2;
 			if (fBalance > 0) {
 				Gas += fakeGas;
 				Cash -= fakeGas/2;
@@ -73,7 +78,7 @@ public class Player {
 	}
 	
 	public void setLocation(float x, float y) {
-		if (x < 0 || y < 0 || y > MaxY || x > 99) {
+		if (x < 0 || y < 0 || y > MaxY || x > MaxX) {
 			//DO NOT MOVE!
 		} else {
 			location[0] = x;

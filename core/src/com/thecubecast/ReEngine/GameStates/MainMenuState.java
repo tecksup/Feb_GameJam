@@ -167,7 +167,6 @@ public class MainMenuState extends GameState {
 			
 			for (int i = 0; i < MainMenu.size(); i++) {
 				if (gsm.MouseDrag[0] == 1) {
-					Common.print("draggin");
 					if (MainMenu.get(i).getType().equals("Slider") && gsm.Render.GuiSliderCheck(gsm.MouseDrag, MainMenu.get(i).getData())) {
 					}
 					
@@ -281,6 +280,7 @@ public class MainMenuState extends GameState {
 						}
 						if (SinglePlayer.get(i).getString().equals("Test State")) {
 							gsm.ChosenSave = "TEST";
+							gsm.Rwr.CreateWorld("TEST", 200, 200);
 							gsm.Audio.stopMusic("8-bit-Digger");
 							gsm.setState(GameStateManager.TEST);
 						}

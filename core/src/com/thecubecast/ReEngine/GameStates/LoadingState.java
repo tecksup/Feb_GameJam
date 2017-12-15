@@ -74,7 +74,7 @@ public class LoadingState extends GameState {
 	public void handleInput() {
 
 		if (Gdx.input.isKeyJustPressed(Keys.ENTER)) { //KeyHit
-			gsm.setState(GameStateManager.INTRO);
+			//gsm.setState(GameStateManager.INTRO);
 		}
 
 	}

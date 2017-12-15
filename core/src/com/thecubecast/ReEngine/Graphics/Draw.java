@@ -312,7 +312,7 @@ public class Draw {
 		font.setColor(Color.WHITE);
 	}
 	
-	public void HUDFuel(SpriteBatch buffer, int PosX, int PosY, int Angle, boolean Flash) {
+	public void HUDFuel(SpriteBatch buffer, int PosX, int PosY, float Angle, boolean Flash) {
 		int scale = 1;
 		if (Flash) {
 			buffer.draw(GUI[20], PosX, PosY);
@@ -353,9 +353,9 @@ public class Draw {
 		font.draw(buffer, text, PosX, PosY);
 	}
 	
-	public void MenuBackground(SpriteBatch buffer, int PosX, int PosY, int Pos2X, int Pos2Y) {
+	public void MenuBackground(SpriteBatch buffer, int PosX, int PosY, int Pos2X, int Pos2Y, float Oppacity) {
 		Color col = buffer.getColor();
-		buffer.setColor(new Color(0, 0, 0, 0.55f));
+		buffer.setColor(new Color(0, 0, 0, Oppacity));
 		buffer.draw(Tiles[07], 0, 0, PosX, PosY);
 		buffer.setColor(col);
 	}
