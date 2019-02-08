@@ -6,161 +6,269 @@
 
 package com.thecubecast.ReEngine.Data;
 
-import com.thecubecast.ReEngine.GameStates.LoadingState;
-import com.thecubecast.ReEngine.GameStates.GameState;
-import com.thecubecast.ReEngine.GameStates.IntroState;
-import com.thecubecast.ReEngine.GameStates.MainMenuState;
-import com.thecubecast.ReEngine.GameStates.PlayState;
-import com.thecubecast.ReEngine.GameStates.TestState;
-import com.thecubecast.ReEngine.Graphics.Draw;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
-import com.thecubecast.ReEngine.Data.Common;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
+import com.thecubecast.ReEngine.GameStates.*;
+import com.thecubecast.ReEngine.Graphics.Draw;
+
+import java.util.HashMap;
+
+import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
 public class GameStateManager {
-	
-	public GameState[] gameStates;
-	public int currentState;
-	private int previousState;
-	
-	public String ChosenSave;
-	
+	public static boolean Debug = false;
+
+    public enum State {
+        INTRO, MENU, PLAY, LOADING
+    }
+
+    public State currentState;
+    private State previousState;
+
+    private GameState gameState;
+
 	public float CurrentTime;
+	public float DeltaTime;
 	
 	//Public render function object
 	public Draw Render;
 	public int ticks = 0;
-	
-	//Public file handler
-	public ReadWrite Rwr;
-	
+
+	private OrthographicCamera MainCam;
+
+	private FrameBuffer WorldFBO;
+	private FrameBuffer UIFBO;
+
 	//Public Audio handler
-	public SoundManager Audio;
-	
-	//MousePos
-	public int MouseX;
-	public int MouseY;
-	public int[] MouseDrag;
-	public int[] MouseClick;
-	public int OldCursor = 0;
-	public int Cursor = 0;
-	
+	public static SoundManager AudioM;
+
+	public static controlerManager ctm;
+
+	public Discord DiscordManager;
+
+	//The cursor image
+	public enum CursorType {
+		Normal, Old, Question
+	}
+
+	public CursorType OldCursor = CursorType.Normal;
+	public CursorType Cursor = CursorType.Normal;
+
 	//screen
-	public int Width;
-	public int Height;
-	
-	public static final int NUM_STATES = 6;
-	public static final int INTRO = 0;
-	public static final int MENU = 1;
-	public static final int PLAY = 2;
-	public static final int LOADING = 3;
-	public static final int OPTIONS = 4;
-	public static final int TEST = 5;
-	
-	public GameStateManager() {
-		
-		//JukeBox.init();
+	private int Width;
+	private int Height;
+	public int Scale = 4;
+
+	public static int WorldWidth;
+	public static int WorldHeight;
+
+	public static int UIWidth;
+	public static int UIHeight;
+
+	public GameStateManager(int W, int H) {
+
+		Width = W;
+		Height = H;
+		WorldWidth = Width/Scale;
+		WorldHeight = Height/Scale;
+		UIWidth = Width/(Scale/2);
+		UIHeight = Height/(Scale/2);
+
+		WorldFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width/Scale, Height/Scale, false);
+		UIFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width/(Scale/2), Height/(Scale/2), false);
+
+		MainCam = new OrthographicCamera();
+		MainCam.setToOrtho(false, Width,Height);
+
+        ctm = new controlerManager();
+
+		DiscordManager = new Discord("405784101245943810");
 
 		Render = new Draw();
-		Audio = new SoundManager();
-		Rwr = new ReadWrite();
-		
-		Rwr.init();
-		Audio.init();
+		AudioM = new SoundManager();
+
 		Render.Init();
-		
-		gameStates = new GameState[NUM_STATES];
+		AudioM.init();
+
 		LoadState("STARTUP"); //THIS IS THE STATE WERE WE START WHEN THE GAME IS RUN
-		
 	}
 	
 	public void LoadState(String LoadIt) {
 		previousState = currentState;
-		unloadState(previousState);
-		currentState = LOADING;
+		unloadState();
+		currentState = State.LOADING;
 		//Set up the loading state 
-		gameStates[LOADING] = new LoadingState(this);
-		((LoadingState) gameStates[LOADING]).setLoad("STARTUP");
-		gameStates[LOADING].init();
+		gameState = new LoadingState(this);
+		((LoadingState) gameState).setLoad("STARTUP");
+		gameState.init();
 	}
 	
-	public void setState(int i) {
+	public void setState(State i) {
 		previousState = currentState;
-		unloadState(previousState);
-		currentState = i;
-		if(i == INTRO) {
-			Common.print("Loaded state Intro");
-			gameStates[i] = new IntroState(this);
-			gameStates[i].init();
-		}
-		else if(i == MENU) {
-			Common.print("Loaded state MENU");
-			gameStates[i] = new MainMenuState(this);
-			gameStates[i].init();
-		}
-		else if(i == PLAY) {
-			Common.print("Loaded state PLAY");
-			gameStates[i] = new PlayState(this);
-			gameStates[i].init();
-		}
-		
-		/**
-		else if(i == OPTIONS) {
-			Common.print("Loaded state Options");
-			gameStates[i] = new OptionsState(this);
-			gameStates[i].init();
-		}
-		**/
-		else if(i == TEST) {
-			//Common.print("Loaded state Test");
-			gameStates[i] = new TestState(this);
-			gameStates[i].init();
+		unloadState();
+        currentState = i;
+        switch (currentState) {
+            case INTRO:
+                Common.print("Loaded state Intro");
+                gameState = new IntroState(this);
+                gameState.init();
+                break;
+            case MENU:
+                Common.print("Loaded state MENU");
+                gameState = new MainMenuState(this);
+                gameState.init();
+                break;
+            case PLAY:
+                Common.print("Loaded state PLAY");
+                gameState = new PlayState(this);
+                gameState.init();
+                break;
+			case LOADING:
+				break;
 		}
 		
 	}
-	
-	public void unloadState(int i) {
+
+	/**
+	 * unloads the current state
+	 * calls dispose on the current gamestate first
+	 **/
+	public void unloadState() {
 		//Common.print("Unloaded state " + i);
-		gameStates[i] = null;
+		if(gameState != null)
+			gameState.dispose();
+		gameState = null;
 	}
 	
-	public void update(int MousX, int MousY, int[] Draging, int[] MousCl) {
+	public void update() {
 		ticks++;
 		if (Cursor != OldCursor) {
 			OldCursor = Cursor;
-			com.badlogic.gdx.graphics.Cursor customCursor = Gdx.graphics.newCursor(new Pixmap(Gdx.files.internal("cursor" + Cursor + ".png")), 0, 0);
+			int CursorID = 0;
+			switch (Cursor) {
+				case Normal:
+					CursorID = 0;
+					break;
+				case Old:
+					CursorID = 1;
+					break;
+				case Question:
+					CursorID = 2;
+					break;
+			}
+			com.badlogic.gdx.graphics.Cursor customCursor = Gdx.graphics.newCursor(new Pixmap(Gdx.files.internal("cursor" + CursorID + ".png")), 0, 0);
     		Gdx.graphics.setCursor(customCursor);
 		}
-		MouseX = MousX;
-		MouseY = MousY;
-		MouseDrag = Draging;
-		MouseClick = MousCl;
-		if(gameStates[currentState] != null) {
-			
-			gameStates[currentState].update();
+		if(gameState != null) {
+			gameState.update();
 		}
-		//MouseClick[0] = 0;
-		
-		Audio.update();
+
+		AudioM.update();
+
+		DiscordManager.UpdatePresence();
+		ctm.update();
+
+		MainCam.update();
 	}
 	
 	public void draw(SpriteBatch bbg, int W, int H, float Time) {
 		Width = W;
 		Height = H;
 		CurrentTime = Time;
-		if(gameStates[currentState] != null) {
-			gameStates[currentState].draw(bbg, H, W, Time);
+		DeltaTime = Math.min(Gdx.graphics.getDeltaTime(), 1f / 60f);
+		if(gameState != null) {
+			//Notice how the height and width are swapped, woops
+			Texture World = drawWorld(bbg, WorldFBO.getHeight(), WorldFBO.getWidth(), Time);
+			Texture UI = drawUI(bbg, UIFBO.getHeight(), UIFBO.getWidth(), Time);
+
+			bbg.setProjectionMatrix(MainCam.combined);
+			bbg.begin();
+			bbg.draw(World,0, H, W, -H);
+			bbg.draw(UI,0, H, W, -H);
+			bbg.end();
+
 		}
+
+		if(Debug) {
+            //Common.print("Render Calls: " + bbg.totalRenderCalls);
+            //bbg.totalRenderCalls = 0;
+        }
+
 	}
-	
+
+	/**
+	 * This is for drawing the world, with the standard pixel art scaling in the engine
+	 */
+	public Texture drawWorld(SpriteBatch bbg, int W, int H, float Time) {
+		WorldFBO.bind();
+		WorldFBO.begin();
+		Gdx.gl.glClearColor(0,0,0,0);
+		Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
+		gameState.draw(bbg, W, H, Time);
+		WorldFBO.end();
+		WorldFBO.unbind();
+
+		WorldFBO.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+		return WorldFBO.getColorBufferTexture();
+	}
+
+	/**
+	 * This is for drawing to the slightly larger FBO for UI. With a pixel density twice as large as drawWorld()
+	 */
+	public Texture drawUI(SpriteBatch bbg, int W, int H, float Time) {
+		UIFBO.bind();
+		UIFBO.begin();
+		Gdx.gl.glClearColor(0,0,0,0);
+		Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
+		gameState.drawUI(bbg, W, H, Time);
+		UIFBO.end();
+		UIFBO.unbind();
+
+		UIFBO.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+		return UIFBO.getColorBufferTexture();
+
+
+	}
+
 	public void reSize(SpriteBatch bbg, int H, int W) {
-		if(gameStates[currentState] != null) {
-			gameStates[currentState].reSize(bbg, H, W);
+		System.out.println("Resize Just Ran");
+		if(gameState != null) {
+			gameState.reSize(bbg, H, W);
 		}
 		Matrix4 matrix = new Matrix4();
 		matrix.setToOrtho2D(0, 0, W, H);
 		bbg.setProjectionMatrix(matrix);
+
+		MainCam.setToOrtho(false,W,H);
+
+		Width = W;
+		Height = H;
+		WorldWidth = Width/Scale;
+		WorldHeight = Height/Scale;
+		UIWidth = Width/(Scale/2);
+		UIHeight = Height/(Scale/2);
+
+		WorldFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width/Scale, Height/Scale, false);
+		UIFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width/(Scale/2), Height/(Scale/2), false);
+
 	}
+
+	public void dispose() {
+		DiscordManager.dispose();
+		gameState.dispose();
+	}
+
+	public void Shutdown() {
+        gameState.dispose();
+	    gameState.Shutdown();
+    }
 }

@@ -2,796 +2,269 @@
 
 package com.thecubecast.ReEngine.GameStates;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
+import com.thecubecast.ReEngine.Data.*;
+import com.thecubecast.ReEngine.Data.TkMap.TkMap;
+import com.thecubecast.ReEngine.Graphics.Scene2D.UIFSM;
+import com.thecubecast.ReEngine.Graphics.Scene2D.UI_state;
+import com.thecubecast.ReEngine.Graphics.ScreenShakeCameraController;
+import com.thecubecast.ReEngine.worldObjects.*;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.tiled.AtlasTmxMapLoader;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.XmlWriter;
-import com.thecubecast.ReEngine.Data.Achievement;
-import com.thecubecast.ReEngine.Data.Common;
-import com.thecubecast.ReEngine.Data.GameStateManager;
-import com.thecubecast.ReEngine.Data.Player;
-import com.thecubecast.ReEngine.Graphics.MenuState;
-import com.thecubecast.ReEngine.Data.KeysDown;
+import static com.thecubecast.ReEngine.Data.Common.updategsmValues;
+import static com.thecubecast.ReEngine.Graphics.Draw.FillColorShader;
+import static com.thecubecast.ReEngine.Graphics.Draw.setFillColorShaderColor;
 
 public class PlayState extends GameState {
-	
-	//The Menu states
-	private int OldState;
-	private int currentState;
-	OrthographicCamera cameraGui;
-	//The buttons only run functions and contain drawing object, the Value variables hold and change data
-	//The buttons state 0     MAIN MENU
-	List<MenuState> MainMenu = new ArrayList<MenuState>();
-	List<MenuState> AudioMenu = new ArrayList<MenuState>();
-	List<MenuState> Options = new ArrayList<MenuState>();
 
-	Player player;
-	
-	float[] Moving = new float[] {0, 0, 0};
-	
-	float lerp = 0.005f;
-	Vector3 position;
-	long last_time;
-	int deltaTime;
+    //GUI
+    UIFSM UI;
 
-    SpriteBatch guiBatch;
-    
-    //HUD Elements
-    boolean menuOpen = false;
-    int tics = 0;
-    boolean flashfuel = false;
-    List<Achievement> Achievements = new ArrayList<Achievement>();
-    List<Achievement> MoneyFeedback = new ArrayList<Achievement>();
-    
-    //Controls
-    List<KeysDown> KeysDw = new ArrayList<KeysDown>();
-    
-    OrthographicCamera camera;
-    
-    TiledMap tiledMap;
-    TiledMapTileLayer groundLay;
-    TiledMapRenderer tiledMapRenderer;
+    //Camera
+    OrthographicCamera GuiCam;
+    public static OrthographicCamera camera;
+    ScreenShakeCameraController shaker;
 
-	public PlayState(GameStateManager gsm) {
-		super(gsm);
-	}
-	
-	public void AddAchievement(String text, int IconID, float Time, float Durration, boolean Anim) {
-		Achievement temp = new Achievement(text, IconID, Time,  Durration, Anim);
-		Achievements.add(Achievements.size(), temp);
-		Common.print("Added Achievement: " + text);
-	}
-	
-	public void AddMoneyFeedback(String text, float Time, float Durration) {
-		Achievement temp = new Achievement(text, 0, Time,  Durration, false);
-		gsm.Audio.play("CashGet");
-		MoneyFeedback.add(MoneyFeedback.size(), temp);
-		Common.print("Added MoneyFeedback: " + text);
-	}
-	
-	public void init() {
-		
-		MenuInit();
-		
-		gsm.Audio.playMusic("Wind", true);
-		
-		guiBatch = new SpriteBatch();
-		
-		player = new Player(30, 88);
-        
+    //Particles
+    public static ParticleHandler Particles;
+
+    //GameObjects
+    public static Player player;
+    private List<Cube> Collisions = new ArrayList<>();
+    public static List<WorldObject> Entities = new ArrayList<>();
+
+
+    //AI
+    //FlatTiledGraph MapGraph;
+
+    public PlayState(GameStateManager gsm) {
+        super(gsm);
+    }
+
+    public void init() {
+
+        player = new Player(13*16,1*16, 0);
+
+        Entities.add(player);
+
+        gsm.DiscordManager.setPresenceDetails("topdown Demo - Level 1");
+        gsm.DiscordManager.setPresenceState("In Game");
+        gsm.DiscordManager.getPresence().largeImageText = "Level 1";
+        gsm.DiscordManager.getPresence().startTimestamp = System.currentTimeMillis() / 1000;
+
+        //Camera setup
         camera = new OrthographicCamera();
-        camera.setToOrtho(false,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-        
-        camera.position.set((player.getLocation()[0]*80)+40, (player.getLocation()[1]*80)+40, camera.position.z);
-  		position = camera.position;
-        
-  		last_time = System.nanoTime();
+        GuiCam = new OrthographicCamera();
+        camera.setToOrtho(false, gsm.WorldWidth, gsm.WorldHeight);
+        GuiCam.setToOrtho(false, gsm.UIWidth, gsm.UIHeight);
+        shaker = new ScreenShakeCameraController(camera);
 
-        tiledMap = new AtlasTmxMapLoader().load("Saves/Save2/MegaMiner_FirstMap.tmx");
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap , 5f);
-        groundLay = (TiledMapTileLayer)tiledMap.getLayers().get(1);
-	}
-	
-	public void update() {
-		handleInput();
-		
-		long time = System.nanoTime();
-	    deltaTime = (int) ((time - last_time) / 1000000);
-	    last_time = time;
-	    
-	    if (Moving[0] == 1) {
-	    	float Distance = ((gsm.CurrentTime - Moving[1]) / Moving[2]) * 80;
-	    	if (player.getDirection().equals("up")) {
-	    		FollowCam(camera, Math.round((player.getLocation()[0]*80)+40), Math.round((player.getLocation()[1]*80)+40 + Distance));
-			} else if (player.getDirection().equals("down")) {
-				FollowCam(camera, Math.round((player.getLocation()[0]*80)+40), Math.round((player.getLocation()[1]*80)+40 - Distance));
-			} else if (player.getDirection().equals("left")) {
-				FollowCam(camera, Math.round((player.getLocation()[0]*80)+40 - Distance), Math.round(player.getLocation()[1]*80)+40);
-			} else if (player.getDirection().equals("right")) {
-				FollowCam(camera, Math.round((player.getLocation()[0]*80)+40 + Distance), Math.round(player.getLocation()[1]*80)+40);
-			}
-	    } else {
-	    	FollowCam(camera, Math.round((player.getLocation()[0]*80)+40), Math.round((player.getLocation()[1]*80)+40));	
-	    }
-	    
-		camera.update();
-		
-		for(int l=0; l< Achievements.size(); l++){
-		   if (Achievements.get(l).getTime() >= Achievements.get(l).getDuration()) {
-			   Achievements.remove(l);
-		   }
-		}
+        UI = new UIFSM(GuiCam, gsm);
+        UI.inGame = true;
+        UI.setState(UI_state.InGameHome);
+        UI.setVisable(false);
 
-		for(int l=0; l< MoneyFeedback.size(); l++){
-		   if (MoneyFeedback.get(l).getTime() >= MoneyFeedback.get(l).getDuration()) {
-			   MoneyFeedback.remove(l);
-		   }
-		}		
-	}
-	
-	public void draw(SpriteBatch g, int width, int height, float Time) {
-		RenderCam();
-		
-		g.begin();
-		g.setProjectionMatrix(camera.combined);
-		if (Moving[0] == 1) {
-			if (gsm.CurrentTime - Moving[1] <= Moving[2]) {
-				float Distance = ((gsm.CurrentTime - Moving[1]) / Moving[2]) * 80;
-				
-				if (player.getDirection().equals("up")) {
-					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80) + Distance), player.getDirection());
-				} else if (player.getDirection().equals("down")) {
-					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80) - Distance), player.getDirection());
-				} else if (player.getDirection().equals("left")) {
-					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80) - Distance), Math.round((player.getLocation()[1]*80)), player.getDirection());
-				} else if (player.getDirection().equals("right")) {
-					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80) + Distance), Math.round((player.getLocation()[1]*80)), player.getDirection());
-				}
-			} else {
-				//Common.print("Player Location: " + (player.getLocation()[1]*80));
-				if (player.getDirection().equals("up")) {
-					player.setLocation(player.getLocation()[0], player.getLocation()[1] + 1);
-					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80)), player.getDirection());
-				} else if (player.getDirection().equals("down")) {
-					player.setLocation(player.getLocation()[0], player.getLocation()[1] - 1);
-					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80)), player.getDirection());
-				} else if (player.getDirection().equals("left")) {
-					player.setLocation(player.getLocation()[0] - 1, player.getLocation()[1]);
-					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80)), player.getDirection());
-				} else if (player.getDirection().equals("right")) {
-					player.setLocation(player.getLocation()[0] + 1, player.getLocation()[1]);
-					gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80)), player.getDirection());
-				} 
-				
-				//Mines the tile before it moves on
-				MineTiles();
-				
-				if (Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.D)) {
-					if (player.getDirection().equals("up") && Gdx.input.isKeyPressed(Keys.W)) {
-						Move();
-					} else if (player.getDirection().equals("down") && Gdx.input.isKeyPressed(Keys.S)) {
-						Move();
-					} else if (player.getDirection().equals("left") && Gdx.input.isKeyPressed(Keys.A)) {
-						Move();
-					} else if (player.getDirection().equals("right") && Gdx.input.isKeyPressed(Keys.D)) {
-						Move();
-					} else {
-						if (Gdx.input.isKeyPressed(Keys.W) && Gdx.input.isKeyPressed(Keys.S)) {
-							
-						} else {
-							if (Gdx.input.isKeyPressed(Keys.W)) { //KeyHit
-								player.setDirection("up");
-							}
-							if (Gdx.input.isKeyPressed(Keys.S)) { //KeyHit
-								player.setDirection("down");
-							}
-						}
-						
-						if (Gdx.input.isKeyPressed(Keys.A) && Gdx.input.isKeyPressed(Keys.D)) {
-							
-						} else {
-							if (Gdx.input.isKeyPressed(Keys.A)) { //KeyHit
-								player.setDirection("left");
-							}
-							if (Gdx.input.isKeyPressed(Keys.D)) { //KeyHit
-								player.setDirection("right");
-							}
-						}
-						Move();
-					}
-					
-				} else {
-					Moving[0] = 0;
-					Moving[1] = 0;
-					Moving[2] = 0;
-				}
-			}
-		} else {
-			gsm.Render.Player(g, Math.round((player.getLocation()[0]*80)), Math.round((player.getLocation()[1]*80)), player.getDirection());
-		}
-		
-		//gsm.Render.DrawAny(g, tile, "Tiles", Common.roundDown((player.getLocation()[0]+1*80)),  Common.roundDown((player.getLocation()[1]*80)));
-		//gsm.Render.GUIDrawText(g, Common.roundDown((player.getLocation()[0]+1*80)),  Common.roundDown((player.getLocation()[1]*80)-40), "" + tile);
-		
-		g.end();
+        //Particles
+        Particles = new ParticleHandler();
 
-		//Overlay Layer
-		guiBatch.begin();
-		guiBatch.setProjectionMatrix(cameraGui.combined);
-		
-	    gsm.Render.GUIDeco(guiBatch, 0, height-80, gsm.ChosenSave + " - " + player.Cash + "$");
-	    //gsm.Render.HUDNotification(guiBatch, width/2, height-100, 300 ,"Hey does this really wrap itself it would be so cool if it did so now i have to write a realllllllly long string to fill it up and make it wrap", gsm.ticks);
-	    
-	    if (player.Gas+45 < 25) {
-	    	tics++;
-	    	if (tics == 15) {
-	    		tics = 0;
-	    		flashfuel = !flashfuel;
-	    	}
-	    	gsm.Render.HUDFuel(guiBatch, 0, 0, player.Gas, flashfuel);
-	    	
-	    	//gsm.Render.warningText(guiBatch, width/2, height - 40, "Warning Fuel Very Low!" , gsm.ticks);
+    }
 
-	    } else if (player.Gas+45 < 55) {
-	    	tics++;
-	    	if (tics == 30) {
-	    		tics = 0;
-	    		flashfuel = !flashfuel;
-	    	}
-	    	gsm.Render.HUDFuel(guiBatch, 0, 0, player.Gas, flashfuel);
-	    	
-	    	//gsm.Render.warningText(guiBatch, width/2, height - 40, "Fuel Warning!" , gsm.ticks);
+    public void update() {
 
-	    } else {
-	    	tics = 0;
-	    	flashfuel = false;
-	    	 gsm.Render.HUDFuel(guiBatch, 0, 0, player.Gas, flashfuel);
-	    }
-	 
-	    if (Achievements.size() != 0) {
-			for(int l=0; l< Achievements.size(); l++){
-				Achievements.get(l).setTime(Time);
-				gsm.Render.HUDAchievement(guiBatch, width-260, (70 * l), Achievements.get(l).getText(), Achievements.get(l).getIconID(), Achievements.get(l).getOpacity(), Achievements.get(l).getAnim(), Time);
-			}
-	    	
-	    }
-	    
-	    if (MoneyFeedback.size() != 0) {
-			for(int l=0; l< MoneyFeedback.size(); l++){
-				MoneyFeedback.get(l).setTime(Time);
-				gsm.Render.MoneyFeedback(guiBatch, width/2 + 40, height/2 + 40 + (30 * l), MoneyFeedback.get(l).getText(), MoneyFeedback.get(l).getDuration()/MoneyFeedback.get(l).getTime());
-			}
-	    	
-	    }
-	    
-	    if (menuOpen) {
-	    	MenuDraw(guiBatch, width, height, Time);
-	    }
-	    
-	    if (Gdx.input.isKeyPressed(Keys.CONTROL_LEFT)) { //KeyHit
-	    	int TileID;
-	    	
-	    	gsm.Cursor = 2;
-	   
-	    	Vector3 pos = new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0);
-			camera.unproject(pos);
-			
-	    	if (groundLay.getCell(Common.roundDown(pos.x)/80, Common.roundDown(pos.y)/80).getTile() != null) {
-	    		TileID = groundLay.getCell(Common.roundDown(pos.x)/80, Common.roundDown(pos.y)/80).getTile().getId();
-	    		camera.project(pos);
-	    		gsm.Render.HUDDescr(guiBatch, Common.roundDown(pos.x)+15, Common.roundDown(pos.y)-15, "X: " + Common.roundDown(pos.x/80) + " Y: "+ Common.roundDown(pos.y/80));
-	    		gsm.Render.HUDDescr(guiBatch, Common.roundDown(pos.x)+15, Common.roundDown(pos.y)-30, "" + TileID);
-	    	} else {
-	    		gsm.Render.HUDDescr(guiBatch, Common.roundDown(pos.x)+15, Common.roundDown(pos.y)-15, "X: " + Common.roundDown(pos.x/80) + " Y: "+ Common.roundDown(pos.y/80));
-	    		camera.project(pos);
-	    	}
-		} else {
-			gsm.Cursor = 0;
-		}
-	    
-	    guiBatch.end();
-	}
-	
-	public void RenderCam() {
-		camera.update();
-        tiledMapRenderer.setView(camera);
-        tiledMapRenderer.render();
-	}
-	
-	public void FollowCam(OrthographicCamera cam, int playerx, int playery) {
-		int mapBoundX = groundLay.getWidth()*80;
-		int mapBoundY = (groundLay.getHeight()-18)*80;
-		
-		float PosibleX = position.x + (playerx - position.x) * lerp * deltaTime;
-		if (PosibleX - (Gdx.graphics.getWidth()/2) >= 0 && PosibleX - (Gdx.graphics.getWidth()/2) <= mapBoundX) {
-			position.x += (playerx - position.x) * lerp * deltaTime;
-		}
-		
-		float PosibleY = position.y + (playery - position.y) * lerp * deltaTime;
-		if (PosibleY - (Gdx.graphics.getHeight()/2) >= 0 && PosibleY - (Gdx.graphics.getHeight()/2) <= mapBoundY) {
-			position.y += (playery - position.y) * lerp * deltaTime;
-		} else if (PosibleY - (Gdx.graphics.getHeight()/2) >= mapBoundY) {
-			position.y += (playery+160 - position.y) * lerp * deltaTime;
-		}
-		
-		//position.x += ((player.getLocation()[0]*80)+40 - position.x) * lerp * deltaTime;		
-		//position.y += ((player.getLocation()[1]*80)+40 - position.y) * lerp * deltaTime;
-		
-		cam.position.set(position.x, position.y, cam.position.z);
-		cam.update();
-	}
-	
-	public void handleInput() {
-		
-		Vector3 pos = new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0);
-		cameraGui.unproject(pos);
-		
-		gsm.MouseX = (int) pos.x;
-		gsm.MouseY = (int) pos.y;
-		gsm.MouseClick[1] = (int) pos.x;
-		gsm.MouseClick[2] = (int) pos.y;
-		gsm.MouseDrag[1] = (int) pos.x;
-		gsm.MouseDrag[2] = (int) pos.y;
-		
-		if (menuOpen) {
-	    	MenuHandle();
-	    }
-		
-		if(Gdx.input.isTouched()) {
-			//camera.translate(-Gdx.input.getDeltaX(), Gdx.input.getDeltaY());
-			//camera.update();
-			
-			if (Gdx.input.getDeltaY() < 0) { // ZOOMS OUT
-				
-			}
-		}
-		
-		if (Gdx.input.isKeyJustPressed(Keys.ESCAPE)) { //KeyHit
-			menuOpen = !menuOpen;
-		}
-		
-		if (Gdx.input.isKeyPressed(Keys.UP)) { //KeyHit
-			int mapBoundY = (groundLay.getHeight()-18)*80;
-			
-			if (position.y - (Gdx.graphics.getHeight()/2) + 16 >= 0 && position.y - (Gdx.graphics.getHeight()/2) <= mapBoundY) {
-				camera.translate(0,16);
-			} else if (position.y - (Gdx.graphics.getHeight()/2) >= mapBoundY) {
-				camera.translate(0,4);
-			}
-		}
-		if (Gdx.input.isKeyPressed(Keys.DOWN)) { //KeyHit
-			int mapBoundY = (groundLay.getHeight()-18)*80;
-			
-			if (position.y - (Gdx.graphics.getHeight()/2) - 16 >= 0 && position.y - (Gdx.graphics.getHeight()/2) <= mapBoundY) {
-				camera.translate(0,-16);
-			} else if (position.y - (Gdx.graphics.getHeight()/2) >= mapBoundY) {
-				camera.translate(0,-16);
-			}
-		}
-		if (Gdx.input.isKeyPressed(Keys.LEFT)) { //KeyHit
-			int mapBoundX = groundLay.getWidth()*80;
-			
-			if (position.x - (Gdx.graphics.getWidth()/2) - 16 >= 0 && position.x - (Gdx.graphics.getWidth()/2) <= mapBoundX) {
-				camera.translate(-16,0);
-			}
-		}
-		if (Gdx.input.isKeyPressed(Keys.RIGHT)) { //KeyHit
-			int mapBoundX = groundLay.getWidth()*80;
-			
-			if (position.x - (Gdx.graphics.getWidth()/2) + 16 >= 0 && position.x - (Gdx.graphics.getWidth()/2) <= mapBoundX) {
-				camera.translate(16,0);
-			}
-		}
-		
-		if (Moving[0] == 0 && menuOpen != true) {
-			
-			if (Gdx.input.isKeyPressed(Keys.W) && Gdx.input.isKeyPressed(Keys.S)) {
-				
-			} else {
-				if (Gdx.input.isKeyPressed(Keys.W)) { //KeyHit
-					if (KeysDw.isEmpty()) {
-						KeysDown temp = new KeysDown(Keys.W, gsm.CurrentTime);
-						KeysDw.add(KeysDw.size(), temp);
-					} else {
-						if (KeysDw.get(KeysDw.size()-1).GetKeyTime(gsm.CurrentTime) >= 0.05f) {
-							if (!player.getDirection().equals("up")) {
-								player.setDirection("up");
-							} else {
-								player.setDirection("up");
-								Move();
-							}	
-							KeysDw.remove(KeysDw.get(KeysDw.size()-1));
-						}
-					}
-				}
-				if (Gdx.input.isKeyPressed(Keys.S)) { //KeyHit
-					if (KeysDw.isEmpty()) {
-						KeysDown temp = new KeysDown(Keys.S, gsm.CurrentTime);
-						KeysDw.add(KeysDw.size(), temp);
-					} else {
-						if (KeysDw.get(KeysDw.size()-1).GetKeyTime(gsm.CurrentTime) >= 0.05f) {
-							if (!player.getDirection().equals("down")) {
-								player.setDirection("down");
-							} else {
-								player.setDirection("down");
-								Move();
-							}	
-							KeysDw.remove(KeysDw.get(KeysDw.size()-1));
-						}
-					}
-				}
-			}
-			
-			if (Gdx.input.isKeyPressed(Keys.A) && Gdx.input.isKeyPressed(Keys.D)) {
-				
-			} else {
-				if (Gdx.input.isKeyPressed(Keys.A)) { //KeyHit
-					if (KeysDw.isEmpty()) {
-						KeysDown temp = new KeysDown(Keys.A, gsm.CurrentTime);
-						KeysDw.add(KeysDw.size(), temp);
-					} else {
-						if (KeysDw.get(KeysDw.size()-1).GetKeyTime(gsm.CurrentTime) >= 0.05f) {
-							if (!player.getDirection().equals("left")) {
-								player.setDirection("left");
-							} else {
-								player.setDirection("left");
-								Move();
-							}	
-							KeysDw.remove(KeysDw.get(KeysDw.size()-1));
-						}
-					}
-				}
-				if (Gdx.input.isKeyPressed(Keys.D)) { //KeyHit
-					if (KeysDw.isEmpty()) {
-						KeysDown temp = new KeysDown(Keys.D, gsm.CurrentTime);
-						KeysDw.add(KeysDw.size(), temp);
-					} else {
-						if (KeysDw.get(KeysDw.size()-1).GetKeyTime(gsm.CurrentTime) >= 0.05f) {
-							if (!player.getDirection().equals("right")) {
-								player.setDirection("right");
-							} else {
-								player.setDirection("right");
-								Move();
-							}	
-							KeysDw.remove(KeysDw.get(KeysDw.size()-1));
-						}
-					}
-				}
-			}
-			
-			
-			if (Gdx.input.isKeyJustPressed(Keys.F)) { //KeyHit
-				Common.print("Player is facing " + isFacing());
-				if(isFacing() == 74) {
-					//AddAchievement("Activated Crate!", 73, gsm.CurrentTime, 1.5f, false);
-					AddMoneyFeedback("" + player.topUp(), gsm.CurrentTime, 2.5f);
-				}
-				if(isFacing() == 72 || isFacing() == 73) {
-					AddAchievement("Activated Teleporter!", 6, gsm.CurrentTime, 5f, true);
-					player.setLocation(20, 20);
-				}
-			}
-			
-			if (Gdx.input.isKeyJustPressed(Keys.NUM_9)) { //KeyHit
-			//	tile++;
-				AddAchievement("Fake Achievement", 1, gsm.CurrentTime, 1f, false);
-			}
-			if (Gdx.input.isKeyJustPressed(Keys.NUM_8)) { //KeyHit
-			//	tile--;
-			}
-			MineTiles();
-		}
-	}
-	
-	public int isOn() {
-		if (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile() != null) {
-			return (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).getTile().getId());
-		} else {
-			return -1;
-		}
-		
-	}
-	
-	public int isFacing() {
-		
-		if (player.getLocation()[0]-1 < 0 || player.getLocation()[0]-1 > 100) {
-			return -1;
-		}
-		
-		if (player.getLocation()[1]-1 < 0 || player.getLocation()[1]-1 > 100) {
-			return -1;
-		}
-		
-		if (player.getDirection().equals("up")) {
-			return (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])+1).getTile().getId());
-		}
-		else if (player.getDirection().equals("down")) {
-			return (groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])-1).getTile().getId());	
-		}
-		else if (player.getDirection().equals("left")) {
-			return (groundLay.getCell(Common.roundDown(player.getLocation()[0])-1, Common.roundDown(player.getLocation()[1])).getTile().getId());
-		}
-		else if (player.getDirection().equals("right")) {
-			return (groundLay.getCell(Common.roundDown(player.getLocation()[0])+1, Common.roundDown(player.getLocation()[1])).getTile().getId());
-		}
-		else {
-			return -1;
-		}
-		
-	}
-		
-	public void Move() {
-		
-		boolean Ore = false;
-		
-		Moving[0] = 1;
-		Moving[1] = gsm.CurrentTime;
+        Particles.Update();
 
-		if(player.getLocation()[1]+1 > player.MaxY && player.getDirection().equals("up")) {
-			Moving[0] = 0;
-			Moving[1] = 0;
-			Moving[2] = 0;
-		}
-		
-		if (isFacing() == -1) {
-			Moving[0] = 0;
-			Moving[1] = 0;
-			Moving[2] = 0;
-		}
-		
-		if (isFacing() == 9) {
-			Moving[2] = 0.7f;
-		} else if (isFacing() == 1 || isFacing() == 2) {
-			Moving[2] = 0.5f;
-		} else if (isFacing() == 10) {
-			Moving[2] = 0.8f;
-		} else if (isFacing() == 21) { //Silver
-			Ore = true;
-			Moving[2] = 0.9f;
-		} else if (isFacing() == 22 || isFacing() == 12) { // Copper
-			Ore = true;
-			Moving[2] = 0.9f;
-		} else if (isFacing() == 23 || isFacing() == 11) { // Coal
-			Ore = true;
-			Moving[2] = 0.9f;
-		} else if (isFacing() >= 70 || isFacing() == 3 || isFacing() <= 4) {
-			Moving[2] = 0.2f;
-		} else {
-			Moving[2] = 0.8f;
-		}
-		
-		if (player.getLocation()[1] < player.MaxY) {
-			if (Ore) {
-				player.Gas -= 2;
-			} else {
-				player.Gas -= 1;
-			}
-		}
-		
-		if (player.Gas <= -45 && player.getLocation()[1] < player.MaxY) {
-			player.setLocation(30, 88);
-			//player.clearinventory();
-			player.Cash = player.Cash - (player.Cash/4);
-			player.Gas += 30;
-			AddMoneyFeedback("-" + (player.Cash /= 4), gsm.CurrentTime, 2.5f);
-		}
-	}
-	
-	public void MineTiles() {
-		//Checks if the tile the player is on matches an ID
-		if (isOn() == 21) {
-			AddMoneyFeedback("+25", gsm.CurrentTime, 2.5f);
-			//AddAchievement("Hey you just got Silver!", 20, gsm.CurrentTime, 1.5f, false);
-			player.Cash += 25;
-		}
-		if (isOn() == 22 || isOn() == 12) {
-			AddMoneyFeedback("+10", gsm.CurrentTime, 2.5f);
-			//AddAchievement("Hey you just got Copper!", 21, gsm.CurrentTime, 1.5f, false);
-			player.Cash += 10;
-		}
-		if (isOn() == 23 || isOn() == 11) {
-			AddMoneyFeedback("+5", gsm.CurrentTime, 2.5f);
-			//AddAchievement("Hey you just got Coal!", 22, gsm.CurrentTime, 1.5f, false);
-			player.Cash += 5;
-		}
-		if (isOn() != 75) {
-			//Common.print("Hey you just got a " + groundLay.getCell(player.getLocation()[0], player.getLocation()[1]).getTile().getId());
-		}
-		if (player.getLocation()[1] < player.MaxY) {
-			groundLay.getCell(Common.roundDown(player.getLocation()[0]), Common.roundDown(player.getLocation()[1])).setTile(tiledMap.getTileSets().getTile(75));	
-		}
-	}
-	
-	//BELOW IS MENU CODE
-	//SHOULD BE SOMEWHAT PORTABLE
-	
-	public void changeState(int state) {
-		OldState = currentState;
-		currentState = state;
-	}
-	
-	public void Back() {
-		int state = OldState;
-		OldState = currentState;
-		currentState = state;
-	}
-	
-	public void MenuInit() {
-		
-		cameraGui = new OrthographicCamera();
-        cameraGui.setToOrtho(false,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-		
-		//Menu 1 / Main window
-		MainMenu.add(MainMenu.size(), new MenuState("Button", "Return to Main Menu")); //Button 4
-		MainMenu.add(MainMenu.size(), new MenuState("Button", "Options")); //Button 3
-		MainMenu.add(MainMenu.size(), new MenuState("Button", "Resume")); //Button 1
-		
-		//Menu 3 / Options
-		AudioMenu.add(AudioMenu.size(), new MenuState("Button", "Back")); //Button 1
-		AudioMenu.add(AudioMenu.size(), new MenuState("Slider", "SoundVolume"));
-		AudioMenu.add(AudioMenu.size(), new MenuState("Slider", "MusicVolume"));
-		AudioMenu.add(AudioMenu.size(), new MenuState("Slider", "MasterVolume"));
-		
-		//Menu 2 / Options
-		Options.add(Options.size(), new MenuState("Button", "Back")); //Button 1
-		Options.add(Options.size(), new MenuState("Button", "Controls")); //Button 2
-		Options.add(Options.size(), new MenuState("Button", "Graphics")); //Button 3
-		Options.add(Options.size(), new MenuState("Button", "Audio")); //Button 3
-		
-	}
-	
-	public void MenuDraw(SpriteBatch guiBatch, int width, int height, float Time) {
-		
-		//Each if statement is another part of the menu
-		if (currentState == 0) { 
-			gsm.Render.MenuBackground(guiBatch, width, height, width, height);
-			gsm.Render.drawGuiMenus(MainMenu, guiBatch, height, width, gsm);
-		}
-		if (currentState == 1) { 
-			gsm.Render.MenuBackground(guiBatch, width, height, width, height);
-			gsm.Render.drawGuiMenus(Options, guiBatch, height, width, gsm);
-		}
-		if (currentState == 2) { 
-			gsm.Render.MenuBackground(guiBatch, width, height, width, height);
-			gsm.Render.drawGuiMenus(AudioMenu, guiBatch, height, width, gsm);
-		}
-		
-		if (currentState == 2) { 
-			//In game menu
-		}
-	}
+        for (int i = 0; i < Entities.size(); i++) {
+            Entities.get(i).update(Gdx.graphics.getDeltaTime(), Collisions);
+        }
 
-	public void MenuHandle() {
-		if(currentState == 0) { //Runs all the button checks
-			
-			for (int i = 0; i < MainMenu.size(); i++) {
-				if (gsm.MouseDrag[0] == 1) {
-					if (MainMenu.get(i).getType().equals("Slider") && gsm.Render.GuiSliderCheck(gsm.MouseDrag, MainMenu.get(i).getData())) {
-					}
-					
-				}
-				if (gsm.MouseClick[0] == 1) {
-					if (MainMenu.get(i).getType().equals("Button") && gsm.Render.GUIButtonCheck(gsm.MouseClick, MainMenu.get(i).getData())) {
-						gsm.Audio.play("Click");
-						if (MainMenu.get(i).getString().equals("Resume")) {
-							menuOpen = !menuOpen;
-						}
-						if (MainMenu.get(i).getString().equals("Options")) {
-							changeState(1);
-						}
-						if (MainMenu.get(i).getString().equals("Return to Main Menu")) {
-							Common.print("return to menu");
-							gsm.Audio.stopMusic("Wind");
-							gsm.setState(GameStateManager.MENU);
-						}
-						
-					}
-					if (MainMenu.get(i).getType().equals("CheckBox") && gsm.Render.GUICheckBoxCheck(gsm.MouseClick, MainMenu.get(i).getData())) {
-						gsm.Audio.play("Click");
-						MainMenu.get(i).SetBool(!MainMenu.get(i).GetBool());
-					}
-				}
-			}
-		
-		} else if(currentState == 1) { //Runs all the button checks in the SinglePlayer Menu
-			
-			for (int i = 0; i < Options.size(); i++) {
-				if (gsm.MouseDrag[0] == 1) {
-					if (Options.get(i).getType().equals("Slider") && gsm.Render.GuiSliderCheck(gsm.MouseDrag, Options.get(i).getData())) {
-					}
-				}
-				if (gsm.MouseClick[0] == 1) {
-					if (Options.get(i).getType().equals("Button") && gsm.Render.GUIButtonCheck(gsm.MouseClick, Options.get(i).getData())) {
-						gsm.Audio.play("Click");
-						if (Options.get(i).getString().equals("Audio")) {
-							changeState(2);
-						}
-						if (Options.get(i).getString().equals("Graphics")) {
-							
-						}
-						if (Options.get(i).getString().equals("Controls")) {
-							
-						}
-						if (Options.get(i).getString().equals("Back")) {
-							changeState(0);
-						}
-						
-					}
-					if (Options.get(i).getType().equals("CheckBox")  && gsm.Render.GUICheckBoxCheck(gsm.MouseClick, Options.get(i).getData())) {
-						gsm.Audio.play("Click");
-						Options.get(i).SetBool(!Options.get(i).GetBool());
-					}
-				}
-			}
-		} else if(currentState == 2) { //Runs all the button checks in the Audio Menu
-			
-			for (int i = 0; i < AudioMenu.size(); i++) {
-				if (gsm.MouseDrag[0] == 1) {
-					if (AudioMenu.get(i).getType().equals("Slider") && gsm.Render.GuiSliderCheck(gsm.MouseDrag, AudioMenu.get(i).getData())) {
+        //cameraUpdate(MainCameraFocusPoint, camera, Entities,0,0, tempshitgiggle.getWidth()*tempshitgiggle.getTileSize(), tempshitgiggle.getHeight()*tempshitgiggle.getTileSize());
 
-						//Check if the slider is MasterVolume
-						if (AudioMenu.get(i).getString().equals("MasterVolume")) {
-							gsm.Audio.MasterVolume = gsm.Render.GuiSliderReading(gsm.MouseDrag, AudioMenu.get(i).getData());
-						}
-						if (AudioMenu.get(i).getString().equals("MusicVolume")) {
-							gsm.Audio.MusicVolume = gsm.Render.GuiSliderReading(gsm.MouseDrag, AudioMenu.get(i).getData());
-						}
-						if (AudioMenu.get(i).getString().equals("SoundVolume")) {
-							gsm.Audio.SoundVolume = gsm.Render.GuiSliderReading(gsm.MouseDrag, AudioMenu.get(i).getData());
-						}
-					}
-				}
-				if (gsm.MouseClick[0] == 1) {
-					if (AudioMenu.get(i).getType().equals("Button") && gsm.Render.GUIButtonCheck(gsm.MouseClick, AudioMenu.get(i).getData())) {
-						gsm.Audio.play("Click");
-						if (AudioMenu.get(i).getString().equals("Back")) {
-							Back();
-						}
-						
-					}
-					if (AudioMenu.get(i).getType().equals("CheckBox")  && gsm.Render.GUICheckBoxCheck(gsm.MouseClick, AudioMenu.get(i).getData())) {
-						gsm.Audio.play("Click");
-						AudioMenu.get(i).SetBool(!AudioMenu.get(i).GetBool());
-					}
-				}
-			}
-		}
-	}
-	
-	//Ends the Gui Shit
-	
-	public void reSize(SpriteBatch g, int H, int W) {
-		float posX = camera.position.x;
-		float posY = camera.position.y;
-		float posZ = camera.position.z;
-		camera.setToOrtho(false);
-		camera.position.set(posX, posY, posZ);
-		
-		Matrix4 matrix = new Matrix4();
-		matrix.setToOrtho2D(0, 0, W, H);
-		guiBatch.setProjectionMatrix(matrix);
-		cameraGui.setToOrtho(false);
-	}
-	
-	public void IsKeyPressed(Keys Keys) {
-		
-	}
+        handleInput();
+    }
+
+    public void draw(SpriteBatch g, int height, int width, float Time) {
+
+        shaker.update(gsm.DeltaTime);
+        g.setProjectionMatrix(shaker.getCombinedMatrix());
+
+        Rectangle drawView = new Rectangle(camera.position.x - camera.viewportWidth/2 - camera.viewportWidth/4, camera.position.y - camera.viewportHeight/2  - camera.viewportHeight/4, camera.viewportWidth + camera.viewportWidth/4, camera.viewportHeight + camera.viewportHeight/4);
+
+        g.setShader(null);
+        g.begin();
+
+        //Block of code renders all the entities
+        WorldObjectComp entitySort = new WorldObjectComp();
+        WorldObjectCompDepth entitySortz = new WorldObjectCompDepth();
+        Entities.sort(entitySort);
+        Entities.sort(entitySortz);
+        for (int i = 0; i < Entities.size(); i++) {
+            if(drawView.overlaps(new Rectangle(Entities.get(i).getPosition().x, Entities.get(i).getPosition().y, Entities.get(i).getSize().x, Entities.get(i).getSize().y))) {
+                Entities.get(i).draw(g, Time);
+            }
+        }
+
+        //Renders my favorite little debug stuff
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) { //KeyHit
+            gsm.Cursor = GameStateManager.CursorType.Question;
+        } else {
+            gsm.Cursor = GameStateManager.CursorType.Normal;
+        }
+
+        //Particles
+        Particles.Draw(g);
+
+        //Renders the GUI for entities
+        for (int i = 0; i < Entities.size(); i++) {
+            if(Entities.get(i) instanceof NPC) {
+                NPC Entitemp = (NPC) Entities.get(i);
+                if(drawView.overlaps(new Rectangle(Entitemp.getPosition().x, Entitemp.getPosition().y, Entitemp.getSize().x, Entitemp.getSize().y))) {
+                    ((NPC) Entities.get(i)).drawGui(g, Time);
+                }
+            }
+        }
+
+        g.end();
+
+        //DEBUG CODE
+        gsm.Render.debugRenderer.setProjectionMatrix(camera.combined);
+        gsm.Render.debugRenderer.begin(ShapeRenderer.ShapeType.Line);
+
+        if (gsm.Debug) {
+
+            for (int i = 0; i < Collisions.size(); i++) {
+
+                //The bottom
+                gsm.Render.debugRenderer.setColor(Color.YELLOW);
+                gsm.Render.debugRenderer.rect(Collisions.get(i).getPrism().min.x, Collisions.get(i).getPrism().min.y + Collisions.get(i).getPrism().min.z/2, Collisions.get(i).getPrism().getWidth(), Collisions.get(i).getPrism().getHeight());
+
+                //The top of the Cube
+                gsm.Render.debugRenderer.setColor(Color.RED);
+                gsm.Render.debugRenderer.rect(Collisions.get(i).getPrism().min.x, Collisions.get(i).getPrism().min.y + Collisions.get(i).getPrism().getDepth()/2 + Collisions.get(i).getPrism().min.z/2, Collisions.get(i).getPrism().getWidth(), Collisions.get(i).getPrism().getHeight());
+
+                gsm.Render.debugRenderer.setColor(Color.ORANGE);
+            }
+
+            for (int i = 0; i < Entities.size(); i++) {
+                //gsm.Render.debugRenderer.box(Entities.get(i).getHitbox().min.x, Entities.get(i).getHitbox().min.y, Entities.get(i).getHitbox().min.z, Entities.get(i).getHitbox().getWidth(), Entities.get(i).getHitbox().getHeight(), Entities.get(i).getHitbox().getDepth());
+
+                //The bottom
+                gsm.Render.debugRenderer.setColor(Color.GREEN);
+                gsm.Render.debugRenderer.rect(Entities.get(i).getHitbox().min.x, Entities.get(i).getHitbox().min.y + Entities.get(i).getHitbox().min.z/2, Entities.get(i).getHitbox().getWidth(), Entities.get(i).getHitbox().getHeight());
+
+                //The top of the Cube
+                gsm.Render.debugRenderer.setColor(Color.BLUE);
+                gsm.Render.debugRenderer.rect(Entities.get(i).getHitbox().min.x, Entities.get(i).getHitbox().min.y + Entities.get(i).getHitbox().getDepth()/2 + Entities.get(i).getHitbox().min.z/2, Entities.get(i).getHitbox().getWidth(), Entities.get(i).getHitbox().getHeight());
+
+            }
+
+            //The bottom of the PLAYER
+            gsm.Render.debugRenderer.setColor(Color.YELLOW);
+            gsm.Render.debugRenderer.rect(player.getHitbox().min.x, player.getHitbox().min.y + player.getHitbox().min.z/2, player.getHitbox().getWidth(), player.getHitbox().getHeight());
+            //The top of the Cube
+            gsm.Render.debugRenderer.setColor(Color.RED);
+            gsm.Render.debugRenderer.rect(player.getHitbox().min.x, player.getHitbox().min.y + player.getHitbox().getDepth()/2 + player.getHitbox().min.z/2, player.getHitbox().getWidth(), player.getHitbox().getHeight());
+
+            
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) { //KeyHit
+            Vector3 pos = new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0);
+            camera.unproject(pos);
+            gsm.Render.debugRenderer.setColor(Color.WHITE);
+            gsm.Render.debugRenderer.rect(((int)pos.x/16)*16+1, ((int)pos.y/16)*16+1, 15, 15);
+        }
+
+        gsm.Render.debugRenderer.end();
+
+    }
+
+    public void drawUI(SpriteBatch g, int height, int width, float Time) {
+        //Draws things on the screen, and not the world positions
+        g.setProjectionMatrix(GuiCam.combined);
+        g.begin();
+        g.end();
+        UI.Draw(g);
+    }
+
+    private void handleInput() {
+
+    }
+
+    public void reSize(SpriteBatch g, int H, int W) {
+
+        /*Vector3 campostemp = camera.position;
+        camera.setToOrtho(false, gsm.WorldWidth, gsm.WorldHeight);
+        camera.position.set(campostemp);
+        GuiCam.setToOrtho(false, gsm.UIWidth, gsm.UIHeight);
+        shaker.reSize(camera);
+
+        UI.reSize();
+
+        //shaker.reSize(camera); */
+    }
+
+    public void cameraUpdate(WorldObject mainFocus, OrthographicCamera cam, List<WorldObject> Entities, int MinX, int MinY, int MaxX, int MaxY) {
+
+        Vector2 FocalPoint = new Vector2(mainFocus.getPosition().x, mainFocus.getPosition().y);
+        float totalFocusPoints = 1;
+
+        for (int i = 0; i < Entities.size(); i++) {
+            if (Entities.get(i).FocusStrength != 0) {
+                if(mainFocus.getPosition().dst(Entities.get(i).getPosition()) <= 200) {
+                    float tempX = Entities.get(i).getPosition().x;
+                    float tempY = Entities.get(i).getPosition().y;
+
+                    double dist = mainFocus.getPosition().dst(Entities.get(i).getPosition());
+
+                    double influence = -((dist-200)/200)*1;
+
+                    FocalPoint.x += (tempX * (Entities.get(i).FocusStrength*influence));
+                    FocalPoint.y += (tempY * (Entities.get(i).FocusStrength*influence));
+                    totalFocusPoints += Entities.get(i).FocusStrength*influence;
+                }
+            }
+        }
+
+        if (FocalPoint.x - cam.viewportWidth/2 <= MinX) {
+            FocalPoint.x = MinX + cam.viewportWidth/2;
+        } else if (FocalPoint.x + cam.viewportWidth/2 >= MaxX) {
+            FocalPoint.x = MaxX - cam.viewportWidth/2;
+        }
+
+        if (FocalPoint.y - cam.viewportHeight/2 <= MinY) {
+            FocalPoint.y = MinY + cam.viewportHeight/2;
+        } else if (FocalPoint.y + cam.viewportHeight/2 >= MaxY) {
+            FocalPoint.y = MaxY - cam.viewportHeight/2;
+        }
+
+        cam.position.set((int) (FocalPoint.x/totalFocusPoints),(int) (FocalPoint.y/totalFocusPoints), 0);
+
+        cam.update();
+    }
+
+    @Override
+    public void dispose() {
+        Collisions.clear();
+        Entities.clear();
+    }
+
+    @Override
+    public void Shutdown() {
+
+    }
+
 }

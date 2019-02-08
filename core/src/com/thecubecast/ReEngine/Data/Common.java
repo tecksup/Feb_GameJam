@@ -5,9 +5,26 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Shape2D;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 public class Common {
 	
+	public static void ProperShutdown(GameStateManager gsm) {
+		Common.print("Proper Shutdown Commenced!");
+		Common.print("Running all pre-shutdown protocalls...");
+		//Then run all the code u want to do before it ends
+		//Cleanup(); SaveAll();
+
+		gsm.Shutdown();
+
+		//Now Finish It!
+		Common.print("Terminating Program!");
+		Gdx.app.exit();
+	}
+
 	public static void ProperShutdown() {
 		Common.print("Proper Shutdown Commenced!");
 		Common.print("Running all pre-shutdown protocalls...");
@@ -45,5 +62,28 @@ public class Common {
 		int output = (int) Math.floor(x);
 		
 		return output;
+	}
+
+	public static int roundUp(float x) {
+
+		int output = (int) Math.ceil(x);
+
+		return output;
+	}
+	
+	public static float GetAngle(Vector2 center, Vector2 point) {
+		double angleRadians = Math.atan2(point.y-center.y,point.x-center.x);
+		float angleDegrees = (float) (angleRadians * MathUtils.radiansToDegrees)*-1;
+		return angleDegrees;
+	}
+
+	public static void updategsmValues(GameStateManager gsm, Vector3 pos) {
+		/*gsm.MouseX = (int) pos.x;
+		gsm.MouseY = (int) pos.y;
+		gsm.MouseClick[1] = (int) pos.x;
+		gsm.MouseClick[2] = (int) pos.y;
+		gsm.MouseDrag[1] = (int) pos.x;
+		gsm.MouseDrag[2] = (int) pos.y;
+		*/
 	}
 }

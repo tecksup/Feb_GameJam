@@ -1,11 +1,14 @@
 package com.thecubecast.ReEngine.Data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.backends.lwjgl3.audio.OpenALMusic;
 
 public class SoundManager {
 	
@@ -15,47 +18,38 @@ public class SoundManager {
 
 	//Define all sound objects
 	Sound Click;
-	Sound DrilIdle;
-	Sound DrilMove;
-	Sound CashGet;
 	
 	//Define all your music objects
-	Music eightbitDiggerAudio;
-	Boolean eightbitDigger = false;
-	Music WindAudio;
-	Boolean Wind = false;
-	
+    private List<Music> HandledMusic = new ArrayList<>();
+    private List<Sound> HandledSound = new ArrayList<>();
+
 	Map<String, Long> SoundIds = new HashMap<String, Long>();
 	
 	public void init() { //Create the folders that hold everything neatly
 		
 		Click = Gdx.audio.newSound(Gdx.files.internal("Music/Sound/menu-clik.wav"));
-		DrilIdle = Gdx.audio.newSound(Gdx.files.internal("Music/Sound/menu-clik.wav"));
-		DrilMove = Gdx.audio.newSound(Gdx.files.internal("Music/Sound/menu-clik.wav"));
-		CashGet = Gdx.audio.newSound(Gdx.files.internal("Music/Sound/gain-cash.wav"));
-		
+
 	}
 	
 	public void update() {
-		if (eightbitDigger) {
-			eightbitDiggerAudio.setVolume(MusicVolume*MasterVolume);
-		}
-		if (Wind) {
-			WindAudio.setVolume(MusicVolume*MasterVolume);
+	    for(int i = 0; i < HandledMusic.size(); i++) {
+			HandledMusic.get(i).setVolume(MusicVolume*MasterVolume);
 		}
 	}
-	
+
+	public void playS(String soundName) {
+		Sound temp = Gdx.audio.newSound(Gdx.files.internal("Music/Sound/" + soundName));
+		HandledSound.add(temp);
+		SoundIds.put(soundName, temp.play(1));
+	}
+
 	public void play(String soundName) {
 		if(soundName.equals("Click")) {
 			long temp = Click.play(SoundVolume*MasterVolume);
 			SoundIds.put(soundName, temp);
 		}
-		if(soundName.equals("CashGet")) {
-			long temp = CashGet.play(SoundVolume*MasterVolume);
-			SoundIds.put(soundName, temp);
-		}
 	}
-	
+
 	public void pause(String soundName) {
 		if(soundName.equals("Click")) {
 			long temp = SoundIds.get(soundName);
@@ -69,63 +63,34 @@ public class SoundManager {
 			Click.stop(temp);
 		}
 	}
-	
-	public void playMusic (String Music, boolean looping) {
-		if(Music.equals("8-bit-Digger")) {
-			eightbitDigger = true;
-			eightbitDiggerAudio = Gdx.audio.newMusic(Gdx.files.internal("Music/The-8-Bit-Digger.wav"));
-			eightbitDiggerAudio.play();
-			eightbitDiggerAudio.setVolume(MusicVolume*MasterVolume);
-			if(looping) {
-				eightbitDiggerAudio.setLooping(looping);
-			}
-		} else if(Music.equals("Wind")) {
-			Wind = true;
-			WindAudio = Gdx.audio.newMusic(Gdx.files.internal("Music/wind.wav"));
-			WindAudio.play();
-			WindAudio.setVolume(MusicVolume*MasterVolume);
-			if(looping) {
-				WindAudio.setLooping(looping);
-			}
+
+	public int playMusic (String Music, boolean looping) {
+		Music temp = Gdx.audio.newMusic(Gdx.files.internal("Music/" + Music));
+        HandledMusic.add(temp);
+		temp.play();
+		temp.setVolume(MusicVolume*MasterVolume);
+		if(looping) {
+			temp.setLooping(looping);
 		}
+        return HandledMusic.size()-1;
+	}
+
+	public boolean isPlaying(int MusicID) {
+        if(HandledMusic.get(MusicID).isPlaying()) {
+            return true;
+        } else {
+            return false;
+        }
 	}
 	
-	public boolean isPlaying(String Music) {
-		if(Music.equals("8-bit-Digger")) {
-			if(eightbitDiggerAudio.isPlaying()) {
-				return true;
-			} else {
-				return false;
-			}
-		} else if(Music.equals("Wind")) {
-			if(WindAudio.isPlaying()) {
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
+	public void pauseMusic (int MusicID) {
+        HandledMusic.get(MusicID).pause();
 	}
 	
-	public void pauseMusic (String Music) {
-		if(Music.equals("8-bit-Digger")) {
-			eightbitDiggerAudio.pause();
-		} else if(Music.equals("Wind")) {
-			WindAudio.pause();
-		}
-	}
-	
-	public void stopMusic (String Music) {
-		if(Music.equals("8-bit-Digger")) {
-			eightbitDigger = false;
-			eightbitDiggerAudio.stop();
-			eightbitDiggerAudio.dispose();
-		} else if(Music.equals("Wind")) {
-			Wind = false;
-			WindAudio.stop();
-			WindAudio.dispose();
-		}
+	public void stopMusic (int MusicID) {
+        HandledMusic.get(MusicID).stop();
+        HandledMusic.get(MusicID).dispose();
+        HandledMusic.remove(MusicID);
 	}
 	
 }
