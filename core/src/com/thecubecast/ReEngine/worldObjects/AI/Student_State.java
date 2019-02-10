@@ -1,9 +1,7 @@
 package com.thecubecast.ReEngine.worldObjects.AI;
 
 import com.badlogic.gdx.ai.fsm.State;
-import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
-import com.thecubecast.ReEngine.Data.Common;
 
 public enum Student_State implements State<Smart> {
 

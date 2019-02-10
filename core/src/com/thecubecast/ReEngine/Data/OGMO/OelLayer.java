@@ -7,8 +7,8 @@ public abstract class OelLayer {
     private String Name;
 
     public OelLayer(int Width, int Height, String Name) {
-        this.Width = Width/16;
-        this.Height = Height/16;
+        this.Width = Width / 16;
+        this.Height = Height / 16;
         this.Name = Name;
     }
 

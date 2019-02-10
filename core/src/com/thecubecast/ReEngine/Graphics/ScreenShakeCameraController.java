@@ -1,7 +1,6 @@
 package com.thecubecast.ReEngine.Graphics;
 
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -10,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
 
 public class ScreenShakeCameraController {
 
@@ -35,8 +33,7 @@ public class ScreenShakeCameraController {
     private Texture pixelTex;
 
 
-
-    public ScreenShakeCameraController(OrthographicCamera worldCamera){
+    public ScreenShakeCameraController(OrthographicCamera worldCamera) {
         reSize(worldCamera);
         noise = new SimplexNoise(64, .8f, 2);
         trauma = 0;
@@ -46,9 +43,9 @@ public class ScreenShakeCameraController {
 
         // Debug for drawing the perlin noise
         Pixmap pixmap = new Pixmap(128, 128, Pixmap.Format.RGBA8888);
-        for (int x = 0; x < 128; x++){
-            for (int y = 0; y < 128; y++){
-                float noiseValue = (float)((noise.getNoise(x, y) + 1f)/2f);
+        for (int x = 0; x < 128; x++) {
+            for (int y = 0; y < 128; y++) {
+                float noiseValue = (float) ((noise.getNoise(x, y) + 1f) / 2f);
                 int color = Color.rgba8888(noiseValue, noiseValue, noiseValue, 1f);
                 pixmap.drawPixel(x, y, color);
             }
@@ -61,9 +58,10 @@ public class ScreenShakeCameraController {
     /**
      * Called every frame.
      * This will update the shake camera
+     *
      * @param dt frame delta
      */
-    public void update(float dt){
+    public void update(float dt) {
         accumTime += dt;
 
         // reset view camera
@@ -73,9 +71,9 @@ public class ScreenShakeCameraController {
 
         trauma = MathUtils.clamp(trauma, 0f, 1f);
         float shake = getShakeAmount();
-        float offsetX = maxXOffset * shake * (float)noise.getNoise(1, accumTime * xOffsetSpeed);
-        float offsetY = maxYOffset * shake * (float)noise.getNoise(20, accumTime * yOffsetSpeed);
-        float angle = maxAngleDegrees * shake * (float)noise.getNoise(30, accumTime * rotationSpeed);
+        float offsetX = maxXOffset * shake * (float) noise.getNoise(1, accumTime * xOffsetSpeed);
+        float offsetY = maxYOffset * shake * (float) noise.getNoise(20, accumTime * yOffsetSpeed);
+        float angle = maxAngleDegrees * shake * (float) noise.getNoise(30, accumTime * rotationSpeed);
 
         viewCamera.position.add((int) offsetX, (int) offsetY, 0);
         viewCamera.rotate(angle);
@@ -89,35 +87,38 @@ public class ScreenShakeCameraController {
     /**
      * Adds damage to the screen shake amount, values between .1 and .5 work best
      * Max combined damage trauma is 1f
+     *
      * @param damage between 0 and 1
      */
-    public void addDamage(float damage){
+    public void addDamage(float damage) {
         trauma += damage;
     }
 
     /**
      * sets damage to the screen shake amount, values between .1 and .5 work best
      * Max combined damage trauma is 1f
+     *
      * @param damage between 0 and 1
      */
     public void setDamage(float damage) {
         trauma = damage;
     }
 
-    private float getShakeAmount(){
+    private float getShakeAmount() {
         return trauma * trauma;
     }
 
 
     /**
      * Use this instead of the normal cameras projection Matrix
+     *
      * @return the shaken camera matrix
      */
-    public Matrix4 getCombinedMatrix(){
+    public Matrix4 getCombinedMatrix() {
         return viewCamera.combined;
     }
 
-    public void renderDebug(SpriteBatch batch, OrthographicCamera screenCamera){
+    public void renderDebug(SpriteBatch batch, OrthographicCamera screenCamera) {
         batch.setColor(Color.WHITE);
         batch.draw(debugTexture, screenCamera.viewportWidth - 148, 20);
         float height = screenCamera.viewportHeight - 40;

@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.thecubecast.ReEngine.Data.GameStateManager;
-import com.thecubecast.ReEngine.worldObjects.Player;
 
 public class UIFSM implements Telegraph {
 
@@ -35,7 +34,7 @@ public class UIFSM implements Telegraph {
 
         this.gsm = gsm;
 
-        stage = new Stage(new FitViewport(gsm.UIWidth, gsm.UIHeight));
+        stage = new Stage(new FitViewport(GameStateManager.UIWidth, GameStateManager.UIHeight));
 
         Gdx.input.setInputProcessor(stage);
 
@@ -72,13 +71,13 @@ public class UIFSM implements Telegraph {
 
         stateMachine.update();
 
-        stage.getViewport().update(gsm.UIWidth, gsm.UIHeight, true);
+        stage.getViewport().update(GameStateManager.UIWidth, GameStateManager.UIHeight, true);
         stage.draw();
         stage.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
     }
 
     public void reSize() {
-        stage = new Stage(new FitViewport(gsm.UIWidth, gsm.UIHeight));
+        stage = new Stage(new FitViewport(GameStateManager.UIWidth, GameStateManager.UIHeight));
 
         Gdx.input.setInputProcessor(stage);
 

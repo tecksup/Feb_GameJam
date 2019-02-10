@@ -16,13 +16,9 @@ public class OelGridLayer extends OelLayer {
         String[] Bits = PreparedBitString.split("");
 
         int index = 0;
-        for (int y = getHeight()-1; y >= 0; y--) {
+        for (int y = getHeight() - 1; y >= 0; y--) {
             for (int x = 0; x < getWidth(); x++) {
-                if (Integer.parseInt(Bits[index]) == 1) {
-                    Cells[y][x] = true;
-                } else {
-                    Cells[y][x] = false;
-                }
+                Cells[y][x] = Integer.parseInt(Bits[index]) == 1;
                 index++;
             }
         }
@@ -41,7 +37,7 @@ public class OelGridLayer extends OelLayer {
     @Override
     public String toString() {
         String BitString = "<" + getName() + " exportMode=\"Bitstring\">\n";
-        for (int y = getHeight()-1; y >= 0; y--) {
+        for (int y = getHeight() - 1; y >= 0; y--) {
             for (int x = 0; x < getWidth(); x++) {
                 if (Cells[y][x] == true) {
                     BitString += "1";

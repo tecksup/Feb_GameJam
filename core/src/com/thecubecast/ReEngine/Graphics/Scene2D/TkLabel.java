@@ -1,27 +1,27 @@
 package com.thecubecast.ReEngine.Graphics.Scene2D;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.thecubecast.ReEngine.Data.Common;
 
-import static com.thecubecast.ReEngine.Data.GameStateManager.AudioM;
-
-public class TkLabel extends Label{
+public class TkLabel extends Label {
 
     public String Suffix = "";
 
-    /** time in seconds it takes for a char to appear */
+    /**
+     * time in seconds it takes for a char to appear
+     */
     float TextScrollRate = 0.035f;
     CharSequence Original = "";
     private int TextIndex = 0;
 
     private int tics;
 
-    /** Set to true to enable scrolling*/
+    /**
+     * Set to true to enable scrolling
+     */
     private boolean Scrolling = false;
 
     public TkLabel(CharSequence text, Skin skin) {
@@ -78,11 +78,10 @@ public class TkLabel extends Label{
         if (Scrolling) {
             String Output = "";
 
-            for(int i = 0; i < Original.length(); i++) {
-                if(i < TextIndex) {
+            for (int i = 0; i < Original.length(); i++) {
+                if (i < TextIndex) {
                     Output += Original.charAt(i);
-                }
-                else
+                } else
                     break;
             }
 

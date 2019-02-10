@@ -1,13 +1,10 @@
 package com.thecubecast.ReEngine.Graphics.Scene2D;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.thecubecast.ReEngine.Data.GameStateManager;
 
 import static com.thecubecast.ReEngine.Data.GameStateManager.AudioM;
 
@@ -22,9 +19,9 @@ public class TkTextButton extends TextButton {
     }
 
     private void custom() {
-        this.addListener(new ClickListener(){
+        this.addListener(new ClickListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y){
+            public void clicked(InputEvent event, float x, float y) {
                 //Play a click sound
                 AudioM.play("Click");
             }
@@ -33,7 +30,7 @@ public class TkTextButton extends TextButton {
 
     @Override
     protected void drawBackground(Batch batch, float parentAlpha, float x, float y) {
-        if(Selected) {
+        if (Selected) {
             setBackground(getStyle().over);
         }
 

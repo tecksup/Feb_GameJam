@@ -1,20 +1,14 @@
 package com.thecubecast.ReEngine.Data.OGMO;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.XmlReader;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.thecubecast.ReEngine.Graphics.Draw.FillColorShader;
-import static com.thecubecast.ReEngine.Graphics.Draw.setFillColorShaderColor;
 
 public class OelMapRenderer {
 
@@ -73,7 +67,7 @@ public class OelMapRenderer {
         if (cam != null) {
             drawView = new Rectangle(cam.position.x - cam.viewportWidth, cam.position.y - cam.viewportHeight, cam.viewportWidth + cam.viewportWidth, cam.viewportHeight + cam.viewportHeight);
         } else {
-            drawView = new Rectangle(0, 0, Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
+            drawView = new Rectangle(0, 0, Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 4);
         }
 
         for (int i = 0; i < Tilesets.size(); i++) {
@@ -82,15 +76,15 @@ public class OelMapRenderer {
 
                 OelGridLayer GridLayer = ((OelGridLayer) Map.getLayers().get(layerIndex));
 
-                for (int y = Map.getHeight()/16; y >= 0; y--) {
-                    for (int x = 0; x < Map.getWidth()/16; x++) {
+                for (int y = Map.getHeight() / 16; y >= 0; y--) {
+                    for (int x = 0; x < Map.getWidth() / 16; x++) {
 
                         if (GridLayer.getCell(x, y) == 0) {
-                            if(drawView.overlaps(new Rectangle(x*16, y*16, 16, 16))) {
+                            if (drawView.overlaps(new Rectangle(x * 16, y * 16, 16, 16))) {
                                 //batch.draw(pixel, x * 16, y *16, 16, 16);
                             }
                         } else {
-                            if(drawView.overlaps(new Rectangle(x*16, y*16, 16, 16))) {
+                            if (drawView.overlaps(new Rectangle(x * 16, y * 16, 16, 16))) {
                                 batch.draw(pixel, x * 16, y * 16, 16, 16);
                             }
                         }
@@ -103,10 +97,10 @@ public class OelMapRenderer {
 
                 if (TileLayer.getTileset().equals(Tilesets.get(i).Name)) {
 
-                    for (int y = Map.getHeight()/16; y >= 0; y--) {
-                        for (int x = 0; x < Map.getWidth()/16; x++) {
-                            if (TileLayer.getCell(x,y) != -1) {
-                                if(drawView.overlaps(new Rectangle(x*16, y*16, 16, 16))) {
+                    for (int y = Map.getHeight() / 16; y >= 0; y--) {
+                        for (int x = 0; x < Map.getWidth() / 16; x++) {
+                            if (TileLayer.getCell(x, y) != -1) {
+                                if (drawView.overlaps(new Rectangle(x * 16, y * 16, 16, 16))) {
                                     batch.draw(Tilesets.get(i).Tiles[TileLayer.getCell(x, y)], x * 16, y * 16);
                                 }
                             }
@@ -128,7 +122,7 @@ public class OelMapRenderer {
         if (cam != null) {
             drawView = new Rectangle(cam.position.x - cam.viewportWidth, cam.position.y - cam.viewportHeight, cam.viewportWidth + cam.viewportWidth, cam.viewportHeight + cam.viewportHeight);
         } else {
-            drawView = new Rectangle(0, 0, Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
+            drawView = new Rectangle(0, 0, Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 4);
         }
 
         int layerIndex = 0;
@@ -136,9 +130,7 @@ public class OelMapRenderer {
             if (Map.getLayers().get(i).getName().equals(layername)) {
                 layerIndex = i;
                 break;
-            }
-
-            else if (i == Map.getLayers().size()-1) {
+            } else if (i == Map.getLayers().size() - 1) {
                 System.out.println("Error in OemMapRendering \n Layer \"" + layername + "\" not found");
                 return;
             }
@@ -150,15 +142,15 @@ public class OelMapRenderer {
 
                 OelGridLayer GridLayer = ((OelGridLayer) Map.getLayers().get(layerIndex));
 
-                for (int y = Map.getHeight()/16; y >= 0; y--) {
-                    for (int x = 0; x < Map.getWidth()/16; x++) {
+                for (int y = Map.getHeight() / 16; y >= 0; y--) {
+                    for (int x = 0; x < Map.getWidth() / 16; x++) {
 
                         if (GridLayer.getCell(x, y) == 0) {
-                            if(drawView.overlaps(new Rectangle(x*16, y*16, 16, 16))) {
+                            if (drawView.overlaps(new Rectangle(x * 16, y * 16, 16, 16))) {
                                 //batch.draw(pixel, x * 16, y *16, 16, 16);
                             }
                         } else {
-                            if(drawView.overlaps(new Rectangle(x*16, y*16, 16, 16))) {
+                            if (drawView.overlaps(new Rectangle(x * 16, y * 16, 16, 16))) {
                                 batch.draw(pixel, x * 16, y * 16, 16, 16);
                             }
                         }
@@ -171,10 +163,10 @@ public class OelMapRenderer {
 
                 if (TileLayer.getTileset().equals(Tilesets.get(i).Name)) {
 
-                    for (int y = Map.getHeight()/16; y >= 0; y--) {
-                        for (int x = 0; x < Map.getWidth()/16; x++) {
-                            if (TileLayer.getCell(x,y) != -1) {
-                                if(drawView.overlaps(new Rectangle(x*16, y*16, 16, 16))) {
+                    for (int y = Map.getHeight() / 16; y >= 0; y--) {
+                        for (int x = 0; x < Map.getWidth() / 16; x++) {
+                            if (TileLayer.getCell(x, y) != -1) {
+                                if (drawView.overlaps(new Rectangle(x * 16, y * 16, 16, 16))) {
                                     batch.draw(Tilesets.get(i).Tiles[TileLayer.getCell(x, y)], x * 16, y * 16);
                                 }
                             }

@@ -15,7 +15,7 @@ import com.thecubecast.ReEngine.worldObjects.NPC;
 
 import java.util.List;
 
-import static com.thecubecast.ReEngine.Graphics.Draw.*;
+import static com.thecubecast.ReEngine.Graphics.Draw.loadAnim;
 
 public class Hank extends NPC {
 
@@ -39,9 +39,9 @@ public class Hank extends NPC {
 
         stage = new Group();
 
-        NameLabel = new TkLabel(getName(),skin);
+        NameLabel = new TkLabel(getName(), skin);
         HealthBar = new ProgressBar(0f, 10f, 0.1f, false, skin, "Health_npc");
-        HealthBar.setValue(getHealth()/10);
+        HealthBar.setValue(getHealth() / 10);
         HealthBar.setWidth(40);
         stage.addActor(NameLabel);
         stage.addActor(HealthBar);
@@ -52,12 +52,12 @@ public class Hank extends NPC {
 
         TextureRegion currentFrame = idle.getKeyFrame(Time, true);
 
-        if (System.nanoTime()/1000000 - getLastDamagedTime() < 1000) {
+        if (System.nanoTime() / 1000000 - getLastDamagedTime() < 1000) {
 
-            batch.draw(new TextureRegion(currentFrame), getPosition().x-6, getPosition().y-4);
+            batch.draw(new TextureRegion(currentFrame), getPosition().x - 6, getPosition().y - 4);
 
         } else {
-            batch.draw(new TextureRegion(currentFrame), getPosition().x-6, getPosition().y-4);
+            batch.draw(new TextureRegion(currentFrame), getPosition().x - 6, getPosition().y - 4);
         }
 
     }
@@ -77,7 +77,7 @@ public class Hank extends NPC {
     @Override
     public void drawGui(SpriteBatch batch, float Time) {
         stage.draw(batch, 1);
-        batch.draw(Exclamation, (int) getPosition().x + 6, (int) getPosition().y+63 + (float) (Math.sin(Time)*2));
+        batch.draw(Exclamation, (int) getPosition().x + 6, (int) getPosition().y + 63 + (float) (Math.sin(Time) * 2));
     }
 
     @Override
@@ -90,7 +90,7 @@ public class Hank extends NPC {
         if (Colls == null) {
             return;
         }
-        for(int i = 0; i < Colls.size(); i++) {
+        for (int i = 0; i < Colls.size(); i++) {
             if (Colls.get(i).getHash() == this.hashCode()) {
                 //Rectangle hankbox = new Rectangle();
                 //Colls.get(i).setRect(hankbox);
@@ -99,8 +99,8 @@ public class Hank extends NPC {
         super.update(delta, Colls);
         stage.act(Gdx.graphics.getDeltaTime());
         NameLabel.setText(getName());
-        NameLabel.setPosition((int) getPosition().x + 3, (int) getPosition().y+50);
-        HealthBar.setValue(getHealth()/10);
-        HealthBar.setPosition((int) getPosition().x + 15 - (HealthBar.getWidth()/2), (int) getPosition().y+44);
+        NameLabel.setPosition((int) getPosition().x + 3, (int) getPosition().y + 50);
+        HealthBar.setValue(getHealth() / 10);
+        HealthBar.setPosition((int) getPosition().x + 15 - (HealthBar.getWidth() / 2), (int) getPosition().y + 44);
     }
 }

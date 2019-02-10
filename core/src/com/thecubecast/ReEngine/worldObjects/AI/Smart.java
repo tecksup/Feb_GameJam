@@ -59,16 +59,16 @@ public class Smart implements Telegraph {
         pathFinder = new IndexedAStarPathFinder<FlatTiledNode>(worldMap, true);
     }
 
-    public void updatePath (boolean forceUpdate) {
-        int tileX = (int) getDestination().x/16;
-        int tileY = (int) getDestination().y/16;
+    public void updatePath(boolean forceUpdate) {
+        int tileX = (int) getDestination().x / 16;
+        int tileY = (int) getDestination().y / 16;
         if (forceUpdate || tileX != WorldObject.getPosition().x || tileY != WorldObject.getPosition().y) {
-            FlatTiledNode startNode = worldMap.getNode((int) WorldObject.getPosition().x/16,(int) WorldObject.getPosition().y/16);
+            FlatTiledNode startNode = worldMap.getNode((int) WorldObject.getPosition().x / 16, (int) WorldObject.getPosition().y / 16);
             FlatTiledNode endNode = worldMap.getNode(tileX, tileY);
             if (forceUpdate || endNode.type == FlatTiledNode.GROUND) {
                 if (endNode.type == FlatTiledNode.GROUND) {
-                    WorldObject.setPositionX(tileX*16);
-                    WorldObject.setPositionY(tileY*16);
+                    WorldObject.setPositionX(tileX * 16);
+                    WorldObject.setPositionY(tileY * 16);
                 } else {
                     endNode = worldMap.getNode(tileX, tileY);
                 }

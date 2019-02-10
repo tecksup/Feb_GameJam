@@ -23,7 +23,7 @@ public abstract class NPC extends WorldObject {
     private entityState EState = entityState.alive;
 
     public NPC(String name, int x, int y, int z, Vector3 size, float knockbackResistance, float health) {
-        super(x, y, z, size,type.Dynamic);
+        super(x, y, z, size, type.Dynamic);
         this.knockbackResistance = knockbackResistance;
         this.health = health;
         this.name = name;
@@ -32,7 +32,7 @@ public abstract class NPC extends WorldObject {
     }
 
     public NPC(String name, int x, int y, int z, Vector3 size, float knockbackResistance, float health, boolean invincible) {
-        super(x, y, z, size,type.Dynamic);
+        super(x, y, z, size, type.Dynamic);
         this.knockbackResistance = knockbackResistance;
         this.health = health;
         this.name = name;
@@ -42,7 +42,7 @@ public abstract class NPC extends WorldObject {
     }
 
     public NPC(String name, int x, int y, int z, Vector3 size, float knockbackResistance, float health, intractability interact) {
-        super(x, y, z, size,type.Dynamic);
+        super(x, y, z, size, type.Dynamic);
         this.knockbackResistance = knockbackResistance;
         this.health = health;
         this.name = name;
@@ -51,9 +51,8 @@ public abstract class NPC extends WorldObject {
     }
 
     public NPC(String name, int x, int y, int z, Vector3 size, float knockbackResistance, float health, intractability interact, boolean invincible) {
-        super(x, y, z, size,type.Dynamic);
+        super(x, y, z, size, type.Dynamic);
         this.knockbackResistance = knockbackResistance;
-        ;
         this.health = health;
         this.name = name;
         this.interact = interact;
@@ -70,10 +69,10 @@ public abstract class NPC extends WorldObject {
     public void update(float delta, List<Cube> Colls) {
 
         if (getState().equals(type.Dynamic)) {
-            super.setVelocityX((getVelocity().x + getVelocity().x*-1 * 0.1f));
-            super.setVelocityY((getVelocity().y + getVelocity().y*-1 * 0.1f));
+            super.setVelocityX((getVelocity().x + getVelocity().x * -1 * 0.1f));
+            super.setVelocityY((getVelocity().y + getVelocity().y * -1 * 0.1f));
 
-            Vector2 pos = new Vector2(getVelocity().x*delta, getVelocity().y*delta);
+            Vector2 pos = new Vector2(getVelocity().x * delta, getVelocity().y * delta);
 
             /*
 
@@ -128,9 +127,9 @@ public abstract class NPC extends WorldObject {
     }
 
     public void damage(int damage) {
-        if(!invulnerable) {
+        if (!invulnerable) {
             health -= damage;
-            LastDamagedTime = System.nanoTime()/1000000;
+            LastDamagedTime = System.nanoTime() / 1000000;
         }
 
         if (health < 0) {
@@ -139,9 +138,9 @@ public abstract class NPC extends WorldObject {
     }
 
     public void damage(int damage, Vector3 knockback) {
-        if(!invulnerable) {
+        if (!invulnerable) {
             health -= damage;
-            LastDamagedTime = System.nanoTime()/1000000;
+            LastDamagedTime = System.nanoTime() / 1000000;
             knockback.x -= knockback.x * knockbackResistance;
             knockback.y -= knockback.y * knockbackResistance;
             knockback.x += getVelocity().x;
@@ -215,6 +214,8 @@ public abstract class NPC extends WorldObject {
         this.knockbackResistance = knockbackResistance;
     }
 
-    public long getLastDamagedTime() { return LastDamagedTime; }
+    public long getLastDamagedTime() {
+        return LastDamagedTime;
+    }
 
 }

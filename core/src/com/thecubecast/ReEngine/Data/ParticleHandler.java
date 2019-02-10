@@ -19,7 +19,7 @@ public class ParticleHandler {
     public void AddParticleEffect(String ParticleName, Vector2 pos) {
         //SETUP THE PARTICLES
         ParticleEffect temp = new ParticleEffect();
-        temp.load(Gdx.files.internal("Tkparticles/" + ParticleName + ".p"),Gdx.files.internal("Tkparticles"));
+        temp.load(Gdx.files.internal("Tkparticles/" + ParticleName + ".p"), Gdx.files.internal("Tkparticles"));
         temp.setPosition(pos.x, pos.y);
         temp.start();
         ParticleEffects.add(temp);
@@ -28,7 +28,7 @@ public class ParticleHandler {
     public ParticleEffect AddParticleEffect(String ParticleName, float x, float y) {
         //SETUP THE PARTICLES
         ParticleEffect temp = new ParticleEffect();
-        temp.load(Gdx.files.internal("Tkparticles/" + ParticleName + ".p"),Gdx.files.internal("Tkparticles"));
+        temp.load(Gdx.files.internal("Tkparticles/" + ParticleName + ".p"), Gdx.files.internal("Tkparticles"));
         temp.setPosition(x, y);
         temp.start();
         ParticleEffects.add(temp);
@@ -36,8 +36,8 @@ public class ParticleHandler {
     }
 
     public void Update() {
-        for(int i = 0; i < ParticleEffects.size(); i++) {
-            if(ParticleEffects.get(i).isComplete()) {
+        for (int i = 0; i < ParticleEffects.size(); i++) {
+            if (ParticleEffects.get(i).isComplete()) {
                 ParticleEffects.get(i).dispose();
                 ParticleEffects.remove(i);
             }
@@ -45,7 +45,7 @@ public class ParticleHandler {
     }
 
     public void Draw(SpriteBatch batch) {
-        for(int i = 0; i < ParticleEffects.size(); i++) {
+        for (int i = 0; i < ParticleEffects.size(); i++) {
             ParticleEffects.get(i).draw(batch, Gdx.graphics.getDeltaTime());
         }
     }

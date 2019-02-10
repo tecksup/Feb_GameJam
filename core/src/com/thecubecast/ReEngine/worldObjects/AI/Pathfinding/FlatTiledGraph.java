@@ -23,9 +23,11 @@ import com.badlogic.gdx.utils.Array;
 import com.thecubecast.ReEngine.Data.OGMO.OelGridLayer;
 import com.thecubecast.ReEngine.Data.OGMO.OelMap;
 
-/** A random generated graph representing a flat tiled map.
+/**
+ * A random generated graph representing a flat tiled map.
  *
- * @author davebaol */
+ * @author davebaol
+ */
 public class FlatTiledGraph implements TiledGraph<FlatTiledNode> {
 
     static int sizeX, sizeY;
@@ -35,7 +37,7 @@ public class FlatTiledGraph implements TiledGraph<FlatTiledNode> {
     public boolean diagonal;
     public FlatTiledNode startNode;
 
-    public FlatTiledGraph (TiledMap map) {
+    public FlatTiledGraph(TiledMap map) {
         sizeX = map.getProperties().get("width", Integer.class);
         sizeY = map.getProperties().get("height", Integer.class);
         this.nodes = new Array<FlatTiledNode>(sizeX * sizeY);
@@ -43,19 +45,19 @@ public class FlatTiledGraph implements TiledGraph<FlatTiledNode> {
         this.startNode = null;
     }
 
-    public FlatTiledGraph (OelMap map) {
-        sizeX = map.getWidth()/8;
-        sizeY = map.getHeight()/8;
+    public FlatTiledGraph(OelMap map) {
+        sizeX = map.getWidth() / 8;
+        sizeY = map.getHeight() / 8;
         this.nodes = new Array<FlatTiledNode>(sizeX * sizeY);
         this.diagonal = false;
         this.startNode = null;
     }
 
-    public void init (TiledMap map) {
+    public void init(TiledMap map) {
         TiledMapTileLayer CollisionLayer = (TiledMapTileLayer) map.getLayers().get("Collision");
         for (int x = 0; x < sizeX; x++) {
             for (int y = 0; y < sizeY; y++) {
-                nodes.add(new FlatTiledNode(x, y, CollisionLayer.getCell( x, y).getTile().getId(), 8));
+                nodes.add(new FlatTiledNode(x, y, CollisionLayer.getCell(x, y).getTile().getId(), 8));
             }
         }
 
@@ -71,7 +73,7 @@ public class FlatTiledGraph implements TiledGraph<FlatTiledNode> {
         }
     }
 
-    public void init (OelMap map) {
+    public void init(OelMap map) {
         for (int i = 0; i < map.getLayers().size(); i++) {
             if (map.getLayers().get(i).getName().equals("Collision")) {
                 OelGridLayer temp = (OelGridLayer) map.getLayers().get(i);
@@ -117,31 +119,31 @@ public class FlatTiledGraph implements TiledGraph<FlatTiledNode> {
     }*/
 
     @Override
-    public FlatTiledNode getNode (int x, int y) {
+    public FlatTiledNode getNode(int x, int y) {
         return nodes.get(x * sizeY + y);
     }
 
     @Override
-    public FlatTiledNode getNode (int index) {
+    public FlatTiledNode getNode(int index) {
         return nodes.get(index);
     }
 
     @Override
-    public int getIndex (FlatTiledNode node) {
+    public int getIndex(FlatTiledNode node) {
         return node.getIndex();
     }
 
     @Override
-    public int getNodeCount () {
+    public int getNodeCount() {
         return nodes.size;
     }
 
     @Override
-    public Array<Connection<FlatTiledNode>> getConnections (FlatTiledNode fromNode) {
+    public Array<Connection<FlatTiledNode>> getConnections(FlatTiledNode fromNode) {
         return fromNode.getConnections();
     }
 
-    private void addConnection (FlatTiledNode n, int xOffset, int yOffset) {
+    private void addConnection(FlatTiledNode n, int xOffset, int yOffset) {
         FlatTiledNode target = getNode(n.x + xOffset, n.y + yOffset);
         if (target.type != FlatTiledNode.COLLIDABLE)
             n.getConnections().add(new FlatTiledConnection(this, n, target));

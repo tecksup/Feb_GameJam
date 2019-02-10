@@ -43,18 +43,18 @@ public class controlerManager implements ControllerListener {
     }
 
     public enum POVs {
-        DPAD;
+        DPAD
     }
 
     public List<controllerType> Types = new ArrayList<>();
-    
+
     public controlerManager() {
         Gson gson = new Gson();
         Controllers.addListener(this);
 
         //Search for config files in controllers folder
         File Directory = new File("Controllers");
-        String[] extensions = new String[] { "json" };
+        String[] extensions = new String[]{"json"};
 
         if (!Files.isDirectory(Directory.toPath())) {
             try {
@@ -77,7 +77,7 @@ public class controlerManager implements ControllerListener {
             Types.add(typetemp);
         }
 
-        for(int test2 = 0; test2 < Controllers.getControllers().size; test2++) {
+        for (int test2 = 0; test2 < Controllers.getControllers().size; test2++) {
             String Output = Controllers.getControllers().get(test2).getName() + " has connected!!";
             Debug.println("CTM", Output);
             eachController temp = new eachController(Controllers.getControllers().get(test2));
@@ -107,7 +107,7 @@ public class controlerManager implements ControllerListener {
 
     public void newController(String name) {
         controllerType typetemp = new controllerType();
-        Gson gson =  new GsonBuilder().setPrettyPrinting().create();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         //Search for config files in controllers folder
         File Directory = new File("Controllers/" + name + ".json");
@@ -125,7 +125,7 @@ public class controlerManager implements ControllerListener {
     }
 
     public void newController(String name, controllerType ContraType) {
-        Gson gson =  new GsonBuilder().setPrettyPrinting().create();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         //Search for config files in controllers folder
         File Directory = new File("Controllers/" + name + ".json");
@@ -143,8 +143,8 @@ public class controlerManager implements ControllerListener {
     }
 
     public void testInput() {
-        for(int test = 0; test < 20; test++) {
-            for(int test2 = 0; test2 < controllers.size(); test2++) {
+        for (int test = 0; test < 20; test++) {
+            for (int test2 = 0; test2 < controllers.size(); test2++) {
                 if (Controllers.getControllers().get(test2).getButton(test)) {
                     String Output = Controllers.getControllers().get(test2).getName() + " button " + test + " is down";
                     Debug.println("CTM", Output);
@@ -152,16 +152,16 @@ public class controlerManager implements ControllerListener {
             }
         }
 
-        for(int test = 0; test < 10; test++) {
-            for(int test2 = 0; test2 < controllers.size(); test2++) {
+        for (int test = 0; test < 10; test++) {
+            for (int test2 = 0; test2 < controllers.size(); test2++) {
                 if (Math.abs(Controllers.getControllers().get(test2).getAxis(test)) > 0.2) {
                     String Output = Controllers.getControllers().get(test2).getName() + " axis " + test + " is " + Controllers.getControllers().get(test2).getAxis(test);
                     Debug.println("CTM", Output);
                 }
             }
         }
-        for(int test = 0; test < 10; test++) {
-            for(int test2 = 0; test2 < controllers.size(); test2++) {
+        for (int test = 0; test < 10; test++) {
+            for (int test2 = 0; test2 < controllers.size(); test2++) {
                 if (Controllers.getControllers().get(test2).getPov(test) != PovDirection.center) {
                     String Output = Controllers.getControllers().get(test2).getName() + " Pov " + test + " is " + Controllers.getControllers().get(test2).getPov(test);
                     Debug.println("CTM", Output);
@@ -172,11 +172,7 @@ public class controlerManager implements ControllerListener {
 
     public boolean isButtonDown(int player, buttons butt) {
         if (player < controllers.size()) {
-            if (Controllers.getControllers().get(player).getButton(getButtonToId(butt, player))) {
-                return true;
-            } else {
-                return false;
-            }
+            return Controllers.getControllers().get(player).getButton(getButtonToId(butt, player));
         } else {
             return false;
         }
@@ -184,7 +180,7 @@ public class controlerManager implements ControllerListener {
 
     public boolean isButtonJustDown(int player, buttons butt) {
         if (player < controllers.size()) {
-            return controllers.get(player).justPressedbuttons[getButtonToId(butt,player)];
+            return controllers.get(player).justPressedbuttons[getButtonToId(butt, player)];
         } else {
             return false;
         }
@@ -193,7 +189,7 @@ public class controlerManager implements ControllerListener {
 
     public float getAxis(int player, axisies axises) {
         if (player < controllers.size()) {
-            for(int controllerTypes = 0; controllerTypes < Types.size(); controllerTypes++) {
+            for (int controllerTypes = 0; controllerTypes < Types.size(); controllerTypes++) {
                 if (Types.get(controllerTypes).Name.equals(controllers.get(player).controller.getName())) {
                     if (axises == axisies.AXIS_LEFT_Y) {
                         if (Types.get(controllerTypes).INVERT_LEFT_AXIS) {
@@ -204,7 +200,7 @@ public class controlerManager implements ControllerListener {
                     } else if (axises == axisies.AXIS_RIGHT_Y) {
                         if (Types.get(controllerTypes).INVERT_RIGHT_AXIS) {
                             return Controllers.getControllers().get(player).getAxis(getAxisToId(axises, player)) * -1;
-                        }  else {
+                        } else {
                             return Controllers.getControllers().get(player).getAxis(getAxisToId(axises, player));
                         }
                     } else {
@@ -227,7 +223,7 @@ public class controlerManager implements ControllerListener {
     private int getPOVToId(POVs POVies, int player) {
         String type = controllers.get(player).controller.getName();
 
-        for(int controllerTypes = 0; controllerTypes < Types.size(); controllerTypes++) {
+        for (int controllerTypes = 0; controllerTypes < Types.size(); controllerTypes++) {
             if (Types.get(controllerTypes).Name.equals(type)) {
                 switch (POVies) {
                     case DPAD:
@@ -242,7 +238,7 @@ public class controlerManager implements ControllerListener {
     private int getAxisToId(axisies axises, int player) {
         String type = controllers.get(player).controller.getName();
 
-        for(int controllerTypes = 0; controllerTypes < Types.size(); controllerTypes++) {
+        for (int controllerTypes = 0; controllerTypes < Types.size(); controllerTypes++) {
             if (Types.get(controllerTypes).Name.equals(type)) {
                 switch (axises) {
                     case AXIS_LEFT_X:
@@ -268,7 +264,7 @@ public class controlerManager implements ControllerListener {
 
         String type = controllers.get(player).controller.getName();
 
-        for(int controllerTypes = 0; controllerTypes < Types.size(); controllerTypes++) {
+        for (int controllerTypes = 0; controllerTypes < Types.size(); controllerTypes++) {
             if (Types.get(controllerTypes).Name.equals(type)) {
                 switch (butt) {
                     case BUTTON_X:
@@ -310,8 +306,8 @@ public class controlerManager implements ControllerListener {
     public void disconnected(Controller controller) {
         String Output = controller.getName() + " has disconnected!!";
         Debug.println("CTM", Output);
-        for(int i = 0; i < controllers.size(); i++) {
-            if(controllers.get(i).controller.equals(controller)) {
+        for (int i = 0; i < controllers.size(); i++) {
+            if (controllers.get(i).controller.equals(controller)) {
                 controllers.remove(i);
             }
         }

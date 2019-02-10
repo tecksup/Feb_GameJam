@@ -28,98 +28,97 @@ import static com.thecubecast.ReEngine.Data.GameStateManager.ctm;
 
 public enum UI_state implements State<UIFSM> {
 
-   Home() {
+    Home() {
 
-       private Table table;
+        private Table table;
 
-       @Override
-       public void enter(UIFSM entity) {
+        @Override
+        public void enter(UIFSM entity) {
 
-           table = new Table();
-           table.setFillParent(true);
-           entity.stage.addActor(table);
+            table = new Table();
+            table.setFillParent(true);
+            entity.stage.addActor(table);
 
-           final TkTextButton PlayState = new TkTextButton("Play State", entity.skin);
-           table.add(PlayState).pad(2);
-           table.row();
+            final TkTextButton PlayState = new TkTextButton("Play State", entity.skin);
+            table.add(PlayState).pad(2);
+            table.row();
 
-           final TkTextButton Discord = new TkTextButton("Discord", entity.skin);
-           table.add(Discord).pad(2);
-           table.row();
+            final TkTextButton Discord = new TkTextButton("Discord", entity.skin);
+            table.add(Discord).pad(2);
+            table.row();
 
-           final TkTextButton Options = new TkTextButton("Options", entity.skin);
-           table.add(Options).pad(2);
-           table.row();
+            final TkTextButton Options = new TkTextButton("Options", entity.skin);
+            table.add(Options).pad(2);
+            table.row();
 
-           final TkTextButton button3 = new TkTextButton("Quit", entity.skin);
-           table.add(button3).pad(2);
-           table.row();
-
-
-           PlayState.addListener(new ClickListener(){
-               @Override
-               public void clicked(InputEvent event, float x, float y){
-                   //gsm.Audio.stopMusic("8-bit-Digger");
-                   //GetLogin("", "");
-                   Gdx.app.getPreferences("properties").putString("Username", "");
-                   Gdx.app.getPreferences("properties").flush();
-                   entity.gsm.setState(GameStateManager.State.PLAY);
-                   PlayState.setText("Loading");
-               }
-           });
+            final TkTextButton button3 = new TkTextButton("Quit", entity.skin);
+            table.add(button3).pad(2);
+            table.row();
 
 
+            PlayState.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    //gsm.Audio.stopMusic("8-bit-Digger");
+                    //GetLogin("", "");
+                    Gdx.app.getPreferences("properties").putString("Username", "");
+                    Gdx.app.getPreferences("properties").flush();
+                    entity.gsm.setState(GameStateManager.State.PLAY);
+                    PlayState.setText("Loading");
+                }
+            });
 
-           Discord.addListener(new ClickListener(){
-               @Override
-               public void clicked(InputEvent event, float x, float y){
-                   try {
-                       java.awt.Desktop.getDesktop().browse(new URI("https://discord.gg/7wfpsbf"));
-                       Common.print("Opened Discord Link!");
-                   } catch (Exception e) {
-                       e.printStackTrace();
-                   }
-               }
-           });
 
-           Options.addListener(new ClickListener(){
-               @Override
-               public void clicked(InputEvent event, float x, float y){
-                   entity.stateMachine.changeState(UI_state.Options);
-               }
-           });
+            Discord.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    try {
+                        java.awt.Desktop.getDesktop().browse(new URI("https://discord.gg/7wfpsbf"));
+                        Common.print("Opened Discord Link!");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
 
-           button3.addListener(new ClickListener(){
-               @Override
-               public void clicked(InputEvent event, float x, float y){
-                   //gsm.Audio.stopMusic("8-bit-Digger");
-                   //GetLogin("", "");
+            Options.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    entity.stateMachine.changeState(UI_state.Options);
+                }
+            });
 
-                   //Lwjgl3Window window = ((Lwjgl3Graphics)Gdx.graphics).getWindow();
-                   //window.iconifyWindow(); // iconify the window
+            button3.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    //gsm.Audio.stopMusic("8-bit-Digger");
+                    //GetLogin("", "");
 
-                   Common.ProperShutdown();
-               }
-           });
-       }
+                    //Lwjgl3Window window = ((Lwjgl3Graphics)Gdx.graphics).getWindow();
+                    //window.iconifyWindow(); // iconify the window
 
-      @Override
-        public void update(UIFSM entity) {
-          table.setVisible(entity.Visible);
-          ControllerCheck(table);
-          entity.stage.act(Gdx.graphics.getDeltaTime());
+                    Common.ProperShutdown();
+                }
+            });
         }
 
-       @Override
-       public void exit(UIFSM entity) {
-           entity.stage.clear();
-       }
+        @Override
+        public void update(UIFSM entity) {
+            table.setVisible(entity.Visible);
+            ControllerCheck(table);
+            entity.stage.act(Gdx.graphics.getDeltaTime());
+        }
 
-       @Override
-       public boolean onMessage(UIFSM entity, Telegram telegram) {
-           return false;
-       }
-   },
+        @Override
+        public void exit(UIFSM entity) {
+            entity.stage.clear();
+        }
+
+        @Override
+        public boolean onMessage(UIFSM entity, Telegram telegram) {
+            return false;
+        }
+    },
 
     InGameHome() {
 
@@ -145,23 +144,23 @@ public enum UI_state implements State<UIFSM> {
             table.add(MainMenu).pad(2);
             table.row();
 
-            Continue.addListener(new ClickListener(){
+            Continue.addListener(new ClickListener() {
                 @Override
-                public void clicked(InputEvent event, float x, float y){
+                public void clicked(InputEvent event, float x, float y) {
                     entity.setVisable(false);
                 }
             });
 
-            Options.addListener(new ClickListener(){
+            Options.addListener(new ClickListener() {
                 @Override
-                public void clicked(InputEvent event, float x, float y){
+                public void clicked(InputEvent event, float x, float y) {
                     entity.stateMachine.changeState(UI_state.Options);
                 }
             });
 
-            MainMenu.addListener(new ClickListener(){
+            MainMenu.addListener(new ClickListener() {
                 @Override
-                public void clicked(InputEvent event, float x, float y){
+                public void clicked(InputEvent event, float x, float y) {
                     //Return to main menu
                     entity.gsm.setState(GameStateManager.State.MENU);
                 }
@@ -211,31 +210,31 @@ public enum UI_state implements State<UIFSM> {
             table.add(back).pad(2);
             table.row();
 
-            Audio.addListener(new ClickListener(){
+            Audio.addListener(new ClickListener() {
                 @Override
-                public void clicked(InputEvent event, float x, float y){
+                public void clicked(InputEvent event, float x, float y) {
                     entity.stateMachine.changeState(UI_state.Audio);
                 }
             });
 
-            Graphics.addListener(new ClickListener(){
+            Graphics.addListener(new ClickListener() {
                 @Override
-                public void clicked(InputEvent event, float x, float y){
+                public void clicked(InputEvent event, float x, float y) {
                     entity.stateMachine.changeState(UI_state.Graphics);
                 }
             });
 
-            Controls.addListener(new ClickListener(){
+            Controls.addListener(new ClickListener() {
                 @Override
-                public void clicked(InputEvent event, float x, float y){
+                public void clicked(InputEvent event, float x, float y) {
                     entity.stateMachine.changeState(UI_state.Controls);
                 }
             });
 
-            back.addListener(new ClickListener(){
+            back.addListener(new ClickListener() {
                 @Override
-                public void clicked(InputEvent event, float x, float y){
-                    if(entity.inGame) {
+                public void clicked(InputEvent event, float x, float y) {
+                    if (entity.inGame) {
                         entity.stateMachine.changeState(UI_state.InGameHome);
                     } else {
                         entity.stateMachine.changeState(UI_state.Home);
@@ -244,12 +243,12 @@ public enum UI_state implements State<UIFSM> {
             });
         }
 
-       @Override
+        @Override
         public void update(UIFSM entity) {
-           table.setVisible(entity.Visible);
-           ControllerCheck(table);
-           entity.stage.act(Gdx.graphics.getDeltaTime());
-       }
+            table.setVisible(entity.Visible);
+            ControllerCheck(table);
+            entity.stage.act(Gdx.graphics.getDeltaTime());
+        }
 
         @Override
         public void exit(UIFSM entity) {
@@ -301,39 +300,39 @@ public enum UI_state implements State<UIFSM> {
 
             MasterVolume.addListener(new ChangeListener() {
                 @Override
-                public void changed (ChangeEvent event, Actor actor) {
+                public void changed(ChangeEvent event, Actor actor) {
                     AudioM.MasterVolume = MasterVolume.getValue();
                 }
             });
 
             MusicVolume.addListener(new ChangeListener() {
                 @Override
-                public void changed (ChangeEvent event, Actor actor) {
+                public void changed(ChangeEvent event, Actor actor) {
                     AudioM.MusicVolume = MusicVolume.getValue();
                 }
             });
 
             SoundVolume.addListener(new ChangeListener() {
                 @Override
-                public void changed (ChangeEvent event, Actor actor) {
+                public void changed(ChangeEvent event, Actor actor) {
                     AudioM.SoundVolume = SoundVolume.getValue();
                 }
             });
 
-            back.addListener(new ClickListener(){
+            back.addListener(new ClickListener() {
                 @Override
-                public void clicked(InputEvent event, float x, float y){
+                public void clicked(InputEvent event, float x, float y) {
                     entity.stateMachine.changeState(entity.stateMachine.getPreviousState());
                 }
             });
         }
 
-       @Override
+        @Override
         public void update(UIFSM entity) {
-           table.setVisible(entity.Visible);
-           ControllerCheck(table);
-           entity.stage.act(Gdx.graphics.getDeltaTime());
-       }
+            table.setVisible(entity.Visible);
+            ControllerCheck(table);
+            entity.stage.act(Gdx.graphics.getDeltaTime());
+        }
 
         @Override
         public void exit(UIFSM entity) {
@@ -369,7 +368,7 @@ public enum UI_state implements State<UIFSM> {
             FullScreen.setChecked(Gdx.app.getPreferences("properties").getBoolean("FullScreen"));
             table.add(FullScreen).pad(2).row();
 
-            FullScreen.addListener(new ChangeListener(){
+            FullScreen.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
                     Gdx.app.getPreferences("properties").putBoolean("FullScreen", FullScreen.isChecked());
@@ -377,8 +376,7 @@ public enum UI_state implements State<UIFSM> {
 
                     if (FullScreen.isChecked()) {
                         Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-                    }
-                    else {
+                    } else {
                         String[] temp = Gdx.app.getPreferences("properties").getString("Resolution").split("X");
                         Gdx.graphics.setWindowedMode(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]));
                     }
@@ -390,21 +388,22 @@ public enum UI_state implements State<UIFSM> {
 
             ResolutionOptions = new SelectBox(entity.skin) {
                 @Override
-                protected void onShow (Actor selectBoxList, boolean below) {
+                protected void onShow(Actor selectBoxList, boolean below) {
                     //selectBoxList.getColor().a = 0;
                     //selectBoxList.addAction(fadeIn(0.3f, Interpolation.fade));
                 }
+
                 @Override
-                protected void onHide (Actor selectBoxList) {
+                protected void onHide(Actor selectBoxList) {
                     //selectBoxList.getColor().a = 1;
                     selectBoxList.addAction(removeActor());
                 }
             };
-            ResolutionOptions.setItems(new String[] {"1280X720", "1366X768", "1440X900", "1600X900", "1920X1080"});
+            ResolutionOptions.setItems("1280X720", "1366X768", "1440X900", "1600X900", "1920X1080");
             ResolutionOptions.setSelected(Gdx.app.getPreferences("properties").getString("Resolution"));
             table.add(ResolutionOptions).pad(2).row();
 
-            ResolutionOptions.addListener(new ChangeListener(){
+            ResolutionOptions.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
                     Gdx.app.getPreferences("properties").putString("Resolution", ResolutionOptions.getSelected().toString());
@@ -415,8 +414,8 @@ public enum UI_state implements State<UIFSM> {
                     Gdx.graphics.setWindowedMode(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]));
                     entity.reSize();
 
-                    Lwjgl3Window window = ((Lwjgl3Graphics)Gdx.graphics).getWindow();
-                    window.setPosition(GetMonitorSizeW()/2 - Gdx.graphics.getWidth()/2, GetMonitorSizeH()/2 - Gdx.graphics.getHeight()/2);
+                    Lwjgl3Window window = ((Lwjgl3Graphics) Gdx.graphics).getWindow();
+                    window.setPosition(GetMonitorSizeW() / 2 - Gdx.graphics.getWidth() / 2, GetMonitorSizeH() / 2 - Gdx.graphics.getHeight() / 2);
                 }
 
             });
@@ -425,20 +424,20 @@ public enum UI_state implements State<UIFSM> {
             table.add(back).pad(2);
             table.row();
 
-            back.addListener(new ClickListener(){
+            back.addListener(new ClickListener() {
                 @Override
-                public void clicked(InputEvent event, float x, float y){
+                public void clicked(InputEvent event, float x, float y) {
                     entity.stateMachine.changeState(entity.stateMachine.getPreviousState());
                 }
             });
         }
 
-       @Override
+        @Override
         public void update(UIFSM entity) {
-           table.setVisible(entity.Visible);
-           ControllerCheck(table);
-           entity.stage.act(Gdx.graphics.getDeltaTime());
-       }
+            table.setVisible(entity.Visible);
+            ControllerCheck(table);
+            entity.stage.act(Gdx.graphics.getDeltaTime());
+        }
 
         @Override
         public void exit(UIFSM entity) {
@@ -465,14 +464,14 @@ public enum UI_state implements State<UIFSM> {
             table.add(back).pad(2);
             table.row();
 
-            back.addListener(new ClickListener(){
+            back.addListener(new ClickListener() {
                 @Override
-                public void clicked(InputEvent event, float x, float y){
+                public void clicked(InputEvent event, float x, float y) {
                     entity.stateMachine.changeState(entity.stateMachine.getPreviousState());
                 }
             });
         }
-        
+
         @Override
         public void update(UIFSM entity) {
             table.setVisible(entity.Visible);
@@ -492,45 +491,43 @@ public enum UI_state implements State<UIFSM> {
     };
 
     public void ControllerCheck(Table table) {
-        if(ctm.controllers.size() > 0) {
-            for(int i = 0; i < table.getCells().size; i++) {
-                if(table.getCells().get(i).getActor() instanceof TkTextButton) {
+        if (ctm.controllers.size() > 0) {
+            for (int i = 0; i < table.getCells().size; i++) {
+                if (table.getCells().get(i).getActor() instanceof TkTextButton) {
                     int nextSelection = i;
-                    if(((TkTextButton) table.getCells().get(i).getActor()).Selected) {
+                    if (((TkTextButton) table.getCells().get(i).getActor()).Selected) {
                         //Gdx.app.log("menu", "i is " + i);
                         if (ctm.getAxis(0, controlerManager.axisies.AXIS_LEFT_Y) < -0.2f || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
                             ((TkTextButton) table.getCells().get(i).getActor()).Selected = false;
                             nextSelection += 1;
 
-                        } else if (ctm.getAxis(0,controlerManager.axisies.AXIS_LEFT_Y) > 0.2f || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+                        } else if (ctm.getAxis(0, controlerManager.axisies.AXIS_LEFT_Y) > 0.2f || Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
                             ((TkTextButton) table.getCells().get(i).getActor()).Selected = false;
                             nextSelection -= 1;
                         }
 
                         if (nextSelection < 0)
-                            nextSelection = table.getCells().size-1;
+                            nextSelection = table.getCells().size - 1;
                         if (nextSelection >= table.getCells().size)
                             nextSelection = 0;
 
-                        if(table.getCells().get(nextSelection).getActor() instanceof TkTextButton) {
+                        if (table.getCells().get(nextSelection).getActor() instanceof TkTextButton) {
                             ((TkTextButton) table.getCells().get(nextSelection).getActor()).Selected = true;
                         }
 
-                        if(ctm.isButtonJustDown(0,controlerManager.buttons.BUTTON_A) || Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
+                        if (ctm.isButtonJustDown(0, controlerManager.buttons.BUTTON_A) || Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
                             Gdx.app.debug("", "");
                             Array<EventListener> listeners = table.getCells().get(i).getActor().getListeners();
-                            for(int b=0;b<listeners.size;b++)
-                            {
-                                if(listeners.get(b) instanceof ClickListener){
-                                    ((ClickListener)listeners.get(b)).clicked(null, 0, 0);
+                            for (int b = 0; b < listeners.size; b++) {
+                                if (listeners.get(b) instanceof ClickListener) {
+                                    ((ClickListener) listeners.get(b)).clicked(null, 0, 0);
                                 }
                             }
                         }
 
                         break;
-                    }
-                    else if(i == table.getCells().size-1) {
-                        if(table.getCells().get(0).getActor() instanceof TkTextButton)
+                    } else if (i == table.getCells().size - 1) {
+                        if (table.getCells().get(0).getActor() instanceof TkTextButton)
                             ((TkTextButton) table.getCells().get(0).getActor()).Selected = true;
                         else
                             ((TkTextButton) table.getCells().get(i).getActor()).Selected = true;

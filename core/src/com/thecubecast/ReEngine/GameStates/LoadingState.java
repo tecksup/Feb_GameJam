@@ -4,120 +4,117 @@ package com.thecubecast.ReEngine.GameStates;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.thecubecast.ReEngine.Data.Common;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.thecubecast.ReEngine.Data.GameStateManager;
-import com.thecubecast.ReEngine.Data.TkMap.TkMap;
 
 public class LoadingState extends GameState {
 
-	OrthographicCamera camera;
+    OrthographicCamera camera;
 
-	int tics = 0;
-	
-	private String Load;
+    int tics = 0;
 
-	private Skin skin;
-	private Stage stage;
-	private Table table;
-	ProgressBar progress;
-	
-	public void setLoad(String LoadIt) {
-		Load = LoadIt;
-	}
-	
-	public LoadingState(GameStateManager gsm) {
-		super(gsm);
-	}
-	
-	public void init() {
+    private String Load;
 
-		Gdx.graphics.setVSync(false);
+    private Skin skin;
+    private Stage stage;
+    private Table table;
+    ProgressBar progress;
 
-		camera = new OrthographicCamera();
+    public void setLoad(String LoadIt) {
+        Load = LoadIt;
+    }
 
-		//Common.print("Loading " + Load);
-		MenuInit();
+    public LoadingState(GameStateManager gsm) {
+        super(gsm);
+    }
 
-	}
+    public void init() {
 
-	public void setupSkin() {
-		skin = new Skin(Gdx.files.internal("Skins/test1/skin.json"));
-	}
+        Gdx.graphics.setVSync(false);
 
-	public void MenuInit() {
+        camera = new OrthographicCamera();
 
-		setupSkin();
-		stage = new Stage();
-		Gdx.input.setInputProcessor(stage);
+        //Common.print("Loading " + Load);
+        MenuInit();
 
-		table = new Table();
-		table.setFillParent(true);
-		table.bottom().left().padLeft(26f).padBottom(10f);
-		stage.addActor(table);
+    }
 
+    public void setupSkin() {
+        skin = new Skin(Gdx.files.internal("Skins/test1/skin.json"));
+    }
 
-		progress = new ProgressBar(0f, 1f, 0.01f, false, skin);
-		table.add(progress);
-		table.row();
-	}
+    public void MenuInit() {
+
+        setupSkin();
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
+
+        table = new Table();
+        table.setFillParent(true);
+        table.bottom().left().padLeft(26f).padBottom(10f);
+        stage.addActor(table);
 
 
+        progress = new ProgressBar(0f, 1f, 0.01f, false, skin);
+        table.add(progress);
+        table.row();
+    }
 
-	public void update() {
-		tics++;
-		gsm.Render.manager.update();
-		progress.setValue(gsm.Render.manager.getProgress());
-		if (Load.equals("STARTUP")) {
-			if(gsm.Render.manager.getProgress() == 1) {
-				Gdx.graphics.setVSync(true);
-				gsm.setState(GameStateManager.State .MENU);
-			}
-		}
-		handleInput();
-	}
-	
-	public void draw(SpriteBatch g, int height, int width, float Time) {
-		camera.setToOrtho(false, width, height);
-		g.setProjectionMatrix(camera.combined);
-		g.begin();
 
-		stage.act(Gdx.graphics.getDeltaTime());
+    public void update() {
+        tics++;
+        gsm.Render.manager.update();
+        progress.setValue(gsm.Render.manager.getProgress());
+        if (Load.equals("STARTUP")) {
+            if (gsm.Render.manager.getProgress() == 1) {
+                Gdx.graphics.setVSync(true);
+                gsm.setState(GameStateManager.State.MENU);
+            }
+        }
+        handleInput();
+    }
 
-		//gsm.Render.DrawAnimatedTile(g, gsm.Render.LoadingAnimation, 50, 50, 2.0f, 2.0f, Time);
+    public void draw(SpriteBatch g, int height, int width, float Time) {
+        camera.setToOrtho(false, width, height);
+        g.setProjectionMatrix(camera.combined);
+        g.begin();
 
-		gsm.Render.DrawAnimatedTile(g, gsm.Render.LoadingAnimation, 2, 2, Time);
-		stage.getRoot().draw(g, 1);
-		g.end();
-	}
+        stage.act(Gdx.graphics.getDeltaTime());
 
-	public void drawUI(SpriteBatch g, int height, int width, float Time) {
-		//Draws things on the screen, and not the world positions
-		g.begin();
-		//GUI must draw last
+        //gsm.Render.DrawAnimatedTile(g, gsm.Render.LoadingAnimation, 50, 50, 2.0f, 2.0f, Time);
 
-		g.end();
-	}
-	
-	public void handleInput() {
+        gsm.Render.DrawAnimatedTile(g, gsm.Render.LoadingAnimation, 2, 2, Time);
+        stage.getRoot().draw(g, 1);
+        g.end();
+    }
 
-		if (Gdx.input.isKeyJustPressed(Keys.ENTER)) { //KeyHit
-			//gsm.setState(GameStateManager.INTRO);
-		}
+    public void drawUI(SpriteBatch g, int height, int width, float Time) {
+        //Draws things on the screen, and not the world positions
+        g.begin();
+        //GUI must draw last
 
-	}
-	
-	public void reSize(SpriteBatch g,int wi, int he) {
-		MenuInit();
-	}
+        g.end();
+    }
 
-	@Override
-	public void Shutdown() {
+    public void handleInput() {
 
-	}
+        if (Gdx.input.isKeyJustPressed(Keys.ENTER)) { //KeyHit
+            //gsm.setState(GameStateManager.INTRO);
+        }
+
+    }
+
+    public void reSize(SpriteBatch g, int wi, int he) {
+        MenuInit();
+    }
+
+    @Override
+    public void Shutdown() {
+
+    }
 }

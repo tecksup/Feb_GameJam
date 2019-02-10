@@ -2,7 +2,6 @@ package com.thecubecast.ReEngine.Data.OGMO;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.XmlReader;
-import com.thecubecast.ReEngine.worldObjects.WorldObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,7 @@ public class OelMap {
         //Load layers
         for (int i = 0; i < root.getChildCount(); i++) {
             //This if statement is for Tiles and Grids
-            if(root.getChild(i).hasAttribute("exportMode")) {
+            if (root.getChild(i).hasAttribute("exportMode")) {
                 if (root.getChild(i).getAttribute("exportMode").equals("CSV")) {
 
                     OelTilesLayer temp = new OelTilesLayer(width, height, root.getChild(i).getName(), root.getChild(i).getAttribute("tileset"), root.getChild(i).getText());

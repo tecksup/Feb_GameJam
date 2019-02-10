@@ -48,7 +48,7 @@ project(":desktop") {
         compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         compile "com.badlogicgames.gdx:gdx-controllers-lwjgl3:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
-        
+
     }
 }
 
@@ -57,10 +57,10 @@ project(":core") {
 
 
     dependencies {
-    	compile "kryonet:kryonet:2.21"
-		compile "commons-io:commons-io:2.6"
+        compile "kryonet:kryonet:2.21"
+        compile "commons-io:commons-io:2.6"
         compile "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
-		compile "com.esotericsoftware.kryo:kryo:2.24.0"
+        compile "com.esotericsoftware.kryo:kryo:2.24.0"
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-controllers-lwjgl3:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
@@ -68,7 +68,7 @@ project(":core") {
         compile 'com.google.code.gson:gson:2.8.2'
         compile "com.badlogicgames.gdx:gdx-ai:1.8.1"
         compile "com.rafaskoberg.gdx:typing-label:1.0.4"
-        
+
     }
 }
 

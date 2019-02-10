@@ -12,7 +12,7 @@ import com.thecubecast.ReEngine.worldObjects.WorldObject;
 import java.util.List;
 
 /**
-    Not used, Entities are just loaded straight into world
+ * Not used, Entities are just loaded straight into world
  */
 public class OelEntitiesLayer extends OelLayer {
 
@@ -33,7 +33,7 @@ public class OelEntitiesLayer extends OelLayer {
         if (Layer.getName().equals("Objects") || Layer.getName().equals("Props")) {
             for (int i = 0; i < Layer.getChildCount(); i++) {
                 if (Layer.getChild(i).getName().equals("Player")) {
-                    player.setPosition(Integer.parseInt(Layer.getChild(i).getAttribute("x")),height - Integer.parseInt(Layer.getChild(i).getAttribute("y")),0);
+                    player.setPosition(Integer.parseInt(Layer.getChild(i).getAttribute("x")), height - Integer.parseInt(Layer.getChild(i).getAttribute("y")), 0);
                 } else if (Layer.getChild(i).getName().equals("CameraHint")) {
                     WorldObject temp = new WorldObject() {
                         @Override
@@ -52,13 +52,14 @@ public class OelEntitiesLayer extends OelLayer {
                         }
                     };
 
-                    temp.setPosition(Integer.parseInt(Layer.getChild(i).getAttribute("x")),height - Integer.parseInt(Layer.getChild(i).getAttribute("y")), 0);
-                    temp.FocusStrength = (float) Integer.parseInt(Layer.getChild(i).getAttribute("FocusStrength"))/10;
+                    temp.setPosition(Integer.parseInt(Layer.getChild(i).getAttribute("x")), height - Integer.parseInt(Layer.getChild(i).getAttribute("y")), 0);
+                    temp.FocusStrength = (float) Integer.parseInt(Layer.getChild(i).getAttribute("FocusStrength")) / 10;
 
                     Entities.add(temp);
                 } else if (Layer.getChild(i).getName().equals("Car")) {
-                    WorldObject temp = new WorldObject(Integer.parseInt(Layer.getChild(i).getAttribute("x")),height - Integer.parseInt(Layer.getChild(i).getAttribute("y")) - 57, 0, new Vector3(32, 57, 0)) {
+                    WorldObject temp = new WorldObject(Integer.parseInt(Layer.getChild(i).getAttribute("x")), height - Integer.parseInt(Layer.getChild(i).getAttribute("y")) - 57, 0, new Vector3(32, 57, 0)) {
                         Texture Car = new Texture(Gdx.files.internal("Sprites/car.png"));
+
                         @Override
                         public void init(int Width, int Height) {
 
@@ -81,8 +82,9 @@ public class OelEntitiesLayer extends OelLayer {
                     Entities.add(temp);
                 } else if (Layer.getChild(i).getName().equals("Object")) {
                     String tempImgLoc = Layer.getChild(i).getAttribute("SpriteLocation");
-                    WorldObject temp = new WorldObject(Integer.parseInt(Layer.getChild(i).getAttribute("x")),height - Integer.parseInt(Layer.getChild(i).getAttribute("y")), 0, new Vector3(16, 16, 0)) {
+                    WorldObject temp = new WorldObject(Integer.parseInt(Layer.getChild(i).getAttribute("x")), height - Integer.parseInt(Layer.getChild(i).getAttribute("y")), 0, new Vector3(16, 16, 0)) {
                         Texture Image = new Texture(Gdx.files.internal(tempImgLoc));
+
                         @Override
                         public void init(int Width, int Height) {
 
@@ -106,8 +108,9 @@ public class OelEntitiesLayer extends OelLayer {
                 } else {
                     String tempImgLoc = Layer.getChild(i).getAttribute("SpriteLocation");
                     Texture tempImage = new Texture(Gdx.files.internal(tempImgLoc));
-                    WorldObject temp = new WorldObject(Integer.parseInt(Layer.getChild(i).getAttribute("x")),height - Integer.parseInt(Layer.getChild(i).getAttribute("y")) - tempImage.getHeight(), 0, new Vector3(16, 16, 0)) {
+                    WorldObject temp = new WorldObject(Integer.parseInt(Layer.getChild(i).getAttribute("x")), height - Integer.parseInt(Layer.getChild(i).getAttribute("y")) - tempImage.getHeight(), 0, new Vector3(16, 16, 0)) {
                         Texture Image = new Texture(Gdx.files.internal(tempImgLoc));
+
                         @Override
                         public void init(int Width, int Height) {
 

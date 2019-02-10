@@ -19,7 +19,7 @@ public class OelTilesLayer extends OelLayer {
         String[] Bits = PreparedBitString.split(",");
 
         int index = 0;
-        for (int y = getHeight()-1; y >= 0; y--) {
+        for (int y = getHeight() - 1; y >= 0; y--) {
             for (int x = 0; x < getWidth(); x++) {
 
                 Cells[y][x] = Integer.parseInt(Bits[index]);
@@ -41,7 +41,7 @@ public class OelTilesLayer extends OelLayer {
     @Override
     public String toString() {
         String BitString = "<" + getName() + "tileset=\"" + getTileset() + "\" exportMode=\"CSV\">\n";
-        for (int y = getHeight()-1; y >= 0; y--) {
+        for (int y = getHeight() - 1; y >= 0; y--) {
             for (int x = 0; x < getWidth(); x++) {
                 BitString += Cells[y][x];
             }

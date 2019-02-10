@@ -23,8 +23,8 @@ public class OelTileset {
         TileSep = tileSep;
         TilesetImage = new Texture(Gdx.files.internal(FilePath));
 
-        int cols = TilesetImage.getWidth()/TileSizeW;
-        int rows = TilesetImage.getHeight()/TileSizeH;
+        int cols = TilesetImage.getWidth() / TileSizeW;
+        int rows = TilesetImage.getHeight() / TileSizeH;
 
         Tiles = new TextureRegion[rows * cols];
         //System.out.println(Name + " " + Tiles.length);
@@ -34,8 +34,8 @@ public class OelTileset {
                 TileSizeH);
 
         int index = 0;
-        for (int l = 0; l < TilesetImage.getHeight()/TileSizeH; l++) {
-            for (int j = 0; j < TilesetImage.getWidth()/TileSizeW; j++) {
+        for (int l = 0; l < TilesetImage.getHeight() / TileSizeH; l++) {
+            for (int j = 0; j < TilesetImage.getWidth() / TileSizeW; j++) {
                 Tiles[index++] = tmp[l][j];
             }
         }

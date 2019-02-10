@@ -6,28 +6,21 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import codm.badlogic.gdx.math.Vector3;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
-import com.thecubecast.ReEngine.Data.*;
-import com.thecubecast.ReEngine.Data.TkMap.TkMap;
+import com.badlogic.gdx.math.Vector3;
+import com.thecubecast.ReEngine.Data.Cube;
+import com.thecubecast.ReEngine.Data.GameStateManager;
+import com.thecubecast.ReEngine.Data.ParticleHandler;
 import com.thecubecast.ReEngine.Graphics.Scene2D.UIFSM;
 import com.thecubecast.ReEngine.Graphics.Scene2D.UI_state;
 import com.thecubecast.ReEngine.Graphics.ScreenShakeCameraController;
 import com.thecubecast.ReEngine.worldObjects.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-
-import static com.thecubecast.ReEngine.Data.Common.updategsmValues;
-import static com.thecubecast.ReEngine.Graphics.Draw.FillColorShader;
-import static com.thecubecast.ReEngine.Graphics.Draw.setFillColorShaderColor;
 
 public class PlayState extends GameState {
 
@@ -57,7 +50,7 @@ public class PlayState extends GameState {
 
     public void init() {
 
-        player = new Player(13*16,1*16, 0);
+        player = new Player(13 * 16, 1 * 16, 0);
 
         Entities.add(player);
 
@@ -69,8 +62,8 @@ public class PlayState extends GameState {
         //Camera setup
         camera = new OrthographicCamera();
         GuiCam = new OrthographicCamera();
-        camera.setToOrtho(false, gsm.WorldWidth, gsm.WorldHeight);
-        GuiCam.setToOrtho(false, gsm.UIWidth, gsm.UIHeight);
+        camera.setToOrtho(false, GameStateManager.WorldWidth, GameStateManager.WorldHeight);
+        GuiCam.setToOrtho(false, GameStateManager.UIWidth, GameStateManager.UIHeight);
         shaker = new ScreenShakeCameraController(camera);
 
         UI = new UIFSM(GuiCam, gsm);
@@ -101,7 +94,7 @@ public class PlayState extends GameState {
         shaker.update(gsm.DeltaTime);
         g.setProjectionMatrix(shaker.getCombinedMatrix());
 
-        Rectangle drawView = new Rectangle(camera.position.x - camera.viewportWidth/2 - camera.viewportWidth/4, camera.position.y - camera.viewportHeight/2  - camera.viewportHeight/4, camera.viewportWidth + camera.viewportWidth/4, camera.viewportHeight + camera.viewportHeight/4);
+        Rectangle drawView = new Rectangle(camera.position.x - camera.viewportWidth / 2 - camera.viewportWidth / 4, camera.position.y - camera.viewportHeight / 2 - camera.viewportHeight / 4, camera.viewportWidth + camera.viewportWidth / 4, camera.viewportHeight + camera.viewportHeight / 4);
 
         g.setShader(null);
         g.begin();
@@ -112,7 +105,7 @@ public class PlayState extends GameState {
         Entities.sort(entitySort);
         Entities.sort(entitySortz);
         for (int i = 0; i < Entities.size(); i++) {
-            if(drawView.overlaps(new Rectangle(Entities.get(i).getPosition().x, Entities.get(i).getPosition().y, Entities.get(i).getSize().x, Entities.get(i).getSize().y))) {
+            if (drawView.overlaps(new Rectangle(Entities.get(i).getPosition().x, Entities.get(i).getPosition().y, Entities.get(i).getSize().x, Entities.get(i).getSize().y))) {
                 Entities.get(i).draw(g, Time);
             }
         }
@@ -129,9 +122,9 @@ public class PlayState extends GameState {
 
         //Renders the GUI for entities
         for (int i = 0; i < Entities.size(); i++) {
-            if(Entities.get(i) instanceof NPC) {
+            if (Entities.get(i) instanceof NPC) {
                 NPC Entitemp = (NPC) Entities.get(i);
-                if(drawView.overlaps(new Rectangle(Entitemp.getPosition().x, Entitemp.getPosition().y, Entitemp.getSize().x, Entitemp.getSize().y))) {
+                if (drawView.overlaps(new Rectangle(Entitemp.getPosition().x, Entitemp.getPosition().y, Entitemp.getSize().x, Entitemp.getSize().y))) {
                     ((NPC) Entities.get(i)).drawGui(g, Time);
                 }
             }
@@ -143,17 +136,17 @@ public class PlayState extends GameState {
         gsm.Render.debugRenderer.setProjectionMatrix(camera.combined);
         gsm.Render.debugRenderer.begin(ShapeRenderer.ShapeType.Line);
 
-        if (gsm.Debug) {
+        if (GameStateManager.Debug) {
 
             for (int i = 0; i < Collisions.size(); i++) {
 
                 //The bottom
                 gsm.Render.debugRenderer.setColor(Color.YELLOW);
-                gsm.Render.debugRenderer.rect(Collisions.get(i).getPrism().min.x, Collisions.get(i).getPrism().min.y + Collisions.get(i).getPrism().min.z/2, Collisions.get(i).getPrism().getWidth(), Collisions.get(i).getPrism().getHeight());
+                gsm.Render.debugRenderer.rect(Collisions.get(i).getPrism().min.x, Collisions.get(i).getPrism().min.y + Collisions.get(i).getPrism().min.z / 2, Collisions.get(i).getPrism().getWidth(), Collisions.get(i).getPrism().getHeight());
 
                 //The top of the Cube
                 gsm.Render.debugRenderer.setColor(Color.RED);
-                gsm.Render.debugRenderer.rect(Collisions.get(i).getPrism().min.x, Collisions.get(i).getPrism().min.y + Collisions.get(i).getPrism().getDepth()/2 + Collisions.get(i).getPrism().min.z/2, Collisions.get(i).getPrism().getWidth(), Collisions.get(i).getPrism().getHeight());
+                gsm.Render.debugRenderer.rect(Collisions.get(i).getPrism().min.x, Collisions.get(i).getPrism().min.y + Collisions.get(i).getPrism().getDepth() / 2 + Collisions.get(i).getPrism().min.z / 2, Collisions.get(i).getPrism().getWidth(), Collisions.get(i).getPrism().getHeight());
 
                 gsm.Render.debugRenderer.setColor(Color.ORANGE);
             }
@@ -163,29 +156,29 @@ public class PlayState extends GameState {
 
                 //The bottom
                 gsm.Render.debugRenderer.setColor(Color.GREEN);
-                gsm.Render.debugRenderer.rect(Entities.get(i).getHitbox().min.x, Entities.get(i).getHitbox().min.y + Entities.get(i).getHitbox().min.z/2, Entities.get(i).getHitbox().getWidth(), Entities.get(i).getHitbox().getHeight());
+                gsm.Render.debugRenderer.rect(Entities.get(i).getHitbox().min.x, Entities.get(i).getHitbox().min.y + Entities.get(i).getHitbox().min.z / 2, Entities.get(i).getHitbox().getWidth(), Entities.get(i).getHitbox().getHeight());
 
                 //The top of the Cube
                 gsm.Render.debugRenderer.setColor(Color.BLUE);
-                gsm.Render.debugRenderer.rect(Entities.get(i).getHitbox().min.x, Entities.get(i).getHitbox().min.y + Entities.get(i).getHitbox().getDepth()/2 + Entities.get(i).getHitbox().min.z/2, Entities.get(i).getHitbox().getWidth(), Entities.get(i).getHitbox().getHeight());
+                gsm.Render.debugRenderer.rect(Entities.get(i).getHitbox().min.x, Entities.get(i).getHitbox().min.y + Entities.get(i).getHitbox().getDepth() / 2 + Entities.get(i).getHitbox().min.z / 2, Entities.get(i).getHitbox().getWidth(), Entities.get(i).getHitbox().getHeight());
 
             }
 
             //The bottom of the PLAYER
             gsm.Render.debugRenderer.setColor(Color.YELLOW);
-            gsm.Render.debugRenderer.rect(player.getHitbox().min.x, player.getHitbox().min.y + player.getHitbox().min.z/2, player.getHitbox().getWidth(), player.getHitbox().getHeight());
+            gsm.Render.debugRenderer.rect(player.getHitbox().min.x, player.getHitbox().min.y + player.getHitbox().min.z / 2, player.getHitbox().getWidth(), player.getHitbox().getHeight());
             //The top of the Cube
             gsm.Render.debugRenderer.setColor(Color.RED);
-            gsm.Render.debugRenderer.rect(player.getHitbox().min.x, player.getHitbox().min.y + player.getHitbox().getDepth()/2 + player.getHitbox().min.z/2, player.getHitbox().getWidth(), player.getHitbox().getHeight());
+            gsm.Render.debugRenderer.rect(player.getHitbox().min.x, player.getHitbox().min.y + player.getHitbox().getDepth() / 2 + player.getHitbox().min.z / 2, player.getHitbox().getWidth(), player.getHitbox().getHeight());
 
-            
+
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) { //KeyHit
-            Vector3 pos = new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0);
+            Vector3 pos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(pos);
             gsm.Render.debugRenderer.setColor(Color.WHITE);
-            gsm.Render.debugRenderer.rect(((int)pos.x/16)*16+1, ((int)pos.y/16)*16+1, 15, 15);
+            gsm.Render.debugRenderer.rect(((int) pos.x / 16) * 16 + 1, ((int) pos.y / 16) * 16 + 1, 15, 15);
         }
 
         gsm.Render.debugRenderer.end();
@@ -224,34 +217,34 @@ public class PlayState extends GameState {
 
         for (int i = 0; i < Entities.size(); i++) {
             if (Entities.get(i).FocusStrength != 0) {
-                if(mainFocus.getPosition().dst(Entities.get(i).getPosition()) <= 200) {
+                if (mainFocus.getPosition().dst(Entities.get(i).getPosition()) <= 200) {
                     float tempX = Entities.get(i).getPosition().x;
                     float tempY = Entities.get(i).getPosition().y;
 
                     double dist = mainFocus.getPosition().dst(Entities.get(i).getPosition());
 
-                    double influence = -((dist-200)/200)*1;
+                    double influence = -((dist - 200) / 200) * 1;
 
-                    FocalPoint.x += (tempX * (Entities.get(i).FocusStrength*influence));
-                    FocalPoint.y += (tempY * (Entities.get(i).FocusStrength*influence));
-                    totalFocusPoints += Entities.get(i).FocusStrength*influence;
+                    FocalPoint.x += (tempX * (Entities.get(i).FocusStrength * influence));
+                    FocalPoint.y += (tempY * (Entities.get(i).FocusStrength * influence));
+                    totalFocusPoints += Entities.get(i).FocusStrength * influence;
                 }
             }
         }
 
-        if (FocalPoint.x - cam.viewportWidth/2 <= MinX) {
-            FocalPoint.x = MinX + cam.viewportWidth/2;
-        } else if (FocalPoint.x + cam.viewportWidth/2 >= MaxX) {
-            FocalPoint.x = MaxX - cam.viewportWidth/2;
+        if (FocalPoint.x - cam.viewportWidth / 2 <= MinX) {
+            FocalPoint.x = MinX + cam.viewportWidth / 2;
+        } else if (FocalPoint.x + cam.viewportWidth / 2 >= MaxX) {
+            FocalPoint.x = MaxX - cam.viewportWidth / 2;
         }
 
-        if (FocalPoint.y - cam.viewportHeight/2 <= MinY) {
-            FocalPoint.y = MinY + cam.viewportHeight/2;
-        } else if (FocalPoint.y + cam.viewportHeight/2 >= MaxY) {
-            FocalPoint.y = MaxY - cam.viewportHeight/2;
+        if (FocalPoint.y - cam.viewportHeight / 2 <= MinY) {
+            FocalPoint.y = MinY + cam.viewportHeight / 2;
+        } else if (FocalPoint.y + cam.viewportHeight / 2 >= MaxY) {
+            FocalPoint.y = MaxY - cam.viewportHeight / 2;
         }
 
-        cam.position.set((int) (FocalPoint.x/totalFocusPoints),(int) (FocalPoint.y/totalFocusPoints), 0);
+        cam.position.set((int) (FocalPoint.x / totalFocusPoints), (int) (FocalPoint.y / totalFocusPoints), 0);
 
         cam.update();
     }
