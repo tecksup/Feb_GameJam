@@ -102,7 +102,7 @@ public class Draw {
     private HashMap<String, TextureAtlas.AtlasRegion> cachedTextures = new HashMap<>();
     private HashMap<String, Array<TextureAtlas.AtlasRegion>> cachedTextureGroups = new HashMap<>();
 
-    public TextureAtlas.AtlasRegion getTexture(String name) {
+    public TextureAtlas.AtlasRegion getTextureRegion(String name) {
         TextureAtlas.AtlasRegion texture = cachedTextures.get(name);
 
         if (texture != null)
@@ -115,6 +115,10 @@ public class Draw {
             cachedTextures.put(name, texture);
             return texture;
         }
+    }
+
+    public Texture getTexture(String name) {
+        return getTextureRegion(name).getTexture();
     }
 
     public Array<TextureAtlas.AtlasRegion> getTextures(String name) {
