@@ -1,5 +1,5 @@
 buildscript {
-
+    ext.kotlinVersion = '1.2.51'
 
     repositories {
         mavenLocal()
@@ -10,7 +10,7 @@ buildscript {
     dependencies {
         classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.6'
 
-
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
 
@@ -40,7 +40,7 @@ allprojects {
 
 project(":desktop") {
     apply plugin: "java"
-
+    apply plugin: "kotlin"
 
     dependencies {
         compile project(":core")
@@ -48,13 +48,12 @@ project(":desktop") {
         compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         compile "com.badlogicgames.gdx:gdx-controllers-lwjgl3:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
-
     }
 }
 
 project(":core") {
     apply plugin: "java"
-
+    apply plugin: "kotlin"
 
     dependencies {
         compile "kryonet:kryonet:2.21"
@@ -68,7 +67,8 @@ project(":core") {
         compile 'com.google.code.gson:gson:2.8.2'
         compile "com.badlogicgames.gdx:gdx-ai:1.8.1"
         compile "com.rafaskoberg.gdx:typing-label:1.0.4"
-
+        compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+        compile "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
     }
 }
 

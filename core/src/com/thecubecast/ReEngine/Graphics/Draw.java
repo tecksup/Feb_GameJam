@@ -4,17 +4,21 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectSet;
+
+import java.util.HashMap;
 
 public class Draw {
 
     public AssetManager manager = new AssetManager();
+    private TextureAtlas textureAtlas;
+
+    private String textureAtlasFilename = "textureAtlas/atlas.atlas";
 
     //Animation Variables
     public Animation<TextureRegion> LoadingAnimation; // Must declare frame type (TextureRegion)
@@ -25,8 +29,16 @@ public class Draw {
     public void Init() {
         font.getData().markupEnabled = true;
 
+        // load the texture atlas
+        manager.load(textureAtlasFilename, TextureAtlas.class);
+
         // Initialize the Animation with the frame interval and array of frames
         LoadingAnimation = new Animation<TextureRegion>(0.1f, loadAnim(LoadingSheet, "cube_loading_sprite.png", 4, 1));
+    }
+
+    /** Retrieve the loaded texture atlas */
+    public void retrieveTextureAtlas() {
+        textureAtlas = manager.get(textureAtlasFilename, TextureAtlas.class);
     }
 
     public static TextureRegion[] loadAnim(Texture TexSheet, String FileLocation, int Cols, int Rows) {
@@ -87,4 +99,44 @@ public class Draw {
         Gdx.gl.glLineWidth(1);
     }
 
+    private HashMap<String, TextureAtlas.AtlasRegion> cachedTextures = new HashMap<>();
+    private HashMap<String, Array<TextureAtlas.AtlasRegion>> cachedTextureGroups = new HashMap<>();
+
+    public TextureAtlas.AtlasRegion getTexture(String name) {
+        TextureAtlas.AtlasRegion texture = cachedTextures.get(name);
+
+        if (texture != null)
+            return texture;
+        else {
+            texture = textureAtlas.findRegion(name);
+            if (texture == null)
+                throw new RuntimeException("Region not found on atlas, name: "+ name + "\nAll regions: " + getRegionsNames());
+
+            cachedTextures.put(name, texture);
+            return texture;
+        }
+    }
+
+    public Array<TextureAtlas.AtlasRegion> getTextures(String name) {
+        Array<TextureAtlas.AtlasRegion> textures = cachedTextureGroups.get(name);
+        if (textures != null)
+            return textures;
+        else {
+            textures = textureAtlas.findRegions(name);
+            if (textures.size == 0)
+                throw new RuntimeException("Group of regions ( .findRegions() ) not found on atlas, name: " + name);
+
+            cachedTextureGroups.put(name, textures);
+            return textures;
+        }
+    }
+
+    private String getRegionsNames() {
+        ObjectSet<String> names = new ObjectSet<>();
+        for (TextureAtlas.AtlasRegion region : textureAtlas.getRegions()) {
+            names.add(region.name);
+        }
+
+        return names.toString("; ");
+    }
 }

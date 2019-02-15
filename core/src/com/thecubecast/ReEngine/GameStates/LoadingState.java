@@ -72,6 +72,8 @@ public class LoadingState extends GameState {
         progress.setValue(gsm.Render.manager.getProgress());
         if (Load.equals("STARTUP")) {
             if (gsm.Render.manager.getProgress() == 1) {
+                gsm.Render.retrieveTextureAtlas();
+
                 Gdx.graphics.setVSync(true);
                 gsm.setState(GameStateManager.State.MENU);
             }

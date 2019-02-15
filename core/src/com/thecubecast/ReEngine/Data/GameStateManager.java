@@ -102,7 +102,7 @@ public class GameStateManager {
         currentState = State.LOADING;
         //Set up the loading state
         gameState = new LoadingState(this);
-        ((LoadingState) gameState).setLoad("STARTUP");
+        ((LoadingState) gameState).setLoad(LoadIt);
         gameState.init();
     }
 

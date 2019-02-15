@@ -180,7 +180,8 @@ public class controlerManager implements ControllerListener {
 
     public boolean isButtonJustDown(int player, buttons butt) {
         if (player < controllers.size()) {
-            return controllers.get(player).justPressedbuttons[getButtonToId(butt, player)];
+//            return controllers.get(player).justPressedbuttons[getButtonToId(butt, player)];
+            return false;
         } else {
             return false;
         }

@@ -11,6 +11,9 @@ import com.thecubecast.ReEngine.mainclass;
 public class DesktopLauncher {
     public static void main(String[] args) {
 
+        DcpTexturePackerManager texturePackerManager = new DcpTexturePackerManager();
+        texturePackerManager.checkWhetherToPackImages();
+
         //set variables from the settings file
         boolean Display_Fullscreen = false;
         boolean Display_WindowedFull = false;
