@@ -17,6 +17,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
 
+import static com.thecubecast.ReEngine.Data.GameStateManager.AudioM;
+
 
 public class MainMenuState extends GameState {
 
@@ -34,7 +36,7 @@ public class MainMenuState extends GameState {
 
     public void init() {
 
-        Background = new Texture(Gdx.files.internal("Images/image_04.png"));
+        Background = gsm.Render.getTexture("test");
         Title = new Texture(Gdx.files.internal("Sprites/Title.png"));
 
         gsm.DiscordManager.setPresenceState("In Menus");
@@ -43,7 +45,7 @@ public class MainMenuState extends GameState {
 
         Menus = new UIFSM(cameraGui, gsm);
 
-        //BGMusicID = AudioM.playMusic("forgetting.mp3", true);
+        BGMusicID = AudioM.playMusic("NoName.wav", true, true);
     }
 
     public void update() {

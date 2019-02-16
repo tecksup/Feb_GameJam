@@ -272,7 +272,7 @@ public enum UI_state implements State<UIFSM> {
 
             final Label Master = new Label("Master Volume", entity.skin);
             final Slider MasterVolume = new Slider(0, 1, 0.01f, false, entity.skin);
-            MasterVolume.setValue(AudioM.MasterVolume);
+            MasterVolume.setValue(AudioM.getMasterVolume());
             table.add(Master);
             table.row();
             table.add(MasterVolume).padBottom(12);
@@ -280,7 +280,7 @@ public enum UI_state implements State<UIFSM> {
 
             final Label Music = new Label("Music Volume", entity.skin);
             final Slider MusicVolume = new Slider(0, 1, 0.01f, false, entity.skin);
-            MusicVolume.setValue(AudioM.MusicVolume);
+            MusicVolume.setValue(AudioM.getMusicVolume());
             table.add(Music);
             table.row();
             table.add(MusicVolume).padBottom(12);
@@ -288,7 +288,7 @@ public enum UI_state implements State<UIFSM> {
 
             final Label Sound = new Label("Sound Volume", entity.skin);
             final Slider SoundVolume = new Slider(0, 1, 0.01f, false, entity.skin);
-            SoundVolume.setValue(AudioM.SoundVolume);
+            SoundVolume.setValue(AudioM.getSoundVolume());
             table.add(Sound);
             table.row();
             table.add(SoundVolume).padBottom(12);
@@ -301,21 +301,21 @@ public enum UI_state implements State<UIFSM> {
             MasterVolume.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
-                    AudioM.MasterVolume = MasterVolume.getValue();
+                    AudioM.setMasterVolume(MasterVolume.getValue());
                 }
             });
 
             MusicVolume.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
-                    AudioM.MusicVolume = MusicVolume.getValue();
+                    AudioM.setMusicVolume(MusicVolume.getValue());
                 }
             });
 
             SoundVolume.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
-                    AudioM.SoundVolume = SoundVolume.getValue();
+                    AudioM.setSoundVolume(SoundVolume.getValue());
                 }
             });
 
