@@ -11,7 +11,7 @@ abstract class Action(duration: Float, interpolation: Interpolation = Interpolat
     var pauseTimer = false
     private var finalUpdateDone = false
 
-    fun update(delta: Float) {
+    open fun update(delta: Float) {
         if (interpolator.hasFinished) {
             if (finalUpdateDone) return
 

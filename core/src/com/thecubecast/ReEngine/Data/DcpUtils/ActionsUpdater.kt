@@ -1,20 +1,19 @@
 package com.dcostap.engine.utils.actions
 
 import com.badlogic.gdx.utils.Array
-import com.dcostap.engine.utils.Updatable
 import com.thecubecast.ReEngine.Data.DcpUtils.Action
 
 /**
  * Created by Darius on 15/04/2018.
  */
-class ActionsUpdater : Updatable {
+class ActionsUpdater {
     private val actions = Array<Action>()
     @Transient private val dummy = Array<Action>()
 
     val isEmpty
         get() = actions.size == 0
 
-    override fun update(delta: Float) {
+    fun update(delta: Float) {
         dummy.clear()
 
         for (action in actions) {
