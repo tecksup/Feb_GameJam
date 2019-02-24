@@ -7,6 +7,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.thecubecast.ReEngine.Data.GameStateManager;
 import com.thecubecast.ReEngine.Data.controlerManager;
 import com.thecubecast.ReEngine.Graphics.Scene2D.UIFSM;
@@ -27,7 +28,7 @@ public class MainMenuState extends GameState {
 
     int BGMusicID;
 
-    Texture Background;
+    TextureAtlas.AtlasRegion Background;
     Texture Title;
 
     public MainMenuState(GameStateManager gsm) {
