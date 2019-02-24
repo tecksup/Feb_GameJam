@@ -18,7 +18,7 @@ import static com.badlogic.gdx.utils.TimeUtils.nanoTime;
 public class Smart implements Telegraph {
 
     private Vector3 Destination;
-    Student WorldObject;
+    Enemy WorldObject;
 
     FlatTiledGraph worldMap;
 
@@ -28,7 +28,7 @@ public class Smart implements Telegraph {
 
     private StateMachine<Smart, Student_State> stateMachine;
 
-    public Smart(Student WorldObject, FlatTiledGraph worldMap) {
+    public Smart(Enemy WorldObject, FlatTiledGraph worldMap) {
 
         Destination = new Vector3(WorldObject.getPosition());
 
@@ -67,8 +67,8 @@ public class Smart implements Telegraph {
             FlatTiledNode endNode = worldMap.getNode(tileX, tileY);
             if (forceUpdate || endNode.type == FlatTiledNode.GROUND) {
                 if (endNode.type == FlatTiledNode.GROUND) {
-                    WorldObject.setPositionX(tileX * 16);
-                    WorldObject.setPositionY(tileY * 16);
+                    //WorldObject.setPositionX(tileX * 16);
+                    //WorldObject.setPositionY(tileY * 16);
                 } else {
                     endNode = worldMap.getNode(tileX, tileY);
                 }

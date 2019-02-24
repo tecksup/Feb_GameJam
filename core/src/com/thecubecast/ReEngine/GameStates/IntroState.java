@@ -33,7 +33,7 @@ public class IntroState extends GameState {
 
     public void init() {
 
-        Splash = new Texture(Gdx.files.internal("Images/image_00.png"));
+        Splash = new Texture(Gdx.files.internal("Sprites/Gunter.png"));
 
         camera = new OrthographicCamera();
 

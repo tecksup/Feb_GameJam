@@ -4,9 +4,16 @@ size: 1024,512
 format: RGBA8888
 filter: MipMapLinearNearest,MipMapLinearNearest
 repeat: none
+Dude
+  rotate: false
+  xy: 8, 16
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
 test
   rotate: false
-  xy: 496, 8
+  xy: 484, 8
   size: 422, 302
   orig: 422, 302
   offset: 0, 0
@@ -14,7 +21,7 @@ test
 tileset
   rotate: false
   xy: 8, 40
-  size: 480, 270
-  orig: 480, 270
+  size: 468, 270
+  orig: 468, 270
   offset: 0, 0
   index: -1

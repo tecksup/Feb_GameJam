@@ -105,43 +105,6 @@ public class MainMenuState extends GameState {
         //Menus.reSize(cameraGui);
     }
 
-
-    public String GetLogin(String email, String Password) throws Exception {
-        String url = "https://dev.thecubecast.com/game/login_game.php";
-        URL obj = new URL(url);
-        HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
-
-        //add request header
-        con.setRequestMethod("POST");
-        con.addRequestProperty("email", email);
-        con.addRequestProperty("password", Password);
-
-        con.setDoOutput(true);
-        OutputStream os = con.getOutputStream();
-        os.write(("email=" + email).getBytes());
-        os.write(("password=" + Password).getBytes());
-        os.flush();
-        os.close();
-
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'POST' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode);
-
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
-        //print result
-        System.out.println(response.toString());
-        return (response.toString());
-    }
-
     @Override
     public void Shutdown() {
 

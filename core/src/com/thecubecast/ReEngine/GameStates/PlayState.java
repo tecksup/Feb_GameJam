@@ -11,13 +11,18 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.World;
 import com.thecubecast.ReEngine.Data.Cube;
 import com.thecubecast.ReEngine.Data.GameStateManager;
 import com.thecubecast.ReEngine.Data.ParticleHandler;
+import com.thecubecast.ReEngine.Data.TkMap.TkMap;
 import com.thecubecast.ReEngine.Graphics.Scene2D.UIFSM;
 import com.thecubecast.ReEngine.Graphics.Scene2D.UI_state;
 import com.thecubecast.ReEngine.Graphics.ScreenShakeCameraController;
 import com.thecubecast.ReEngine.worldObjects.*;
+import com.thecubecast.ReEngine.worldObjects.AI.Enemy;
+import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.FlatTiledGraph;
+import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.FlatTiledNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +41,16 @@ public class PlayState extends GameState {
     public static ParticleHandler Particles;
 
     //GameObjects
-    public static Player player;
+    public HackSlashPlayer player;
     private List<Cube> Collisions = new ArrayList<>();
     public static List<WorldObject> Entities = new ArrayList<>();
 
+    TkMap WorldMap;
 
     //AI
-    //FlatTiledGraph MapGraph;
+    FlatTiledGraph MapGraph;
+
+    Enemy tempEnemy;
 
     public PlayState(GameStateManager gsm) {
         super(gsm);
@@ -50,7 +58,9 @@ public class PlayState extends GameState {
 
     public void init() {
 
-        player = new Player(13 * 16, 1 * 16, 0);
+        WorldMap = new TkMap("Saves/World.cube");
+
+        player = new HackSlashPlayer(13 * 16, 1 * 16, gsm);
 
         Entities.add(player);
 
@@ -74,6 +84,11 @@ public class PlayState extends GameState {
         //Particles
         Particles = new ParticleHandler();
 
+        MapGraph = new FlatTiledGraph(WorldMap);
+
+        tempEnemy = new Enemy(16,16, MapGraph);
+        Entities.add(tempEnemy);
+
     }
 
     public void update() {
@@ -84,7 +99,7 @@ public class PlayState extends GameState {
             Entities.get(i).update(Gdx.graphics.getDeltaTime(), Collisions);
         }
 
-        //cameraUpdate(MainCameraFocusPoint, camera, Entities,0,0, tempshitgiggle.getWidth()*tempshitgiggle.getTileSize(), tempshitgiggle.getHeight()*tempshitgiggle.getTileSize());
+        cameraUpdate(player, camera, Entities,0,0, WorldMap.getWidth()*WorldMap.getTileSize(), WorldMap.getHeight()*WorldMap.getTileSize());
 
         handleInput();
     }
@@ -98,6 +113,8 @@ public class PlayState extends GameState {
 
         g.setShader(null);
         g.begin();
+
+        WorldMap.Draw(camera, g);
 
         //Block of code renders all the entities
         WorldObjectComp entitySort = new WorldObjectComp();
@@ -137,6 +154,49 @@ public class PlayState extends GameState {
         gsm.Render.debugRenderer.begin(ShapeRenderer.ShapeType.Line);
 
         if (GameStateManager.Debug) {
+
+            //Gonna make a debug renderer for the MapGraph, or i guess now? changing that fixed the crashing
+
+            for (int y = 0; y < WorldMap.getHeight(); y++) {
+                for (int x = 0; x < WorldMap.getWidth(); x++) {
+                    switch (MapGraph.getNode(x, y).type) {
+                        case FlatTiledNode.GROUND:
+                            gsm.Render.debugRenderer.setColor(Color.GREEN);
+                            gsm.Render.debugRenderer.rect(x * 16, y * 16, 16, 16);
+                            break;
+                        case FlatTiledNode.COLLIDABLE:
+                            gsm.Render.debugRenderer.setColor(Color.RED);
+                            gsm.Render.debugRenderer.rect(x * 16, y * 16, 16, 16);
+                            break;
+                        default:
+                            //gsm.Render.debugRenderer.setColor(Color.WHITE);
+                            //gsm.Render.debugRenderer.rect(x * 16, y * 16, 16, 16);
+                            break;
+                    }
+                }
+            }
+
+            gsm.Render.debugRenderer.setColor(Color.FIREBRICK);
+            for (int i = 0; i < Entities.size(); i++) {
+                if(Entities.get(i) instanceof Enemy) {
+                    Enemy temp = (Enemy) Entities.get(i);
+                    int nodeCount = temp.getPath().getCount();
+                    for (int j = 0; j < nodeCount; j++) {
+                        FlatTiledNode node = temp.getPath().nodes.get(j);
+                        gsm.Render.debugRenderer.rect(node.x * 16 + 4, node.y * 16 + 4, 4, 4);
+                    }
+                }
+            }
+
+            gsm.Render.debugRenderer.setColor(Color.FOREST);
+            for (int i = 0; i < Entities.size(); i++) {
+                if(Entities.get(i) instanceof Student) {
+                    Student temp = (Student) Entities.get(i);
+                    gsm.Render.debugRenderer.rect(temp.getDestination().x+2, temp.getDestination().y+2, 12, 12);
+                }
+            }
+
+
 
             for (int i = 0; i < Collisions.size(); i++) {
 
@@ -195,6 +255,35 @@ public class PlayState extends GameState {
 
     private void handleInput() {
 
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+            player.setPositionY(player.getPosition().y + 1);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+            player.setPositionY(player.getPosition().y - 1);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            player.setPositionX(player.getPosition().x + 1);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+            player.setPositionX(player.getPosition().x - 1);
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
+            tempEnemy.setDestination(player.getPosition());
+            tempEnemy.GO();
+        }
+
+        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) { //NEEDS TO GET CHANGED TO ISJUSTDOWN
+            //Calculate the angle of attack based on location of mouse around player.
+            Vector3 pos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            camera.unproject(pos);
+
+            //Trying to find the way to calulate the angle from pos to playerPos //STILL NOT WORKING
+            //System.out.println(new Vector2(pos.x, pos.y).angle(new Vector2(player.getPosition().x, player.getPosition().y)));
+
+            player.TriggerAttack(HackSlashPlayer.Direction.Down);
+        }
+
     }
 
     public void reSize(SpriteBatch g, int H, int W) {
@@ -231,7 +320,7 @@ public class PlayState extends GameState {
                 }
             }
         }
-
+/*
         if (FocalPoint.x - cam.viewportWidth / 2 <= MinX) {
             FocalPoint.x = MinX + cam.viewportWidth / 2;
         } else if (FocalPoint.x + cam.viewportWidth / 2 >= MaxX) {
@@ -243,7 +332,7 @@ public class PlayState extends GameState {
         } else if (FocalPoint.y + cam.viewportHeight / 2 >= MaxY) {
             FocalPoint.y = MaxY - cam.viewportHeight / 2;
         }
-
+*/
         cam.position.set((int) (FocalPoint.x / totalFocusPoints), (int) (FocalPoint.y / totalFocusPoints), 0);
 
         cam.update();

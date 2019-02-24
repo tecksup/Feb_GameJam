@@ -110,43 +110,6 @@ public class TkMap {
 
     }
 
-    public TkMap(int Width, int Height, int TileSize) {
-
-        this.MapLocation = MapLocation;
-
-        this.Width = Width;
-        this.Height = Height;
-        this.TileSize = TileSize;
-
-        Tileset = new TkTileset("World", "Sprites/Map/World.png", TileSize, TileSize, 0);
-
-        Ground = new int[Width][Height];
-        Foreground = new int[Width][Height];
-        Collision = new Boolean[Width][Height];
-
-        for (int y = this.getHeight() - 1; y >= 0; y--) {
-            for (int x = 0; x < this.getWidth(); x++) {
-                this.Ground[x][y] = 150;
-            }
-        }
-
-        //----------------------------------------------------
-
-        for (int y = this.getHeight() - 1; y >= 0; y--) {
-            for (int x = 0; x < this.getWidth(); x++) {
-                this.Foreground[x][y] = -1;
-            }
-        }
-
-        //---------------------------------------------------
-
-        for (int y = this.getHeight() - 1; y >= 0; y--) {
-            for (int x = 0; x < this.getWidth(); x++) {
-                this.Collision[x][y] = false;
-            }
-        }
-    }
-
     public JsonObject getMapObject() {
         return MapObject;
     }

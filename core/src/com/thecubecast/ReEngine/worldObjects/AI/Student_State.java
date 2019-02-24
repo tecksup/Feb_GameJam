@@ -55,13 +55,13 @@ public enum Student_State implements State<Smart> {
     WALKING_TO_DESTINATION() {
         @Override
         public void enter(Smart Student) { // INIT
-            //Student.updatePath(true);
+            Student.updatePath(true);
         }
 
         @Override
         public void update(Smart Student) {
             //Check for changes, then update state
-
+            //Student.WorldObject.setPosition(Student.getPath().get(1).x * 16, Student.getPath().get(1).y * 16, 0);
         }
 
         @Override

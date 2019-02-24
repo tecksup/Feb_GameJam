@@ -22,6 +22,10 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.utils.Array;
 import com.thecubecast.ReEngine.Data.OGMO.OelGridLayer;
 import com.thecubecast.ReEngine.Data.OGMO.OelMap;
+import com.thecubecast.ReEngine.Data.TkMap.TkMap;
+
+import static com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.TiledNode.COLLIDABLE;
+import static com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.TiledNode.GROUND;
 
 /**
  * A random generated graph representing a flat tiled map.
@@ -51,6 +55,15 @@ public class FlatTiledGraph implements TiledGraph<FlatTiledNode> {
         this.nodes = new Array<FlatTiledNode>(sizeX * sizeY);
         this.diagonal = false;
         this.startNode = null;
+    }
+
+    public FlatTiledGraph(TkMap map) {
+        sizeX = map.getWidth();
+        sizeY = map.getHeight();
+        this.nodes = new Array<FlatTiledNode>(sizeX * sizeY);
+        this.diagonal = false;
+        this.startNode = null;
+        init(map);
     }
 
     public void init(TiledMap map) {
@@ -99,10 +112,14 @@ public class FlatTiledGraph implements TiledGraph<FlatTiledNode> {
         }
     }
 
-    /*public void init (BitwiseTiles bitTiles) {
+    public void init(TkMap map) {
         for (int x = 0; x < sizeX; x++) {
             for (int y = 0; y < sizeY; y++) {
-                nodes.add(new FlatTiledNode(x, y, bitTiles.getBitTileObject(1).realTile.get(y)[x], 8));
+                if (map.getCollision()[x][y]) {
+                    nodes.add(new FlatTiledNode(x, y, COLLIDABLE, 8));
+                } else {
+                    nodes.add(new FlatTiledNode(x, y, GROUND, 8));
+                }
             }
         }
 
@@ -116,7 +133,9 @@ public class FlatTiledGraph implements TiledGraph<FlatTiledNode> {
                 if (y < sizeY - 1) addConnection(nodes.get(colOffset + y), 0, 1);
             }
         }
-    }*/
+
+        return;
+    }
 
     @Override
     public FlatTiledNode getNode(int x, int y) {
@@ -145,7 +164,7 @@ public class FlatTiledGraph implements TiledGraph<FlatTiledNode> {
 
     private void addConnection(FlatTiledNode n, int xOffset, int yOffset) {
         FlatTiledNode target = getNode(n.x + xOffset, n.y + yOffset);
-        if (target.type != FlatTiledNode.COLLIDABLE)
+        if (target.type != COLLIDABLE)
             n.getConnections().add(new FlatTiledConnection(this, n, target));
     }
 

@@ -43,10 +43,6 @@ public enum UI_state implements State<UIFSM> {
             table.add(PlayState).pad(2);
             table.row();
 
-            final TkTextButton Discord = new TkTextButton("Discord", entity.skin);
-            table.add(Discord).pad(2);
-            table.row();
-
             final TkTextButton Options = new TkTextButton("Options", entity.skin);
             table.add(Options).pad(2);
             table.row();
@@ -65,19 +61,6 @@ public enum UI_state implements State<UIFSM> {
                     Gdx.app.getPreferences("properties").flush();
                     entity.gsm.setState(GameStateManager.State.PLAY);
                     PlayState.setText("Loading");
-                }
-            });
-
-
-            Discord.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    try {
-                        java.awt.Desktop.getDesktop().browse(new URI("https://discord.gg/7wfpsbf"));
-                        Common.print("Opened Discord Link!");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
                 }
             });
 
@@ -202,9 +185,9 @@ public enum UI_state implements State<UIFSM> {
             table.add(Graphics).pad(2);
             table.row();
 
-            final TkTextButton Controls = new TkTextButton("Controls", entity.skin);
-            table.add(Controls).pad(2);
-            table.row();
+            //final TkTextButton Controls = new TkTextButton("Controls", entity.skin);
+            //table.add(Controls).pad(2);
+            //table.row();
 
             final TkTextButton back = new TkTextButton("Back", entity.skin);
             table.add(back).pad(2);
@@ -224,12 +207,12 @@ public enum UI_state implements State<UIFSM> {
                 }
             });
 
-            Controls.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    entity.stateMachine.changeState(UI_state.Controls);
-                }
-            });
+            //Controls.addListener(new ClickListener() {
+            //    @Override
+            //    public void clicked(InputEvent event, float x, float y) {
+            //        entity.stateMachine.changeState(UI_state.Controls);
+            //    }
+            //});
 
             back.addListener(new ClickListener() {
                 @Override

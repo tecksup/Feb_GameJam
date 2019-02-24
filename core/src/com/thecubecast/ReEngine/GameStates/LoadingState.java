@@ -75,7 +75,7 @@ public class LoadingState extends GameState {
                 gsm.Render.retrieveTextureAtlas();
 
                 Gdx.graphics.setVSync(true);
-                gsm.setState(GameStateManager.State.MENU);
+                gsm.setState(GameStateManager.State.INTRO);
             }
         }
         handleInput();

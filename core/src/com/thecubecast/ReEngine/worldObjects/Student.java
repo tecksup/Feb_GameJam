@@ -18,7 +18,7 @@ public class Student extends NPC {
     public Student(String name, int x, int y, int z, Vector3 size, float knockbackResistance, float health, intractability interact, FlatTiledGraph worldMap) {
         super(name, x, y, z, size, knockbackResistance, health, interact);
 
-        AI = new Smart(this, worldMap);
+        //AI = new Smart(this, worldMap);
 
     }
 
