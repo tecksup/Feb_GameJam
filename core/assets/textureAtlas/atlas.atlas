@@ -1,13 +1,20 @@
 
 atlas.png
-size: 512,512
+size: 1024,512
 format: RGBA8888
 filter: MipMapLinearNearest,MipMapLinearNearest
 repeat: none
 test
   rotate: false
-  xy: 8, 8
+  xy: 496, 8
   size: 422, 302
   orig: 422, 302
+  offset: 0, 0
+  index: -1
+tileset
+  rotate: false
+  xy: 8, 40
+  size: 480, 270
+  orig: 480, 270
   offset: 0, 0
   index: -1
