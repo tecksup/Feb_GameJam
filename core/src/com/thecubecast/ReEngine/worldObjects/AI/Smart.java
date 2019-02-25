@@ -11,7 +11,6 @@ import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.FlatTiledGraph;
 import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.FlatTiledNode;
 import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.TiledManhattanDistance;
 import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.TiledSmoothableGraphPath;
-import com.thecubecast.ReEngine.worldObjects.Student;
 
 import static com.badlogic.gdx.utils.TimeUtils.nanoTime;
 
@@ -26,7 +25,7 @@ public class Smart implements Telegraph {
     IndexedAStarPathFinder<FlatTiledNode> pathFinder;
     TiledManhattanDistance<FlatTiledNode> heuristic;
 
-    private StateMachine<Smart, Student_State> stateMachine;
+    private StateMachine<Smart, EnemyState> stateMachine;
 
     public Smart(Enemy WorldObject, FlatTiledGraph worldMap) {
 
@@ -38,7 +37,7 @@ public class Smart implements Telegraph {
         heuristic = new TiledManhattanDistance<FlatTiledNode>();
         pathFinder = new IndexedAStarPathFinder<FlatTiledNode>(worldMap, true);
 
-        stateMachine = new DefaultStateMachine<Smart, Student_State>(this, Student_State.IDLE);
+        stateMachine = new DefaultStateMachine<Smart, EnemyState>(this, EnemyState.IDLE);
         stateMachine.getCurrentState().enter(this);
 
         this.WorldObject = WorldObject;
@@ -93,7 +92,7 @@ public class Smart implements Telegraph {
 
 
     //GETTERS AND SETTERS
-    public StateMachine<Smart, Student_State> getStateMachine() {
+    public StateMachine<Smart, EnemyState> getStateMachine() {
         return stateMachine;
     }
 

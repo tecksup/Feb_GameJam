@@ -86,7 +86,7 @@ public class PlayState extends GameState {
 
         MapGraph = new FlatTiledGraph(WorldMap);
 
-        tempEnemy = new Enemy(16,16, MapGraph);
+        tempEnemy = new Enemy(16,16, MapGraph, gsm);
         Entities.add(tempEnemy);
 
     }
@@ -270,10 +270,10 @@ public class PlayState extends GameState {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
             tempEnemy.setDestination(player.getPosition());
-            tempEnemy.GO();
+            tempEnemy.interact();
         }
 
-        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) { //NEEDS TO GET CHANGED TO ISJUSTDOWN
+        if (Gdx.input.justTouched()) { //NEEDS TO GET CHANGED TO ISJUSTDOWN
             //Calculate the angle of attack based on location of mouse around player.
             Vector3 pos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(pos);

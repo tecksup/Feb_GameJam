@@ -6,7 +6,7 @@ import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.FlatTiledGraph;
 import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.FlatTiledNode;
 import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.TiledSmoothableGraphPath;
 import com.thecubecast.ReEngine.worldObjects.AI.Smart;
-import com.thecubecast.ReEngine.worldObjects.AI.Student_State;
+import com.thecubecast.ReEngine.worldObjects.AI.EnemyState;
 
 import java.util.List;
 
@@ -38,8 +38,8 @@ public class Student extends NPC {
 
     @Override
     public void interact() {
-        if (!AI.getStateMachine().getCurrentState().equals(Student_State.WALKING_TO_DESTINATION))
-            AI.getStateMachine().changeState(Student_State.WALKING_TO_DESTINATION);
+        if (!AI.getStateMachine().getCurrentState().equals(EnemyState.WALKING_TO_DESTINATION))
+            AI.getStateMachine().changeState(EnemyState.WALKING_TO_DESTINATION);
 
         if (AI.getPath().nodes.size > 1) {
             setPosition(AI.getPath().get(1).x * 16, AI.getPath().get(1).y * 16, 0);

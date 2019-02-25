@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
+import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 import com.thecubecast.ReEngine.Data.Common;
 import com.thecubecast.ReEngine.Data.GameStateManager;
 import com.thecubecast.ReEngine.Data.controlerManager;
@@ -38,6 +39,11 @@ public enum UI_state implements State<UIFSM> {
             table = new Table();
             table.setFillParent(true);
             entity.stage.addActor(table);
+
+            TypingLabel temptemptemp = new TypingLabel("{COLOR=yellow}Grav-fusion", entity.skin);
+            temptemptemp.skipToTheEnd();
+            table.add(temptemptemp);
+            table.row();
 
             final TkTextButton PlayState = new TkTextButton("Play State", entity.skin);
             table.add(PlayState).pad(2);

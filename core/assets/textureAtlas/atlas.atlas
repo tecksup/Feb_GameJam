@@ -4,23 +4,44 @@ size: 1024,512
 format: RGBA8888
 filter: MipMapLinearNearest,MipMapLinearNearest
 repeat: none
-Dude
+BlackEnemyTemp
   rotate: false
-  xy: 8, 16
+  xy: 914, 313
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
+Dude
+  rotate: false
+  xy: 8, 8
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+Gunter
+  rotate: false
+  xy: 8, 32
+  size: 19, 19
+  orig: 19, 19
+  offset: 0, 0
+  index: -1
+Shadow
+  rotate: false
+  xy: 35, 43
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
 test
   rotate: false
-  xy: 484, 8
+  xy: 484, 27
   size: 422, 302
   orig: 422, 302
   offset: 0, 0
   index: -1
 tileset
   rotate: false
-  xy: 8, 40
+  xy: 8, 59
   size: 468, 270
   orig: 468, 270
   offset: 0, 0

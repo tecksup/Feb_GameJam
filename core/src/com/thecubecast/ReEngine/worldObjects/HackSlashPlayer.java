@@ -34,10 +34,10 @@ public class HackSlashPlayer extends WorldObject{
 
         if(this.getVelocity().x+this.getVelocity().y < 1) {
             //Idle animation
-            batch.draw(gsm.Render.getTextureRegion("Dude"), getPosition().x, getPosition().y);
+            batch.draw(gsm.Render.getTexture("Dude"), getPosition().x, getPosition().y);
         } else if(this.getVelocity().x+this.getVelocity().y >= 1) {
             //running animation
-            batch.draw(gsm.Render.getTextureRegion("Dude"), getPosition().x, getPosition().y);
+            batch.draw(gsm.Render.getTexture("Dude"), getPosition().x, getPosition().y);
         }
 
         if(this.getVelocity().x+this.getVelocity().y >= 1) {

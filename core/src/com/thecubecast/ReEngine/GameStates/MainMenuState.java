@@ -4,11 +4,16 @@ package com.thecubecast.ReEngine.GameStates;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.thecubecast.ReEngine.Data.GameStateManager;
+import com.thecubecast.ReEngine.Data.ParticleHandler;
 import com.thecubecast.ReEngine.Data.controlerManager;
 import com.thecubecast.ReEngine.Graphics.Scene2D.UIFSM;
 
@@ -19,6 +24,7 @@ import java.io.OutputStream;
 import java.net.URL;
 
 import static com.thecubecast.ReEngine.Data.GameStateManager.AudioM;
+import static com.thecubecast.ReEngine.Graphics.Draw.loadAnim;
 
 
 public class MainMenuState extends GameState {
@@ -28,8 +34,10 @@ public class MainMenuState extends GameState {
 
     int BGMusicID;
 
-    TextureAtlas.AtlasRegion Background;
-    Texture Title;
+    Animation StarAnim;
+
+    //Particles
+    public static ParticleHandler Particles;
 
     public MainMenuState(GameStateManager gsm) {
         super(gsm);
@@ -37,8 +45,10 @@ public class MainMenuState extends GameState {
 
     public void init() {
 
-        Background = gsm.Render.getTexture("test");
-        Title = new Texture(Gdx.files.internal("Sprites/Title.png"));
+        StarAnim = new Animation<TextureRegion>(0.9f, loadAnim(new Texture(Gdx.files.internal("Sprites/Star_anim.png")), "Sprites/Star_anim.png", 8, 1));
+
+        //Particles
+        Particles = new ParticleHandler();
 
         gsm.DiscordManager.setPresenceState("In Menus");
 
@@ -46,10 +56,11 @@ public class MainMenuState extends GameState {
 
         Menus = new UIFSM(cameraGui, gsm);
 
-        BGMusicID = AudioM.playMusic("NoName.wav", true, true);
+        //BGMusicID = AudioM.playMusic("NoName.wav", true, true);
     }
 
     public void update() {
+        Particles.Update();
         handleInput();
 
         cameraGui.update();
@@ -57,12 +68,24 @@ public class MainMenuState extends GameState {
 
     public void draw(SpriteBatch bbg, int height, int width, float Time) {
 
+        //DEBUG CODE
+        gsm.Render.debugRenderer.setProjectionMatrix(cameraGui.combined);
+        gsm.Render.debugRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        //gsm.Render.debugRenderer.setColor();
+        //gsm.Render.debugRenderer.circle(gsm.UIWidth/2, gsm.UIHeight/2, gsm.UIHeight/4);
+
+        gsm.Render.debugRenderer.end();
+
         cameraGui.setToOrtho(false, width, height);
         bbg.setProjectionMatrix(cameraGui.combined);
         bbg.begin();
 
-        bbg.draw(Background, 0, 0, width, height);
-        bbg.draw(Title, width / 2 - (200 / 2), 200, 200, 28);
+        TextureRegion temp = (TextureRegion) StarAnim.getKeyFrame(Time, true);
+        bbg.draw(temp, gsm.WorldWidth/2 - temp.getRegionWidth()/2, gsm.WorldHeight/2 - temp.getRegionHeight()/2);
+
+
+        //Particles
+        Particles.Draw(bbg);
 
         bbg.end();
 
@@ -81,22 +104,6 @@ public class MainMenuState extends GameState {
 
 
     public void handleInput() {
-
-        if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
-            //JukeBox.stop("MenuNavigate");
-            //Click.play((SoundVolume * MasterVolume),1,0);
-            //Check what button the user is on, runs its function
-        }
-
-        if (Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
-            //JukeBox.stop("MenuNavigate");
-
-            //Moves the Chosen button RIGHT
-        }
-
-        if (GameStateManager.ctm.isButtonJustDown(0, controlerManager.buttons.BUTTON_START)) {
-
-        }
 
     }
 

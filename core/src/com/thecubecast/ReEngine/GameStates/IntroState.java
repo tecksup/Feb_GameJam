@@ -4,6 +4,7 @@ package com.thecubecast.ReEngine.GameStates;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -21,8 +22,6 @@ public class IntroState extends GameState {
     static final int WORLD_WIDTH = 100;
     static final int WORLD_HEIGHT = 100;
 
-    Texture Splash;
-
     private final int FADE_IN = 20;
     private final int LENGTH = 40;
     private final int FADE_OUT = 20;
@@ -32,8 +31,6 @@ public class IntroState extends GameState {
     }
 
     public void init() {
-
-        Splash = new Texture(Gdx.files.internal("Sprites/Gunter.png"));
 
         camera = new OrthographicCamera();
 
@@ -72,7 +69,9 @@ public class IntroState extends GameState {
         g.begin();
         Gdx.gl.glClearColor(255f, 255f, 255f, 1);
 
-        g.draw(Splash, width / 2 - ((Splash.getWidth() * 0.5f) / 2), height / 2 - ((Splash.getHeight() * 0.5f) / 2), Splash.getWidth() * 0.5f, Splash.getHeight() * 0.5f);
+        gsm.Render.GUIDrawText(g, width / 2 - 35, height / 2+ 50, "A game made by", Color.WHITE);
+        gsm.Render.GUIDrawText(g, width / 2 - 50, height / 2+ 30, "tecksup and darencius", Color.WHITE);
+        g.draw(gsm.Render.getTexture("Gunter"), width / 2 - ((gsm.Render.getTexture("Gunter").getRegionWidth() * 0.5f) / 2), height / 2 - ((gsm.Render.getTexture("Gunter").getRegionHeight() * 0.5f) / 2));
         g.end();
     }
 
@@ -88,7 +87,6 @@ public class IntroState extends GameState {
 
         if (Gdx.input.isKeyJustPressed(Keys.ENTER)) { //KeyHit
             //JukeBox.stop("LogoSound");
-            Splash = null;
             gsm.setState(GameStateManager.State.MENU);
         }
 
