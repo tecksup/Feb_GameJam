@@ -15,12 +15,13 @@ import com.thecubecast.ReEngine.worldObjects.NPC;
 
 import java.util.List;
 
+import static com.thecubecast.ReEngine.Data.GameStateManager.Render;
 import static com.thecubecast.ReEngine.Graphics.Draw.loadAnim;
 
 public class Hank extends NPC {
 
     Texture sprite;
-    Texture Exclamation = new Texture(Gdx.files.internal("Sprites/Yellow_Marker.png"));
+    TextureRegion Exclamation = Render.getTexture("Yellow_Marker");
 
     private Animation<TextureRegion> idle;
     TkLabel NameLabel;
@@ -28,7 +29,7 @@ public class Hank extends NPC {
     ProgressBar HealthBar;
 
     public Hank(int x, int y, int z) {
-        super("[YELLOW]H[GREEN]a[BLUE]n[RED]k", x, y, z, new Vector3(32, 32, 4), .1f, 100);
+        super("Hank", x, y, z, new Vector3(32, 32, 4), .1f, 100);
 
         FocusStrength = 0.15f;
 

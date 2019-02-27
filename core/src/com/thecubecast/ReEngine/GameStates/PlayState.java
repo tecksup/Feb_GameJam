@@ -91,10 +91,17 @@ public class PlayState extends DialogStateExtention {
 
         MapGraph = new FlatTiledGraph(WorldMap);
 
-        //tempEnemy = new Enemy("Pawn", 16,16,0, new Vector3(8,8,16), 1, 100, NPC.intractability.Silent, false, MapGraph, gsm);
-        tempEnemy = new Pawn("Pawn", 16,16,0, new Vector3(8,8,16), 1, 100, NPC.intractability.Silent, false, MapGraph, gsm);
+        tempEnemy = new Pawn("[PURPLE]Pawn", 280,316,0, new Vector3(8,8,16), 1, 100, NPC.intractability.Silent, false, MapGraph, gsm);
 
         Entities.add(tempEnemy);
+
+        Entities.add(new Hank(450, 300, 0) {
+            @Override
+            public void interact() {
+                AddDialog("Hank","Hey, you can talk to me now?!");
+                AddDialog("Hank","I'm no longer {COLOR=purple}{WAVE}alone{ENDWAVE}{CLEARCOLOR}!!!");
+            }
+        });
 
     }
 
@@ -272,17 +279,17 @@ public class PlayState extends DialogStateExtention {
                 DialogNext();
             } else {
                 for (int i = 0; i < Entities.size(); i++) {
-                    //if (Entities.get(i).getHitbox().intersects(player.getIntereactBox())) {
-                    //    if (Entities.get(i) instanceof NPC) {
-                    //        NPC Entitemp = (NPC) Entities.get(i);
-                    //        Entitemp.interact();
-                    //    }
+                    if (Entities.get(i).getHitbox().intersects(player.getIntereactBox())) {
+                        if (Entities.get(i) instanceof NPC) {
+                            NPC Entitemp = (NPC) Entities.get(i);
+                            Entitemp.interact();
+                        }
 
                         //if (Entities.get(i) instanceof Trigger) {
                             //Trigger Ent = (Trigger) Entities.get(i);
                             //Ent.Interact(player,shaker,this,MainCameraFocusPoint,Particles,Entities);
                         //}
-                    // }
+                     }
                 }
             }
         }
@@ -304,6 +311,31 @@ public class PlayState extends DialogStateExtention {
             //player.setPositionX(player.getPosition().x - 1);
             player.setFacing(true);
             player.setVelocityX(player.getVelocity().x - 1);
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.C)) { // ATTACK
+            if (player.AttackTime < .1f) {
+
+                //Vector3 addVeloc = new Vector3(player.getPosition().x - player.getAttackBox().min.x, player.getPosition().y - player.getAttackBox().min.y, 0);
+                //player.setVelocity(new Vector3(player.getVelocity().x + (addVeloc.x*1.4f * -1), player.getVelocity().y + (addVeloc.y*1.4f * -1), player.getVelocity().z + (addVeloc.z*1.4f * -1)));
+
+                Particles.AddParticleEffect("sparkle", player.getIntereactBox().getCenterX(), player.getIntereactBox().getCenterY());
+                for (int i = 0; i < Entities.size(); i++) {
+                    if (player.getAttackBox().intersects(Entities.get(i).getHitbox())) {
+                        if (Entities.get(i) instanceof NPC) {
+                            NPC Entitemp = (NPC) Entities.get(i);
+
+                            float HitVelocity = 40;
+
+                            Vector3 hitDirection = new Vector3(1 * HitVelocity, 0 * HitVelocity, 0);
+                            Entitemp.damage(10, hitDirection);
+                            shaker.addDamage(0.35f);
+                        }
+                    }
+                }
+
+                player.AttackTime += 0.75f;
+            }
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
@@ -361,7 +393,7 @@ public class PlayState extends DialogStateExtention {
                 }
             }
         }
-/*
+
         if (FocalPoint.x - cam.viewportWidth / 2 <= MinX) {
             FocalPoint.x = MinX + cam.viewportWidth / 2;
         } else if (FocalPoint.x + cam.viewportWidth / 2 >= MaxX) {
@@ -373,7 +405,7 @@ public class PlayState extends DialogStateExtention {
         } else if (FocalPoint.y + cam.viewportHeight / 2 >= MaxY) {
             FocalPoint.y = MaxY - cam.viewportHeight / 2;
         }
-*/
+
         cam.position.set((int) (FocalPoint.x / totalFocusPoints), (int) (FocalPoint.y / totalFocusPoints), 0);
 
         cam.update();

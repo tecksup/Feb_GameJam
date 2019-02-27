@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.thecubecast.ReEngine.Data.Cube;
 import com.thecubecast.ReEngine.Data.DcpUtils.TextureAnimation;
 import com.thecubecast.ReEngine.Data.GameStateManager;
@@ -124,6 +125,23 @@ public class HackSlashPlayer extends WorldObject{
             //Attack animation
         }
 
+    }
+
+    public BoundingBox getAttackBox() {
+
+        return getIntereactBox();
+    }
+
+    public BoundingBox getIntereactBox() {
+        BoundingBox RectPla = new BoundingBox();
+
+        if (isFacing()) {
+            RectPla = new BoundingBox(new Vector3(getPosition().x + (1 * getSize().x), getPosition().y, getPosition().z), new Vector3(getPosition().x + (1 * getSize().x) + getSize().x, getPosition().y + getSize().y, getPosition().z + getSize().z));
+        } else {
+            RectPla = new BoundingBox(new Vector3(getPosition().x + (1 * getSize().x), getPosition().y, getPosition().z), new Vector3(getPosition().x + (1 * getSize().x) + getSize().x, getPosition().y + getSize().y, getPosition().z + getSize().z));
+        }
+
+        return RectPla;
     }
 
     public void TriggerAttack() {

@@ -138,6 +138,18 @@ public class TkMap {
         return Collision;
     }
 
+    public void setCollision(int x, int y) {
+        if (x >= 0 && x < getWidth()) {
+            if (y >= 0 && y < getHeight()) {
+                Collision[x][y] = true;
+            }
+        }
+    }
+
+    public void ClearCollision(int x, int y) {
+        Collision[x][y] = false;
+    }
+
     public void setGroundCell(int x, int y, int ID) {
         Ground[x][y] = ID;
     }
