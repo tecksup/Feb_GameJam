@@ -3,6 +3,7 @@
 package com.thecubecast.ReEngine.GameStates;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -104,7 +105,9 @@ public class MainMenuState extends GameState {
 
 
     public void handleInput() {
-
+        if (Gdx.input.isKeyPressed(Keys.CONTROL_LEFT) && Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+            gsm.setState(GameStateManager.State.EDITOR);
+        }
     }
 
     public void reSize(SpriteBatch g, int H, int W) {

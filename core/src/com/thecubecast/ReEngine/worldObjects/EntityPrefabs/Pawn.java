@@ -23,10 +23,8 @@ import static com.thecubecast.ReEngine.Graphics.Draw.loadAnim;
 
 public class Pawn extends Enemy {
 
-    Texture sprite;
     TextureRegion Exclamation = gsm.Render.getTexture("Yellow_Marker");
 
-    private Animation<TextureRegion> idle;
     TkLabel NameLabel;
     Group stage;
     ProgressBar HealthBar;
@@ -36,7 +34,6 @@ public class Pawn extends Enemy {
 
         FocusStrength = 0.15f;
 
-        idle = new Animation<TextureRegion>(0.1f, loadAnim(sprite, "Sprites/8direct/south.png", 4, 1));
         Skin skin = new Skin(Gdx.files.internal("Skins/test1/skin.json"));
         skin.getFont("Mecha").getData().markupEnabled = true;
         skin.getFont("Pixel").getData().markupEnabled = true;
@@ -54,21 +51,24 @@ public class Pawn extends Enemy {
     @Override
     public void draw(SpriteBatch batch, float Time) {
 
-        TextureRegion currentFrame = idle.getKeyFrame(Time, true);
+        //TextureRegion currentFrame = idle.getKeyFrame(Time, true);
 
         if (System.nanoTime() / 1000000 - getLastDamagedTime() < 1000) {
 
-            batch.draw(new TextureRegion(currentFrame), getPosition().x - 6, getPosition().y - 4);
+            //batch.draw(new TextureRegion(currentFrame), getPosition().x - 6, getPosition().y - 4);
+            batch.draw(gsm.Render.getTexture("BlackEnemyTemp"), getPosition().x,getPosition().y);
 
         } else {
-            batch.draw(new TextureRegion(currentFrame), getPosition().x - 6, getPosition().y - 4);
+            batch.draw(gsm.Render.getTexture("BlackEnemyTemp"), getPosition().x,getPosition().y);
+
+            //batch.draw(new TextureRegion(currentFrame), getPosition().x - 6, getPosition().y - 4);
         }
 
     }
 
     @Override
     public void drawHighlight(SpriteBatch batch, float Time) {
-        TextureRegion currentFrame = idle.getKeyFrame(Time, true);
+        //TextureRegion currentFrame = idle.getKeyFrame(Time, true);
 
         //setOutlineShaderColor(Color.YELLOW, 0.8f);
 
@@ -81,7 +81,7 @@ public class Pawn extends Enemy {
     @Override
     public void drawGui(SpriteBatch batch, float Time) {
         stage.draw(batch, 1);
-        batch.draw(Exclamation, (int) getPosition().x + 6, (int) getPosition().y + 63 + (float) (Math.sin(Time) * 2));
+        //batch.draw(Exclamation, (int) getPosition().x + 6, (int) getPosition().y + 63 + (float) (Math.sin(Time) * 2));
     }
 
     public void update(float delta, List<Cube> Colls, HackSlashPlayer player) {
@@ -97,8 +97,8 @@ public class Pawn extends Enemy {
         super.update(delta, Colls, player);
         stage.act(Gdx.graphics.getDeltaTime());
         NameLabel.setText(getName());
-        NameLabel.setPosition((int) getPosition().x + 3, (int) getPosition().y + 50);
+        NameLabel.setPosition((int) getPosition().x + 3, (int) getPosition().y + 30);
         HealthBar.setValue(getHealth() / 10);
-        HealthBar.setPosition((int) getPosition().x + 15 - (HealthBar.getWidth() / 2), (int) getPosition().y + 44);
+        HealthBar.setPosition((int) getPosition().x + 15 - (HealthBar.getWidth() / 2), (int) getPosition().y + 24);
     }
 }

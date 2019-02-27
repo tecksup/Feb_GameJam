@@ -22,7 +22,7 @@ public class GameStateManager {
     public static boolean Debug = false;
 
     public enum State {
-        INTRO, MENU, PLAY, LOADING
+        INTRO, MENU, PLAY, LOADING, EDITOR
     }
 
     public State currentState;
@@ -61,6 +61,7 @@ public class GameStateManager {
     private int Width;
     private int Height;
     public int Scale = 4;
+    public int UIScale = 4;
 
     public static int WorldWidth;
     public static int WorldHeight;
@@ -74,11 +75,11 @@ public class GameStateManager {
         Height = H;
         WorldWidth = Width / Scale;
         WorldHeight = Height / Scale;
-        UIWidth = Width / (Scale);
-        UIHeight = Height / (Scale);
+        UIWidth = Width / (UIScale);
+        UIHeight = Height / (UIScale);
 
         WorldFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width / Scale, Height / Scale, false);
-        UIFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width / (Scale), Height / (Scale), false);
+        UIFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width / (UIScale), Height / (UIScale), false);
 
         MainCam = new OrthographicCamera();
         MainCam.setToOrtho(false, Width, Height);
@@ -127,6 +128,11 @@ public class GameStateManager {
                 gameState.init();
                 break;
             case LOADING:
+                break;
+            case EDITOR:
+                Common.print("Loaded state EDITOR");
+                gameState = new EditorState(this);
+                gameState.init();
                 break;
         }
 
@@ -247,8 +253,8 @@ public class GameStateManager {
         Height = H;
         WorldWidth = Width / Scale;
         WorldHeight = Height / Scale;
-        UIWidth = Width / (Scale);
-        UIHeight = Height / (Scale);
+        UIWidth = Width / (UIScale);
+        UIHeight = Height / (UIScale);
 
         if (Width/Scale <= 10) {
             System.out.println("It's too small!");
@@ -261,12 +267,35 @@ public class GameStateManager {
         }
 
         WorldFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width / Scale, Height / Scale, false);
-        UIFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width / (Scale), Height / (Scale), false);
+        UIFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width / (UIScale), Height / (UIScale), false);
 
         if (gameState != null) {
             gameState.reSize(bbg, H, W);
         }
 
+    }
+
+    public void setUIScale(int Scale) {
+        this.UIScale = Scale;
+
+        UIWidth = Width / (UIScale);
+        UIHeight = Height / (UIScale);
+
+        if (Width/Scale <= 10) {
+            System.out.println("It's too small!");
+            Width = 32;
+        }
+
+        if (Height/Scale <= 10) {
+            System.out.println("It's too small!");
+            Height = 32;
+        }
+
+        UIFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width / (UIScale), Height / (UIScale), false);
+
+        if (gameState != null) {
+            gameState.reSize(null, Height, Width);
+        }
     }
 
     public void dispose() {

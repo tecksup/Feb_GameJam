@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import static com.thecubecast.ReEngine.Data.GameStateManager.Render;
+
 public class TkTileset {
 
     String Name;
@@ -12,7 +14,7 @@ public class TkTileset {
     int TileSizeH;
     int TileSep;
 
-    Texture TilesetImage;
+    TextureRegion TilesetImage;
     TextureRegion[] Tiles;
 
     public TkTileset(String name, String Path, int tileSizeW, int tileSizeH, int tileSep) {
@@ -21,20 +23,20 @@ public class TkTileset {
         TileSizeW = tileSizeW;
         TileSizeH = tileSizeH;
         TileSep = tileSep;
-        TilesetImage = new Texture(Gdx.files.internal(FilePath));
+        TilesetImage = Render.getTexture("tileset");
 
-        int cols = TilesetImage.getWidth() / TileSizeW;
-        int rows = TilesetImage.getHeight() / TileSizeH;
+        int cols = TilesetImage.getRegionWidth() / TileSizeW;
+        int rows = TilesetImage.getRegionHeight() / TileSizeH;
 
         Tiles = new TextureRegion[rows * cols];
 
-        TextureRegion[][] tmp = TextureRegion.split(TilesetImage,
+        TextureRegion[][] tmp = TilesetImage.split(
                 TileSizeW,
                 TileSizeH);
 
         int index = 0;
-        for (int l = 0; l < TilesetImage.getHeight() / TileSizeH; l++) {
-            for (int j = 0; j < TilesetImage.getWidth() / TileSizeW; j++) {
+        for (int l = 0; l < TilesetImage.getRegionHeight() / TileSizeH; l++) {
+            for (int j = 0; j < TilesetImage.getRegionWidth() / TileSizeW; j++) {
                 Tiles[index++] = tmp[l][j];
             }
         }
