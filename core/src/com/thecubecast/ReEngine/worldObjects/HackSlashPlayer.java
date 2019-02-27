@@ -19,8 +19,8 @@ public class HackSlashPlayer extends WorldObject{
     //True is left, False is right
     boolean Facing = true;
 
-    TextureAnimation Walking;
-    TextureAnimation Idle;
+    TextureAnimation<TextureAtlas.AtlasRegion> Walking;
+    TextureAnimation<TextureAtlas.AtlasRegion> Idle;
 
     TextureRegion Shadow;
 
@@ -29,8 +29,8 @@ public class HackSlashPlayer extends WorldObject{
         super(x,y,0, new Vector3(16,16,2));
         this.setState(type.Dynamic);
         this.gsm = gsm;
-        Walking = new TextureAnimation<TextureAtlas.AtlasRegion>(gsm.Render.getTextures("player"), 0.3f);
-        Idle = new TextureAnimation<TextureAtlas.AtlasRegion>(gsm.Render.getTextures("player_idle"), 0.3f);
+        Walking = new TextureAnimation<>(gsm.Render.getTextures("player"), 0.3f);
+        Idle = new TextureAnimation<>(gsm.Render.getTextures("player_idle"), 0.3f);
         Shadow = gsm.Render.getTexture("Shadow");
     }
 
@@ -111,13 +111,15 @@ public class HackSlashPlayer extends WorldObject{
     public void draw(SpriteBatch batch, float Time) {
 
         if(Math.abs(this.getVelocity().y) >= 0.5f || Math.abs(this.getVelocity().x) >= 0.5f) {
-            batch.draw(Shadow, Facing ? getPosition().x : getPosition().x + 2, getPosition().y + getZFloor() / 2);
+            batch.draw(Shadow, Facing ? (int)getPosition().x : (int)getPosition().x + 2, (int)getPosition().y + (int)getZFloor() / 2);
             //running animation
-            batch.draw((TextureRegion) Walking.getFrame(Gdx.graphics.getDeltaTime()), Facing ? (int)getPosition().x + (((TextureRegion) Walking.getFrame(Time)).getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, Facing ? -(((TextureRegion) Walking.getFrame(Time)).getRegionHeight()) : (((TextureRegion) Walking.getFrame(Time)).getRegionHeight()), (((TextureRegion) Walking.getFrame(Time)).getRegionHeight()));
+            TextureRegion frame = Walking.getFrame(Gdx.graphics.getDeltaTime());
+            batch.draw(frame, Facing ? (int)getPosition().x + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, Facing ? -(frame.getRegionHeight()) : (frame.getRegionHeight()), (frame.getRegionHeight()));
         } else if(this.getVelocity().y < 0.5f || this.getVelocity().x < 0.5f) {
-            batch.draw(Shadow, Facing ? getPosition().x : getPosition().x + 2, getPosition().y + getZFloor() / 2);
+            batch.draw(Shadow, Facing ? (int)getPosition().x : (int)getPosition().x + 2, (int)getPosition().y + (int)getZFloor() / 2);
             //Idle animation
-            batch.draw((TextureRegion) Idle.getFrame(Gdx.graphics.getDeltaTime()), Facing ? (int)getPosition().x + (((TextureRegion) Idle.getFrame(Time)).getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, Facing ? -(((TextureRegion) Idle.getFrame(Time)).getRegionHeight()) : (((TextureRegion) Idle.getFrame(Time)).getRegionHeight()), (((TextureRegion) Idle.getFrame(Time)).getRegionHeight()));
+            TextureRegion frame = Idle.getFrame(Gdx.graphics.getDeltaTime());
+            batch.draw(frame, Facing ? (int)getPosition().x + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, Facing ? -(frame.getRegionHeight()) : (frame.getRegionHeight()), (frame.getRegionHeight()));
         }
 
 
