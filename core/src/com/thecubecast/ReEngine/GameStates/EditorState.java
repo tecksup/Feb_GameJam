@@ -787,7 +787,7 @@ public class EditorState extends GameState {
                 }
             });
             TilesList.add(tempimage);
-            if (i % 24 == 0) {
+            if (i % 12 == 0) {
                 TilesList.row();
             }
         }
@@ -818,7 +818,7 @@ public class EditorState extends GameState {
                 }
             });
             TilesFGList.add(tempimage);
-            if (i % 24 == 0) {
+            if (i % 12 == 0) {
                 TilesFGList.row();
             }
         }
