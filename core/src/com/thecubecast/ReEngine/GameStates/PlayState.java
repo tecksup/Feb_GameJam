@@ -288,18 +288,22 @@ public class PlayState extends DialogStateExtention {
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            player.setPositionY(player.getPosition().y + 1);
+            //player.setPositionY(player.getPosition().y + 1);
+            player.setVelocityY(player.getVelocity().y + 1);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            player.setPositionY(player.getPosition().y - 1);
+            //player.setPositionY(player.getPosition().y - 1);
+            player.setVelocityY(player.getVelocity().y - 1);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            player.setPositionX(player.getPosition().x + 1);
+            //player.setPositionX(player.getPosition().x + 1);
             player.setFacing(false);
+            player.setVelocityX(player.getVelocity().x + 1);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            player.setPositionX(player.getPosition().x - 1);
+            //player.setPositionX(player.getPosition().x - 1);
             player.setFacing(true);
+            player.setVelocityX(player.getVelocity().x - 1);
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
