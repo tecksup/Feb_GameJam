@@ -56,7 +56,7 @@ public class MainMenuState extends GameState {
 
         Menus = new UIFSM(cameraGui, gsm);
 
-        //BGMusicID = AudioM.playMusic("NoName.wav", true, true);
+        BGMusicID = AudioM.playMusic("menu.wav", true, true);
     }
 
     public void update() {
@@ -115,12 +115,12 @@ public class MainMenuState extends GameState {
 
     @Override
     public void Shutdown() {
-
+        AudioM.stopMusic(BGMusicID);
     }
 
     @Override
     public void dispose() {
-        //AudioM.stopMusic(BGMusicID);
+        AudioM.stopMusic(BGMusicID);
     }
 
 }

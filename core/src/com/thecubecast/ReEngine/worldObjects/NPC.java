@@ -3,6 +3,7 @@ package com.thecubecast.ReEngine.worldObjects;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.thecubecast.ReEngine.Data.Cube;
 
 import java.util.List;
@@ -74,16 +75,16 @@ public abstract class NPC extends WorldObject {
 
             Vector2 pos = new Vector2(getVelocity().x * delta, getVelocity().y * delta);
 
-            /*
+
 
             if (pos.x < 0) { //Moving left
-                if (checkCollision(-1, 0, 0, Colls)) {
+                if (checkCollision(new Vector3(getPosition().x-1, getPosition().y, getPosition().z), Colls)) {
                     super.setVelocityX(0);
                 } else {
                     super.setPositionX((getPosition().x - getVelocity().x*delta*-1));
                 }
             } else if (pos.x > 0) { // Moving right
-                if (checkCollision(+1, 0, 0, Colls)) {
+                if (checkCollision(new Vector3(getPosition().x+1, getPosition().y, getPosition().z), Colls)) {
                     super.setVelocityX(0);
                 } else {
                     super.setPositionX((getPosition().x + getVelocity().x*delta));
@@ -91,20 +92,36 @@ public abstract class NPC extends WorldObject {
             }
 
             if (pos.y < 0) { // Moving down
-                if (checkCollision(0, -1, 0,Colls)) {
+                if (checkCollision(new Vector3(getPosition().x, getPosition().y-1, getPosition().z),Colls)) {
                     super.setVelocityY(0);
                 } else {
                     super.setPositionY((getPosition().y - getVelocity().y*delta*-1));
                 }
             } else if (pos.y > 0) {
-                if (checkCollision(0, +1, 0, Colls)) {
+                if (checkCollision(new Vector3(getPosition().x, getPosition().y+1, getPosition().z), Colls)) {
                     super.setVelocityY(0);
                 } else {
                     super.setPositionY((getPosition().y + getVelocity().y*delta));
                 }
             }
-            */
+
         }
+    }
+
+    @Override
+    public boolean checkCollision(Vector3 Newposition, List<Cube> Colls) {
+        if (Colls == null) {
+            return false;
+        }
+
+        BoundingBox PrismPla = new BoundingBox(new Vector3(getHitbox().getWidth() / 4 + Newposition.x, Newposition.y, Newposition.z), new Vector3(getHitbox().getWidth() / 4 + Newposition.x, Newposition.y, Newposition.z).add(getSize()));
+
+        for (int i = 0; i < Colls.size(); i++) {
+            if (PrismPla.intersects(Colls.get(i).getPrism())) {
+                return true; // Dont move
+            }
+        }
+        return false;
     }
 
     @Override

@@ -23,11 +23,13 @@ import com.thecubecast.ReEngine.worldObjects.*;
 import com.thecubecast.ReEngine.worldObjects.AI.Enemy;
 import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.FlatTiledGraph;
 import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.FlatTiledNode;
+import com.thecubecast.ReEngine.worldObjects.EntityPrefabs.Hank;
+import com.thecubecast.ReEngine.worldObjects.EntityPrefabs.Pawn;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayState extends GameState {
+public class PlayState extends DialogStateExtention {
 
     //GUI
     UIFSM UI;
@@ -64,6 +66,9 @@ public class PlayState extends GameState {
 
         Entities.add(player);
 
+        //Setup Dialog Instance
+        MenuInit(gsm.UIWidth, gsm.UIHeight);
+
         gsm.DiscordManager.setPresenceDetails("topdown Demo - Level 1");
         gsm.DiscordManager.setPresenceState("In Game");
         gsm.DiscordManager.getPresence().largeImageText = "Level 1";
@@ -86,7 +91,9 @@ public class PlayState extends GameState {
 
         MapGraph = new FlatTiledGraph(WorldMap);
 
-        tempEnemy = new Enemy(16,16, MapGraph, gsm);
+        //tempEnemy = new Enemy("Pawn", 16,16,0, new Vector3(8,8,16), 1, 100, NPC.intractability.Silent, false, MapGraph, gsm);
+        tempEnemy = new Pawn("Pawn", 16,16,0, new Vector3(8,8,16), 1, 100, NPC.intractability.Silent, false, MapGraph, gsm);
+
         Entities.add(tempEnemy);
 
     }
@@ -96,7 +103,11 @@ public class PlayState extends GameState {
         Particles.Update();
 
         for (int i = 0; i < Entities.size(); i++) {
-            Entities.get(i).update(Gdx.graphics.getDeltaTime(), Collisions);
+            if (Entities.get(i) instanceof Enemy) {
+                ((Enemy)Entities.get(i)).update(Gdx.graphics.getDeltaTime(), Collisions, player);
+            } else {
+                Entities.get(i).update(Gdx.graphics.getDeltaTime(), Collisions);
+            }
         }
 
         cameraUpdate(player, camera, Entities,0,0, WorldMap.getWidth()*WorldMap.getTileSize(), WorldMap.getHeight()*WorldMap.getTileSize());
@@ -249,11 +260,32 @@ public class PlayState extends GameState {
         //Draws things on the screen, and not the world positions
         g.setProjectionMatrix(GuiCam.combined);
         g.begin();
+        MenuDraw(g, Gdx.graphics.getDeltaTime());
         g.end();
         UI.Draw(g);
     }
 
     private void handleInput() {
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+            if (DialogOpen) {
+                DialogNext();
+            } else {
+                for (int i = 0; i < Entities.size(); i++) {
+                    //if (Entities.get(i).getHitbox().intersects(player.getIntereactBox())) {
+                    //    if (Entities.get(i) instanceof NPC) {
+                    //        NPC Entitemp = (NPC) Entities.get(i);
+                    //        Entitemp.interact();
+                    //    }
+
+                        //if (Entities.get(i) instanceof Trigger) {
+                            //Trigger Ent = (Trigger) Entities.get(i);
+                            //Ent.Interact(player,shaker,this,MainCameraFocusPoint,Particles,Entities);
+                        //}
+                    // }
+                }
+            }
+        }
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             player.setPositionY(player.getPosition().y + 1);
@@ -263,14 +295,19 @@ public class PlayState extends GameState {
         }
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             player.setPositionX(player.getPosition().x + 1);
+            player.setFacing(false);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             player.setPositionX(player.getPosition().x - 1);
+            player.setFacing(true);
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
-            tempEnemy.setDestination(player.getPosition());
             tempEnemy.interact();
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_6)) {
+            AddDialog("Pawn", "It's working!");
         }
 
         if (Gdx.input.justTouched()) { //NEEDS TO GET CHANGED TO ISJUSTDOWN
@@ -281,7 +318,7 @@ public class PlayState extends GameState {
             //Trying to find the way to calulate the angle from pos to playerPos //STILL NOT WORKING
             //System.out.println(new Vector2(pos.x, pos.y).angle(new Vector2(player.getPosition().x, player.getPosition().y)));
 
-            player.TriggerAttack(HackSlashPlayer.Direction.Down);
+            player.TriggerAttack();
         }
 
     }

@@ -38,8 +38,8 @@ public class Student extends NPC {
 
     @Override
     public void interact() {
-        if (!AI.getStateMachine().getCurrentState().equals(EnemyState.WALKING_TO_DESTINATION))
-            AI.getStateMachine().changeState(EnemyState.WALKING_TO_DESTINATION);
+        if (!AI.getStateMachine().getCurrentState().equals(EnemyState.HUNTING))
+            AI.getStateMachine().changeState(EnemyState.HUNTING);
 
         if (AI.getPath().nodes.size > 1) {
             setPosition(AI.getPath().get(1).x * 16, AI.getPath().get(1).y * 16, 0);

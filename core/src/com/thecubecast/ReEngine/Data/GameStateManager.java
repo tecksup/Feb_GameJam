@@ -34,7 +34,7 @@ public class GameStateManager {
     public float DeltaTime;
 
     //Public render function object
-    public Draw Render;
+    public static Draw Render;
     public int ticks = 0;
 
     private OrthographicCamera MainCam;
@@ -74,11 +74,11 @@ public class GameStateManager {
         Height = H;
         WorldWidth = Width / Scale;
         WorldHeight = Height / Scale;
-        UIWidth = Width / (Scale / 2);
-        UIHeight = Height / (Scale / 2);
+        UIWidth = Width / (Scale);
+        UIHeight = Height / (Scale);
 
         WorldFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width / Scale, Height / Scale, false);
-        UIFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width / (Scale / 2), Height / (Scale / 2), false);
+        UIFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width / (Scale), Height / (Scale), false);
 
         MainCam = new OrthographicCamera();
         MainCam.setToOrtho(false, Width, Height);
@@ -237,9 +237,6 @@ public class GameStateManager {
 
     public void reSize(SpriteBatch bbg, int H, int W) {
         System.out.println("Resize Just Ran");
-        if (gameState != null) {
-            gameState.reSize(bbg, H, W);
-        }
         Matrix4 matrix = new Matrix4();
         matrix.setToOrtho2D(0, 0, W, H);
         bbg.setProjectionMatrix(matrix);
@@ -250,11 +247,25 @@ public class GameStateManager {
         Height = H;
         WorldWidth = Width / Scale;
         WorldHeight = Height / Scale;
-        UIWidth = Width / (Scale / 2);
-        UIHeight = Height / (Scale / 2);
+        UIWidth = Width / (Scale);
+        UIHeight = Height / (Scale);
+
+        if (Width/Scale <= 10) {
+            System.out.println("It's too small!");
+            Width = 32;
+        }
+
+        if (Height/Scale <= 10) {
+            System.out.println("It's too small!");
+            Height = 32;
+        }
 
         WorldFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width / Scale, Height / Scale, false);
-        UIFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width / (Scale / 2), Height / (Scale / 2), false);
+        UIFBO = new FrameBuffer(Pixmap.Format.RGBA8888, Width / (Scale), Height / (Scale), false);
+
+        if (gameState != null) {
+            gameState.reSize(bbg, H, W);
+        }
 
     }
 
