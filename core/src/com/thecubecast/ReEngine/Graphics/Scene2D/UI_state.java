@@ -209,7 +209,11 @@ public enum UI_state implements State<UIFSM> {
             Graphics.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    entity.stateMachine.changeState(UI_state.Graphics);
+                    if (entity.inGame) {
+                        Graphics.setText("Must exit to main menu to edit graphics.");
+                    } else {
+                        entity.stateMachine.changeState(UI_state.Graphics);
+                    }
                 }
             });
 

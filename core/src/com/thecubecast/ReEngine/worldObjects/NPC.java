@@ -172,7 +172,7 @@ public abstract class NPC extends WorldObject {
 
     public void Die() {
         //Remove this NPC, or at least set its state to dead
-
+        setEState(entityState.dead);
     }
 
     public float getHealth() {
@@ -197,6 +197,14 @@ public abstract class NPC extends WorldObject {
 
     public void setInteract(intractability interact) {
         this.interact = interact;
+    }
+
+    public boolean isAlive() {
+        if (getEState().equals(entityState.alive)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public entityState getEState() {

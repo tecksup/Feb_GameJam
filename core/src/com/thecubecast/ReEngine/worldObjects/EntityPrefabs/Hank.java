@@ -29,7 +29,7 @@ public class Hank extends NPC {
     ProgressBar HealthBar;
 
     public Hank(int x, int y, int z) {
-        super("Hank", x, y, z, new Vector3(32, 32, 4), .1f, 100);
+        super("Gunter", x, y, z, new Vector3(32, 32, 4), .1f, 100);
 
         FocusStrength = 0.15f;
 

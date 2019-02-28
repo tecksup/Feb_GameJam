@@ -113,7 +113,7 @@ public class MainMenuState extends GameState {
     public void reSize(SpriteBatch g, int H, int W) {
         //stage.getViewport().update(Gdx.graphics.getWidth(),Gdx.graphics.getHeight(), true);
         cameraGui.setToOrtho(false);
-        //Menus.reSize(cameraGui);
+        Menus.reSize();
     }
 
     @Override

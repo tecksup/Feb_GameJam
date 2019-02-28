@@ -22,6 +22,8 @@ public class HackSlashPlayer extends WorldObject{
     TextureAnimation<TextureAtlas.AtlasRegion> Walking;
     TextureAnimation<TextureAtlas.AtlasRegion> Idle;
 
+    TextureAnimation<TextureAtlas.AtlasRegion> Sword;
+
     TextureRegion Shadow;
 
     GameStateManager gsm;
@@ -29,8 +31,9 @@ public class HackSlashPlayer extends WorldObject{
         super(x,y,0, new Vector3(16,16,2));
         this.setState(type.Dynamic);
         this.gsm = gsm;
-        Walking = new TextureAnimation<>(gsm.Render.getTextures("player"), 0.3f);
-        Idle = new TextureAnimation<>(gsm.Render.getTextures("player_idle"), 0.3f);
+        Walking = new TextureAnimation<>(gsm.Render.getTextures("player"), 0.1f);
+        Idle = new TextureAnimation<>(gsm.Render.getTextures("player_idle"), 0.1f);
+        Sword = new TextureAnimation<>(gsm.Render.getTextures("sword"), 0.1f);
         Shadow = gsm.Render.getTexture("Shadow");
     }
 
@@ -110,16 +113,27 @@ public class HackSlashPlayer extends WorldObject{
     @Override
     public void draw(SpriteBatch batch, float Time) {
 
+        if (AttackTime > 0.1f) {
+            Sword.resume();
+            TextureRegion frameS = Sword.getFrame(Gdx.graphics.getDeltaTime());
+            batch.draw(frameS, Facing ? (int)getPosition().x - 33 + (frameS.getRegionWidth()) : (int)getPosition().x + 9 , (int)getPosition().y - 22 + (int)getPosition().z / 2, Facing ? -(frameS.getRegionHeight()) : (frameS.getRegionHeight()), (frameS.getRegionHeight()));
+        } else {
+            Sword.pause();
+            Sword.setFrame(0);
+            TextureRegion frameS = Sword.getFrame(Gdx.graphics.getDeltaTime());
+            batch.draw(frameS, Facing ? (int)getPosition().x - 33 + (frameS.getRegionWidth()) : (int)getPosition().x + 9 , (int)getPosition().y - 22 + (int)getPosition().z / 2, Facing ? -(frameS.getRegionHeight()) : (frameS.getRegionHeight()), (frameS.getRegionHeight()));
+        }
+
         if(Math.abs(this.getVelocity().y) >= 0.5f || Math.abs(this.getVelocity().x) >= 0.5f) {
-            batch.draw(Shadow, Facing ? (int)getPosition().x : (int)getPosition().x + 2, (int)getPosition().y + (int)getZFloor() / 2);
+            batch.draw(Shadow, Facing ? (int)getPosition().x + 1: (int)getPosition().x + 3, (int)getPosition().y - 2 + (int)getZFloor() / 2);
             //running animation
             TextureRegion frame = Walking.getFrame(Gdx.graphics.getDeltaTime());
-            batch.draw(frame, Facing ? (int)getPosition().x + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, Facing ? -(frame.getRegionHeight()) : (frame.getRegionHeight()), (frame.getRegionHeight()));
+            batch.draw(frame, Facing ? (int)getPosition().x + 2 + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, Facing ? -(frame.getRegionHeight()) : (frame.getRegionHeight()), (frame.getRegionHeight()));
         } else if(this.getVelocity().y < 0.5f || this.getVelocity().x < 0.5f) {
-            batch.draw(Shadow, Facing ? (int)getPosition().x : (int)getPosition().x + 2, (int)getPosition().y + (int)getZFloor() / 2);
+            batch.draw(Shadow, Facing ? (int)getPosition().x +1 : (int)getPosition().x + 3, (int)getPosition().y - 2 + (int)getZFloor() / 2);
             //Idle animation
             TextureRegion frame = Idle.getFrame(Gdx.graphics.getDeltaTime());
-            batch.draw(frame, Facing ? (int)getPosition().x + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, Facing ? -(frame.getRegionHeight()) : (frame.getRegionHeight()), (frame.getRegionHeight()));
+            batch.draw(frame, Facing ? (int)getPosition().x + 2 + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, Facing ? -(frame.getRegionHeight()) : (frame.getRegionHeight()), (frame.getRegionHeight()));
         }
 
 
@@ -138,16 +152,12 @@ public class HackSlashPlayer extends WorldObject{
         BoundingBox RectPla = new BoundingBox();
 
         if (isFacing()) {
-            RectPla = new BoundingBox(new Vector3(getPosition().x + (1 * getSize().x), getPosition().y, getPosition().z), new Vector3(getPosition().x + (1 * getSize().x) + getSize().x, getPosition().y + getSize().y, getPosition().z + getSize().z));
+            RectPla = new BoundingBox(new Vector3(getPosition().x + (-1 * getSize().x), getPosition().y - 12, getPosition().z), new Vector3(getPosition().x + (-1 * getSize().x) + getSize().x, getPosition().y + getSize().y + 8, getPosition().z + getSize().z));
         } else {
-            RectPla = new BoundingBox(new Vector3(getPosition().x + (1 * getSize().x), getPosition().y, getPosition().z), new Vector3(getPosition().x + (1 * getSize().x) + getSize().x, getPosition().y + getSize().y, getPosition().z + getSize().z));
+            RectPla = new BoundingBox(new Vector3(getPosition().x + (1 * getSize().x), getPosition().y - 12, getPosition().z), new Vector3(getPosition().x + (1 * getSize().x) + getSize().x, getPosition().y + getSize().y + 8, getPosition().z + getSize().z));
         }
 
         return RectPla;
-    }
-
-    public void TriggerAttack() {
-        System.out.println("Attacked ");
     }
 
     public void setFacing(boolean facing) {

@@ -62,6 +62,28 @@ public class PlayState extends DialogStateExtention {
 
         WorldMap = new TkMap("Saves/World.cube");
 
+        ArrayList<WorldObject> tempobjsshit = WorldMap.getObjects();
+        for (int i = 0; i < tempobjsshit.size(); i++) {
+            Entities.add(tempobjsshit.get(i));
+            if (tempobjsshit.get(i).isCollidable()) {
+                Vector3 tempVec = tempobjsshit.get(i).getPosition();
+                Vector3 tempVecOffset = tempobjsshit.get(i).getHitboxOffset();
+                Vector3 tempVecSize = tempobjsshit.get(i).getSize();
+                Cube tempCube = new Cube((int) tempVec.x + (int) tempVecOffset.x, (int) tempVec.y + (int) tempVecOffset.y, (int) tempVec.z + (int) tempVecOffset.z, (int) tempVecSize.x, (int) tempVecSize.y, (int) tempVecSize.z);
+                Entities.get(i).CollisionHashID = Collisions.size();
+                Collisions.add(tempCube);
+                //System.out.println(WorldMap.getObjects().get(i).getPosition());
+            }
+        }
+
+        for (int x = 0; x < WorldMap.getWidth(); x++) {
+            for (int y = 0; y < WorldMap.getHeight(); y++) {
+                if (WorldMap.getCollision()[x][y]) {
+                    Collisions.add(new Cube(x * 16, y * 16, 0, 16, 16, 16));
+                }
+            }
+        }
+
         player = new HackSlashPlayer(13 * 16, 1 * 16, gsm);
 
         Entities.add(player);
@@ -91,7 +113,7 @@ public class PlayState extends DialogStateExtention {
 
         MapGraph = new FlatTiledGraph(WorldMap);
 
-        tempEnemy = new Pawn("[PURPLE]Pawn", 280,316,0, new Vector3(8,8,16), 1, 100, NPC.intractability.Silent, false, MapGraph, gsm);
+        tempEnemy = new Pawn("[PURPLE]Pawn", 280,316,0, new Vector3(8,8,16), 1, 10, NPC.intractability.Silent, false, MapGraph, gsm);
 
         Entities.add(tempEnemy);
 
@@ -112,6 +134,36 @@ public class PlayState extends DialogStateExtention {
         for (int i = 0; i < Entities.size(); i++) {
             if (Entities.get(i) instanceof Enemy) {
                 ((Enemy)Entities.get(i)).update(Gdx.graphics.getDeltaTime(), Collisions, player);
+                if (!((NPC) Entities.get(i)).isAlive()) {
+                    Entities.remove(i);
+                }
+            } else if (Entities.get(i) instanceof NPC) {
+                if (!((NPC) Entities.get(i)).isAlive()) {
+                    Entities.remove(i);
+                }
+            } else if (Entities.get(i) instanceof Interactable) {
+                Interactable Entitemp = (Interactable) Entities.get(i);
+                Entitemp.Trigger(player, shaker, this, null, Particles, Entities);
+                Vector3 pos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+                camera.unproject(pos);
+                if (Entitemp.getImageHitbox().contains(new Vector3(pos.x, pos.y, player.getPosition().z))) {
+                    ((Interactable) Entities.get(i)).Highlight = true;
+                    ((Interactable) Entities.get(i)).HighlightColor = Color.YELLOW;
+                    if (Gdx.input.isTouched() && !UI.isVisible()) {
+                        //Trigger the action, mine it, open it, trigger the event code
+                        ((Interactable) Entities.get(i)).HighlightColor = Color.RED;
+                        if (((Interactable) Entities.get(i)).getActivationType().equals(Trigger.TriggerType.OnClick) && !((Interactable) Entities.get(i)).JustRan) {
+                            ((Interactable) Entities.get(i)).RunCommands(player, shaker, this, null, Particles, Entities);
+                            ((Interactable) Entities.get(i)).JustRan = true;
+                        }
+                        if (Entities.get(i) instanceof Interactable) {
+                            Interactable temp = (Interactable) Entities.get(i);
+                            temp.Activated();
+                        }
+                    }
+                } else {
+                    ((Interactable) Entities.get(i)).Highlight = false;
+                }
             } else {
                 Entities.get(i).update(Gdx.graphics.getDeltaTime(), Collisions);
             }
@@ -249,6 +301,8 @@ public class PlayState extends DialogStateExtention {
             gsm.Render.debugRenderer.setColor(Color.RED);
             gsm.Render.debugRenderer.rect(player.getHitbox().min.x, player.getHitbox().min.y + player.getHitbox().getDepth() / 2 + player.getHitbox().min.z / 2, player.getHitbox().getWidth(), player.getHitbox().getHeight());
 
+            gsm.Render.debugRenderer.setColor(Color.PURPLE);
+            gsm.Render.debugRenderer.box(player.getIntereactBox().min.x, player.getIntereactBox().min.y, player.getIntereactBox().min.z, player.getIntereactBox().getWidth(), player.getIntereactBox().getHeight(), player.getIntereactBox().getDepth());
 
         }
 
@@ -273,6 +327,17 @@ public class PlayState extends DialogStateExtention {
     }
 
     private void handleInput() {
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            if(UI.Visible) {
+                UI.setVisable(!UI.Visible);
+            } else if (!UI.Visible) {
+                UI.setState(UI_state.InGameHome);
+            } else {
+                UI.setVisable(!UI.Visible);
+            }
+            //gsm.ctm.newController("template");
+        }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             if (DialogOpen) {
@@ -313,7 +378,12 @@ public class PlayState extends DialogStateExtention {
             player.setVelocityX(player.getVelocity().x - 1);
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.C)) { // ATTACK
+        if (Gdx.input.isKeyJustPressed(Input.Keys.C) || Gdx.input.justTouched()) { // ATTACK
+
+            Vector3 pos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            camera.unproject(pos);
+            //Get the direction of the attack based on whether mouse is on left or right of the screen.
+
             if (player.AttackTime < .1f) {
 
                 //Vector3 addVeloc = new Vector3(player.getPosition().x - player.getAttackBox().min.x, player.getPosition().y - player.getAttackBox().min.y, 0);
@@ -344,17 +414,6 @@ public class PlayState extends DialogStateExtention {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_6)) {
             AddDialog("Pawn", "It's working!");
-        }
-
-        if (Gdx.input.justTouched()) { //NEEDS TO GET CHANGED TO ISJUSTDOWN
-            //Calculate the angle of attack based on location of mouse around player.
-            Vector3 pos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-            camera.unproject(pos);
-
-            //Trying to find the way to calulate the angle from pos to playerPos //STILL NOT WORKING
-            //System.out.println(new Vector2(pos.x, pos.y).angle(new Vector2(player.getPosition().x, player.getPosition().y)));
-
-            player.TriggerAttack();
         }
 
     }
