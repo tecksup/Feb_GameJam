@@ -45,7 +45,7 @@ public enum UI_state implements State<UIFSM> {
             table.add(temptemptemp);
             table.row();
 
-            final TkTextButton PlayState = new TkTextButton("Play State", entity.skin);
+            final TkTextButton PlayState = new TkTextButton("Start", entity.skin);
             table.add(PlayState).pad(2);
             table.row();
 
