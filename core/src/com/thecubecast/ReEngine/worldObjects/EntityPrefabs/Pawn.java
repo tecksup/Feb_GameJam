@@ -68,7 +68,7 @@ public class Pawn extends Enemy {
 
         Sword.resume();
         TextureRegion frameS = Sword.getFrame(Gdx.graphics.getDeltaTime());
-        batch.draw(frameS, Facing ? (int)getPosition().x - 8 + (frameS.getRegionWidth()) : (int)getPosition().x , (int)getPosition().y + (int)getPosition().z / 2, Facing ? -(frameS.getRegionHeight()) : (frameS.getRegionHeight()), (frameS.getRegionHeight()));
+        batch.draw(frameS, Facing ? (int)getPosition().x - 8 + (frameS.getRegionWidth()) : (int)getPosition().x , (int)getPosition().y + (int)getPosition().z / 2, 0f, 0f, (float) frameS.getRegionWidth(), (float) frameS.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
 
 
         if(Math.abs(this.getVelocity().y) >= 0.5f || Math.abs(this.getVelocity().x) >= 0.5f) {
