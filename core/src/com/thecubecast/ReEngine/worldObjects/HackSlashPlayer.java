@@ -19,9 +19,13 @@ public class HackSlashPlayer extends WorldObject{
     //True is left, False is right
     boolean Facing = true;
 
+    public float RollingTime;
+    public boolean Rolling;
+
     int Degrees = 0;
 
     TextureAnimation<TextureAtlas.AtlasRegion> Walking;
+    TextureAnimation<TextureAtlas.AtlasRegion> Roll;
     TextureAnimation<TextureAtlas.AtlasRegion> Idle;
 
     TextureAnimation<TextureAtlas.AtlasRegion> Sword;
@@ -34,6 +38,7 @@ public class HackSlashPlayer extends WorldObject{
         this.setState(type.Dynamic);
         this.gsm = gsm;
         Walking = new TextureAnimation<>(gsm.Render.getTextures("player"), 0.1f);
+        Roll = new TextureAnimation<>(gsm.Render.getTextures("player_roll"), 0.05f);
         Idle = new TextureAnimation<>(gsm.Render.getTextures("player_idle"), 0.1f);
         Sword = new TextureAnimation<>(gsm.Render.getTextures("sword"), 0.05f);
         Shadow = gsm.Render.getTexture("Shadow");
@@ -47,11 +52,22 @@ public class HackSlashPlayer extends WorldObject{
     @Override
     public void update(float delta, List<Cube> Colls) {
 
-        //Debug.println("Player", "" + delta);
         if (AttackTime - delta > 0)
             AttackTime -= delta;
+        if (RollingTime - delta > 0)
+            RollingTime -= delta;
 
-        // Debug.println("Player", "" + AttackTime);
+        if (Rolling) {
+            if (getVelocity().x < 0)
+                super.setVelocityX((getVelocity().x - 1));
+            else
+                super.setVelocityX((getVelocity().x + 1));
+
+            if (getVelocity().y < 0)
+                super.setVelocityY((getVelocity().y - 1));
+            else
+                super.setVelocityY((getVelocity().y + 1));
+        }
 
         if (getState().equals(type.Dynamic)) {
 
@@ -115,47 +131,55 @@ public class HackSlashPlayer extends WorldObject{
     @Override
     public void draw(SpriteBatch batch, float Time) {
 
-        if (AttackTime > 0.1f) {
-            Sword.resume();
-            TextureRegion frameS = Sword.getFrame(Gdx.graphics.getDeltaTime());
-            batch.draw(frameS, Facing ? (int)getPosition().x - 33 + (frameS.getRegionWidth()) : (int)getPosition().x + 9 , (int)getPosition().y - 22 + (int)getPosition().z / 2, Facing ? -(frameS.getRegionHeight()) : (frameS.getRegionHeight()), (frameS.getRegionHeight()));
-        } else {
-            Sword.pause();
-            Sword.setFrame(0);
-            TextureRegion frameS = Sword.getFrame(Gdx.graphics.getDeltaTime());
-
-            //Degrees
-
-            batch.draw(frameS, Facing ? (int)getPosition().x - 33 + (frameS.getRegionWidth()) : (int)getPosition().x + 9 , (int)getPosition().y - 22 + (int)getPosition().z / 2, Facing ? -(frameS.getRegionHeight()) : (frameS.getRegionHeight()), (frameS.getRegionHeight()));
-
-            /*batch.draw(frameS,
-                    Facing ? (int)getPosition().x - 33 + (frameS.getRegionWidth()) : (int)getPosition().x + 9 ,
-                    (int)getPosition().y - 22 + (int)getPosition().z / 2,
-                    2,
-                    2,
-                    Facing ? -(frameS.getRegionHeight()) : (frameS.getRegionHeight()),
-                    (frameS.getRegionHeight()),
-                    1,1,Degrees
-
-            );*/
-
-        }
-
-        if(Math.abs(this.getVelocity().y) >= 0.5f || Math.abs(this.getVelocity().x) >= 0.5f) {
+        if (Rolling) {
+            Roll.resume();
             batch.draw(Shadow, Facing ? (int)getPosition().x + 1: (int)getPosition().x + 3, (int)getPosition().y - 2 + (int)getZFloor() / 2);
             //running animation
-            TextureRegion frame = Walking.getFrame(Gdx.graphics.getDeltaTime());
-            batch.draw(frame, Facing ? (int)getPosition().x + 2 + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, Facing ? -(frame.getRegionHeight()) : (frame.getRegionHeight()), (frame.getRegionHeight()));
-        } else if(this.getVelocity().y < 0.5f || this.getVelocity().x < 0.5f) {
-            batch.draw(Shadow, Facing ? (int)getPosition().x +1 : (int)getPosition().x + 3, (int)getPosition().y - 2 + (int)getZFloor() / 2);
-            //Idle animation
-            TextureRegion frame = Idle.getFrame(Gdx.graphics.getDeltaTime());
-            batch.draw(frame, Facing ? (int)getPosition().x + 2 + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, Facing ? -(frame.getRegionHeight()) : (frame.getRegionHeight()), (frame.getRegionHeight()));
-        }
+            TextureRegion frame = Roll.getFrame(Gdx.graphics.getDeltaTime());
+           // batch.draw(frame, Facing ? (int)getPosition().x + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
+
+            if (getVelocity().x < 0)
+                batch.draw(frame,(int)getPosition().x + (frame.getRegionWidth()), (int)getPosition().y + (int)getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), -1f, 1f, 0f);
+            else
+                batch.draw(frame, (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), 1f, 1f, 0f);
+            if (Roll.hasFinishedOneLoop()) {
+                Rolling = false;
+                Roll.reset();
+                Roll.pause();
+            }
+        } else {
+            if (AttackTime > 0.1f) {
+                Sword.resume();
+                TextureRegion frameS = Sword.getFrame(Gdx.graphics.getDeltaTime());
+                batch.draw(frameS, Facing ? (int)getPosition().x - 33 + (frameS.getRegionWidth()) : (int)getPosition().x + 9, (int)getPosition().y - 22 + (int)getPosition().z / 2, 0f, 0f, (float) frameS.getRegionWidth(), (float) frameS.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
+
+            } else {
+                Sword.pause();
+                Sword.setFrame(0);
+                TextureRegion frameS = Sword.getFrame(Gdx.graphics.getDeltaTime());
+
+                //Degrees
+
+                batch.draw(frameS, Facing ? (int)getPosition().x - 33 + (frameS.getRegionWidth()) : (int)getPosition().x + 9, (int)getPosition().y - 22 + (int)getPosition().z / 2, 0f, 0f, (float) frameS.getRegionWidth(), (float) frameS.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
+
+            }
+
+            if(Math.abs(this.getVelocity().y) >= 0.5f || Math.abs(this.getVelocity().x) >= 0.5f) {
+                batch.draw(Shadow, Facing ? (int)getPosition().x + 1: (int)getPosition().x + 3, (int)getPosition().y - 2 + (int)getZFloor() / 2);
+                //running animation
+                TextureRegion frame = Walking.getFrame(Gdx.graphics.getDeltaTime());
+                batch.draw(frame, Facing ? (int)getPosition().x + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
+            } else if(this.getVelocity().y < 0.5f || this.getVelocity().x < 0.5f) {
+                batch.draw(Shadow, Facing ? (int)getPosition().x +1 : (int)getPosition().x + 3, (int)getPosition().y - 2 + (int)getZFloor() / 2);
+                //Idle animation
+                TextureRegion frame = Idle.getFrame(Gdx.graphics.getDeltaTime());
+                batch.draw(frame, Facing ? (int)getPosition().x + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
+            }
 
 
-        if(this.getVelocity().x+this.getVelocity().y >= 1) {
-            //Attack animation
+            if(this.getVelocity().x+this.getVelocity().y >= 1) {
+                //Attack animation
+            }
         }
 
     }

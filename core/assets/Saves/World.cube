@@ -28,6 +28,24 @@
   },
   "Objects": [
     {
+      "Name": "Dead Tree",
+      "Description": "",
+      "x": 370,
+      "y": 477,
+      "z": 0,
+      "Width": 12,
+      "WidthOffset": 6,
+      "Height": 8,
+      "HeightOffset": 0,
+      "Depth": 16,
+      "DepthOffset": 0,
+      "TexLocation": "Sprites/deadTree.png",
+      "Physics": "Static",
+      "Collidable": true,
+      "TriggerType": "OnEntry",
+      "Event": "Image(Sprites/Cactus_dead.png);Particle(sparkle, 493, 262);Entities(kill,Barrier)"
+    },
+    {
       "Name": "Bush",
       "Description": "",
       "x": 896,
@@ -60,6 +78,24 @@
       "TexLocation": "Sprites/Overhang_0.png",
       "Physics": "Static",
       "Collidable": true,
+      "TriggerType": "None",
+      "Event": ""
+    },
+    {
+      "Name": "Dead Tree",
+      "Description": "",
+      "x": 549,
+      "y": 303,
+      "z": 0,
+      "Width": 12,
+      "WidthOffset": 6,
+      "Height": 8,
+      "HeightOffset": 0,
+      "Depth": 16,
+      "DepthOffset": 0,
+      "TexLocation": "Sprites/deadTree.png",
+      "Physics": "Static",
+      "Collidable": false,
       "TriggerType": "None",
       "Event": ""
     },
@@ -114,8 +150,8 @@
       "TexLocation": "Sprites/Cactus_alive.png",
       "Physics": "Static",
       "Collidable": false,
-      "TriggerType": "OnAttack",
-      "Event": "Image(Sprites/Cactus_dead.png);Particle(sparkle, 493, 262);Entities(kill,Barrier)"
+      "TriggerType": "None",
+      "Event": ""
     },
     {
       "Name": "Bush",

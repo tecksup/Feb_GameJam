@@ -170,6 +170,35 @@ public class PlayState extends DialogStateExtention {
             }
         }
 
+        List<WorldObject> Remove = new ArrayList<>();
+
+        for (int i = 0; i < Entities.size(); i++) {
+            if (Entities.get(i) instanceof Bullet) {
+                WorldObject tempPar = ((Bullet)Entities.get(i)).Parrent;
+                if (Entities.get(i).checkCollision(new Vector3(Entities.get(i).getPosition().x, Entities.get(i).getPosition().y, 0), Collisions, true)) {
+                    Remove.add(Entities.get(i));
+                } else {
+                    for (int j = 0; j < Entities.size(); j++) {
+                        if (Entities.get(j).equals(tempPar)) {
+
+                        } else if (Entities.get(j) instanceof Bullet) {
+
+                        } else if (Entities.get(j).getHitbox().contains(Entities.get(i).getPosition())) {
+                            Remove.add(Entities.get(i));
+                            if(Entities.get(j) instanceof NPC) {
+                                ((NPC) Entities.get(j)).setHealth(((NPC) Entities.get(j)).getHealth()-10);
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+        for (int i = 0; i < Remove.size(); i++) {
+            Entities.remove(Remove.get(i));
+        }
+
         cameraUpdate(player, camera, Entities,0,0, WorldMap.getWidth()*WorldMap.getTileSize(), WorldMap.getHeight()*WorldMap.getTileSize());
 
         handleInput();
@@ -373,6 +402,13 @@ public class PlayState extends DialogStateExtention {
             player.setVelocityX(player.getVelocity().x - 1);
         }
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            if (player.RollingTime < 0.1) {
+                player.Rolling = true;
+                player.RollingTime += 0.5f;
+            }
+        }
+
         if (Gdx.input.getX() < Gdx.graphics.getWidth()/2) {
             player.setFacing(true);
         } else {
@@ -420,6 +456,11 @@ public class PlayState extends DialogStateExtention {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_6)) {
             AddDialog("Pawn", "It's working!");
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_7)) {
+            Bullet temp = new Bullet((int)player.getPosition().x, (int)player.getPosition().y, (int)player.getPosition().z, new Vector3(5,-5, 0), player);
+            Entities.add(temp);
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && Gdx.input.isKeyJustPressed(Input.Keys.T)) {
