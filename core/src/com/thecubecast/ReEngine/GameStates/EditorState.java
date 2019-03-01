@@ -65,6 +65,7 @@ public class EditorState extends GameState {
     private boolean SelectionDragging = false;
     private Vector2[] SelectedArea;
     private List<WorldObject> SelectedObjects = new ArrayList<>();
+    private List<WorldObject> Copied_Objects = new ArrayList<>();
 
 
     WorldObject CameraFocusPointEdit = new WorldObject() {
@@ -222,7 +223,18 @@ public class EditorState extends GameState {
 
         //MapRenderer.renderLayer(g, Map, "Ground");
         //MapRenderer.renderLayer(g, Map, "Foreground");
-        tempshitgiggle.Draw(camera, g);
+        //tempshitgiggle.Draw(camera, g);
+        if (selected.equals(selection.Forground)) {
+            tempshitgiggle.DrawGround(camera, g, 0.8f);
+            tempshitgiggle.DrawForground(camera, g, 1f);
+        }
+        else if (selected.equals(selection.Ground)) {
+            tempshitgiggle.DrawGround(camera, g, 1f);
+            tempshitgiggle.DrawForground(camera, g, 0.8f);
+        }
+        else {
+            tempshitgiggle.Draw(camera, g);
+        }
 
         if (selected.equals(selection.Collision)) {
             //MapRenderer.renderLayer(g, Map, "Collision");
@@ -351,6 +363,46 @@ public class EditorState extends GameState {
 
         if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && Gdx.input.isKeyJustPressed(Input.Keys.S)) {
             SaveMap(SaveNameText);
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && Gdx.input.isKeyJustPressed(Input.Keys.C)) {
+            System.out.println("Copied");
+            //Copied_Objects.clear();
+            //Copied_Objects.addAll(SelectedObjects);
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && Gdx.input.isKeyJustPressed(Input.Keys.V)) {
+            System.out.println("Pasted");
+            /*
+            //Get the middle of the screen position in the world coords
+            Vector3 camMiddle = new Vector3(camera.position.x + camera.viewportWidth, camera.position.y + camera.viewportHeight, 0);
+
+            System.out.println(camMiddle);
+
+            //calculate the average location of all the copied entities
+            Vector3 AveragePos = new Vector3();
+
+            for (int i = 0; i < Copied_Objects.size(); i++) {
+                AveragePos.add(Copied_Objects.get(i).getPosition());
+            }
+            AveragePos.x = AveragePos.x/Copied_Objects.size();
+            AveragePos.y = AveragePos.y/Copied_Objects.size();
+            AveragePos.z = AveragePos.z/Copied_Objects.size();
+            System.out.println(AveragePos);
+
+            //Calculate offset
+            camMiddle.sub(AveragePos);
+            System.out.println(camMiddle);
+
+            //Add the change from average location of copied, to location of middle screen
+            for (int i = 0; i < Copied_Objects.size(); i++) {
+                WorldObject temp = Copied_Objects.get(i).getClass().newInstance();
+
+                temp.setPosition(temp.getPosition().x + camMiddle.x, temp.getPosition().y + camMiddle.y, AveragePos.z);
+                Entities.add(temp);
+                SelectedObjects.add(temp);
+                temp.setDebugView(true);
+            }*/
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
@@ -1019,7 +1071,7 @@ public class EditorState extends GameState {
                 }
             }
         });
-        Physics.setItems(new String[]{"Static", "Dynamic"});
+        Physics.setItems("Static", "Dynamic");
         CheckBox Collidable = new CheckBox("Collidable", skin);
         Collidable.addListener(new ChangeListener() {
             @Override
@@ -1036,7 +1088,7 @@ public class EditorState extends GameState {
         ObjectEditor.add(StupidFittingThing).fillX().row();
         //
         SelectBox TriggerTypeChoice = new SelectBox(skin);
-        TriggerTypeChoice.setItems(new String[]{"OnEntry", "OnTrigger", "OnExit", "OnInteract", "OnClick"});
+        TriggerTypeChoice.setItems("OnEntry", "OnTrigger", "OnExit", "OnInteract", "OnClick");
         TriggerTypeChoice.setSelected("OnInteract");
         TriggerTypeChoice.addListener(new ChangeListener() {
             @Override
@@ -1054,6 +1106,8 @@ public class EditorState extends GameState {
                     TriggerType = Trigger.TriggerType.OnTrigger;
                 } else if (TriggerTypeChoice.getSelected().equals("OnExit")) {
                     TriggerType = Trigger.TriggerType.OnExit;
+                } else if (TriggerTypeChoice.getSelected().equals("OnAttack")) {
+                    TriggerType = Trigger.TriggerType.OnAttack;
                 }
 
                 if (SelectedObjects.size() > 0) {
@@ -1164,9 +1218,8 @@ public class EditorState extends GameState {
                     TriggerTypeChoice.setSelected(temp.getActivationType().name().toString());
                     EventCode.setText(temp.getRawCommands());
                 } else if (SelectedObjects.size() == 0) {
-                    Interactable temp = (Interactable) SelectedObjects.get(0);
-                    Name.setText(temp.Name);
-                    Description.setText(temp.Description);
+                    Name.setText("");
+                    Description.setText("");
                     X.setText("");
                     Y.setText("");
                     Z.setText("");
@@ -1178,7 +1231,7 @@ public class EditorState extends GameState {
                     DepthOffset.setText("");
                     Texture.setText("");
                     Physics.setSelected("Static");
-                    Collision.setChecked(temp.isCollidable());
+                    Collision.setChecked(false);
                     TriggerTypeChoice.setSelected("None");
                     EventCode.setText("None");
                 } else if (SelectedObjects.size() > 1) {

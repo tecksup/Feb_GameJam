@@ -31,7 +31,7 @@ public class Enemy extends NPC {
         super.update(delta, Colls);
         AI.setDestination(player.getPosition());
         AI.update();
-        System.out.println(AI.getStateMachine().getCurrentState().name());
+        //System.out.println(AI.getStateMachine().getCurrentState().name());
     }
 
     @Override

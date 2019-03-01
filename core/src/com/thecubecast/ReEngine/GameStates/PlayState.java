@@ -56,6 +56,7 @@ public class PlayState extends DialogStateExtention {
 
     public PlayState(GameStateManager gsm) {
         super(gsm);
+        gsm.setUIScale(gsm.Scale);
     }
 
     public void init() {
@@ -360,22 +361,22 @@ public class PlayState extends DialogStateExtention {
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            //player.setPositionY(player.getPosition().y + 1);
             player.setVelocityY(player.getVelocity().y + 1);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            //player.setPositionY(player.getPosition().y - 1);
             player.setVelocityY(player.getVelocity().y - 1);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            //player.setPositionX(player.getPosition().x + 1);
-            player.setFacing(false);
             player.setVelocityX(player.getVelocity().x + 1);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            //player.setPositionX(player.getPosition().x - 1);
-            player.setFacing(true);
             player.setVelocityX(player.getVelocity().x - 1);
+        }
+
+        if (Gdx.input.getX() < Gdx.graphics.getWidth()/2) {
+            player.setFacing(true);
+        } else {
+            player.setFacing(false);
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.C) || Gdx.input.justTouched()) { // ATTACK
@@ -389,7 +390,7 @@ public class PlayState extends DialogStateExtention {
                 //Vector3 addVeloc = new Vector3(player.getPosition().x - player.getAttackBox().min.x, player.getPosition().y - player.getAttackBox().min.y, 0);
                 //player.setVelocity(new Vector3(player.getVelocity().x + (addVeloc.x*1.4f * -1), player.getVelocity().y + (addVeloc.y*1.4f * -1), player.getVelocity().z + (addVeloc.z*1.4f * -1)));
 
-                Particles.AddParticleEffect("sparkle", player.getIntereactBox().getCenterX(), player.getIntereactBox().getCenterY());
+                //Particles.AddParticleEffect("sparkle", player.getIntereactBox().getCenterX(), player.getIntereactBox().getCenterY());
                 for (int i = 0; i < Entities.size(); i++) {
                     if (player.getAttackBox().intersects(Entities.get(i).getHitbox())) {
                         if (Entities.get(i) instanceof NPC) {
@@ -400,11 +401,16 @@ public class PlayState extends DialogStateExtention {
                             Vector3 hitDirection = new Vector3(1 * HitVelocity, 0 * HitVelocity, 0);
                             Entitemp.damage(10, hitDirection);
                             shaker.addDamage(0.35f);
+                        } else if (Entities.get(i) instanceof Trigger) {
+                            if (((Trigger) Entities.get(i)).getActivationType().equals(Trigger.TriggerType.OnAttack)) {
+                                ((Trigger) Entities.get(i)).RunCommands(player, shaker, this, null, Particles, Entities);
+                                ((Trigger) Entities.get(i)).JustRan = true;
+                            }
                         }
                     }
                 }
 
-                player.AttackTime += 0.75f;
+                player.AttackTime += 0.35f;
             }
         }
 
@@ -414,6 +420,12 @@ public class PlayState extends DialogStateExtention {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_6)) {
             AddDialog("Pawn", "It's working!");
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) && Gdx.input.isKeyJustPressed(Input.Keys.T)) {
+            Vector3 pos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            camera.unproject(pos);
+            player.setPosition(((int) pos.x / 16) * 16 + 1, ((int) pos.y / 16) * 16 + 1, 0);
         }
 
     }

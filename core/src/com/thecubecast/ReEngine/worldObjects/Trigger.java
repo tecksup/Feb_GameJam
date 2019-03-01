@@ -22,6 +22,7 @@ public class Trigger extends WorldObject {
         OnExit,
         OnInteract,
         OnClick,
+        OnAttack,
         None
     }
 
@@ -46,7 +47,7 @@ public class Trigger extends WorldObject {
         ActivationType = TType;
 
         //Parse and then run the script
-        String[] Lines = RawCommands.split("&#xD;&#xA;");
+        String[] Lines = RawCommands.split(";");
         for (int i = 0; i < Lines.length; i++) {
             //Replaces all the XML markup chars with real ones, or cuts them for easier parsing later
             Lines[i] = Lines[i].replace("&quot;", "");
@@ -271,6 +272,36 @@ public class Trigger extends WorldObject {
             } else if (Commands[i][0].equals("Player")) {
                 try {
 
+                } catch (Exception e) {
+                    System.out.println("Exception " + e);
+                }
+            } else if (Commands[i][0].equals("Image")) {
+                try {
+                    if (Commands[i].length == 2) {
+                        if (this instanceof Interactable){
+                            ((Interactable) this).Image = new Texture(Gdx.files.internal(Commands[i][1]));
+                        }
+                    } else {
+                        System.out.println("No Image Location!");
+                    }
+                } catch (Exception e) {
+                    System.out.println("Exception " + e);
+                }
+            } else if (Commands[i][0].equals("Entities")) {
+                try {
+                    if (Commands[i][1].equals("kill")) {
+                        for (int j = 0; j < Entities.size(); j++) {
+                            if (Entities.get(i) instanceof Interactable) {
+                                System.out.println(((Interactable) Entities.get(i)).Name);
+                                if (((Interactable) Entities.get(i)).Name.equals(Commands[i][2])) {
+                                    System.out.println("Found a match!");
+                                }
+                                //Kill whatever matches with that name
+                                //System.out.println("Found a match!");
+                                //Entities.remove(i);
+                            }
+                        }
+                    }
                 } catch (Exception e) {
                     System.out.println("Exception " + e);
                 }

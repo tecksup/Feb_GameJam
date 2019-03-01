@@ -19,6 +19,8 @@ public class HackSlashPlayer extends WorldObject{
     //True is left, False is right
     boolean Facing = true;
 
+    int Degrees = 0;
+
     TextureAnimation<TextureAtlas.AtlasRegion> Walking;
     TextureAnimation<TextureAtlas.AtlasRegion> Idle;
 
@@ -33,7 +35,7 @@ public class HackSlashPlayer extends WorldObject{
         this.gsm = gsm;
         Walking = new TextureAnimation<>(gsm.Render.getTextures("player"), 0.1f);
         Idle = new TextureAnimation<>(gsm.Render.getTextures("player_idle"), 0.1f);
-        Sword = new TextureAnimation<>(gsm.Render.getTextures("sword"), 0.1f);
+        Sword = new TextureAnimation<>(gsm.Render.getTextures("sword"), 0.05f);
         Shadow = gsm.Render.getTexture("Shadow");
     }
 
@@ -121,7 +123,22 @@ public class HackSlashPlayer extends WorldObject{
             Sword.pause();
             Sword.setFrame(0);
             TextureRegion frameS = Sword.getFrame(Gdx.graphics.getDeltaTime());
+
+            //Degrees
+
             batch.draw(frameS, Facing ? (int)getPosition().x - 33 + (frameS.getRegionWidth()) : (int)getPosition().x + 9 , (int)getPosition().y - 22 + (int)getPosition().z / 2, Facing ? -(frameS.getRegionHeight()) : (frameS.getRegionHeight()), (frameS.getRegionHeight()));
+
+            /*batch.draw(frameS,
+                    Facing ? (int)getPosition().x - 33 + (frameS.getRegionWidth()) : (int)getPosition().x + 9 ,
+                    (int)getPosition().y - 22 + (int)getPosition().z / 2,
+                    2,
+                    2,
+                    Facing ? -(frameS.getRegionHeight()) : (frameS.getRegionHeight()),
+                    (frameS.getRegionHeight()),
+                    1,1,Degrees
+
+            );*/
+
         }
 
         if(Math.abs(this.getVelocity().y) >= 0.5f || Math.abs(this.getVelocity().x) >= 0.5f) {

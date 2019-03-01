@@ -1,6 +1,7 @@
 package com.thecubecast.ReEngine.Data.TkMap;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -8,6 +9,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.google.gson.*;
 import com.thecubecast.ReEngine.Data.Cube;
+import com.thecubecast.ReEngine.worldObjects.Interactable;
+import com.thecubecast.ReEngine.worldObjects.Trigger;
 import com.thecubecast.ReEngine.worldObjects.WorldObject;
 
 import java.io.IOException;
@@ -189,6 +192,52 @@ public class TkMap {
         }
     }
 
+    public void DrawGround(OrthographicCamera cam, SpriteBatch batch, float Opp) {
+
+        Rectangle drawView;
+        if (cam != null) {
+            drawView = new Rectangle(cam.position.x - cam.viewportWidth, cam.position.y - cam.viewportHeight, cam.viewportWidth + cam.viewportWidth, cam.viewportHeight + cam.viewportHeight);
+        } else {
+            drawView = new Rectangle(0, 0, Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 4);
+        }
+
+        //Draw the Ground
+        for (int y = Height - 1; y >= 0; y--) {
+            for (int x = 0; x < Width; x++) {
+                if (Ground[x][y] != -1) {
+                    if (drawView.overlaps(new Rectangle(x * 16, y * 16, 16, 16))) {
+                        batch.setColor(batch.getColor().r, batch.getColor().g, batch.getColor().b, Opp);
+                        batch.draw(Tileset.Tiles[Ground[x][y]], x * 16, y * 16);
+                        batch.setColor(Color.WHITE);
+                    }
+                }
+            }
+        }
+    }
+
+    public void DrawForground(OrthographicCamera cam, SpriteBatch batch, float Opp) {
+
+        Rectangle drawView;
+        if (cam != null) {
+            drawView = new Rectangle(cam.position.x - cam.viewportWidth, cam.position.y - cam.viewportHeight, cam.viewportWidth + cam.viewportWidth, cam.viewportHeight + cam.viewportHeight);
+        } else {
+            drawView = new Rectangle(0, 0, Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 4);
+        }
+
+        //Draw the Foreground
+        for (int y = Height - 1; y >= 0; y--) {
+            for (int x = 0; x < Width; x++) {
+                if (Foreground[x][y] != -1) {
+                    if (drawView.overlaps(new Rectangle(x * 16, y * 16, 16, 16))) {
+                        batch.setColor(batch.getColor().r, batch.getColor().g, batch.getColor().b, Opp);
+                        batch.draw(Tileset.Tiles[Foreground[x][y]], x * 16, y * 16);
+                        batch.setColor(Color.WHITE);
+                    }
+                }
+            }
+        }
+    }
+
     public void DrawCollision(OrthographicCamera cam, SpriteBatch batch) {
 
         Rectangle drawView;
@@ -236,6 +285,8 @@ public class TkMap {
             OffsetY = tempObject.get("HeightOffset").getAsInt();
             OffsetZ = tempObject.get("DepthOffset").getAsInt();
             String tempImgLoc = tempObject.get("TexLocation").getAsString();
+            String RawEvents = tempObject.get("Event").getAsString();
+            Trigger.TriggerType TriggerType = Trigger.TriggerType.None;
             WorldObject.type Type;
             boolean Collidable = false;
             if (tempObject.get("Physics").getAsString().equals("Static")) {
@@ -248,23 +299,24 @@ public class TkMap {
                 Type = WorldObject.type.Static;
             }
 
-            WorldObject tempObj = new WorldObject(X, Y, Z, new Vector3(W, H, D), Type, Collidable) {
+            if (tempObject.get("TriggerType").getAsString().equals("OnEntry")) {
+                TriggerType = Trigger.TriggerType.OnEntry;
+            } else if (tempObject.get("TriggerType").getAsString().equals("OnTrigger")) {
+                TriggerType = Trigger.TriggerType.OnTrigger;
+            } else if (tempObject.get("TriggerType").getAsString().equals("OnExit")) {
+                TriggerType = Trigger.TriggerType.OnExit;
+            } else if (tempObject.get("TriggerType").getAsString().equals("OnInteract")) {
+                TriggerType = Trigger.TriggerType.OnInteract;
+            } else if (tempObject.get("TriggerType").getAsString().equals("OnClick")) {
+                TriggerType = Trigger.TriggerType.OnClick;
+            } else if (tempObject.get("TriggerType").getAsString().equals("OnAttack")) {
+                TriggerType = Trigger.TriggerType.OnAttack;
+            }
 
-                @Override
-                public void init(int Width, int Height) {
-
-                }
-
-                @Override
-                public void update(float delta, List<Cube> Colls) {
-
-                }
-
-                @Override
-                public void draw(SpriteBatch batch, float Time) {
-
-                }
-            };
+            Interactable tempObj = new Interactable(X, Y, Z, new Vector3(W, H, D), Type, Collidable, RawEvents, TriggerType);
+            tempObj.setTexLocation(tempImgLoc);
+            tempObj.Name = Name;
+            tempObj.Description = Description;
 
             tempObj.setHitboxOffset(new Vector3(OffsetX, OffsetY, OffsetZ));
 
@@ -359,19 +411,36 @@ public class TkMap {
         JsonArray ObjectsList = new JsonArray();
         for (int i = 0; i < entities.size(); i++) {
 
-            JsonObject Entity = new JsonObject();
-            Entity.addProperty("x", entities.get(i).getPosition().x);
-            Entity.addProperty("y", entities.get(i).getPosition().y);
-            Entity.addProperty("z", entities.get(i).getPosition().z);
-            Entity.addProperty("Width", entities.get(i).getSize().x);
-            Entity.addProperty("WidthOffset", entities.get(i).getHitboxOffset().x);
-            Entity.addProperty("Height", entities.get(i).getSize().y);
-            Entity.addProperty("HeightOffset", entities.get(i).getHitboxOffset().y);
-            Entity.addProperty("Depth", entities.get(i).getSize().z);
-            Entity.addProperty("DepthOffset", entities.get(i).getHitboxOffset().z);
+            if (entities.get(i) instanceof Interactable) {
+                JsonObject Entity = new JsonObject();
+                Entity.addProperty("Name", ((Interactable) entities.get(i)).Name);
+                Entity.addProperty("Description", "");
+                Entity.addProperty("x", (int) entities.get(i).getPosition().x);
+                Entity.addProperty("y", (int) entities.get(i).getPosition().y);
+                Entity.addProperty("z", (int) entities.get(i).getPosition().z);
+                Entity.addProperty("Width", (int) entities.get(i).getSize().x);
+                Entity.addProperty("WidthOffset", (int) entities.get(i).getHitboxOffset().x);
+                Entity.addProperty("Height", (int) entities.get(i).getSize().y);
+                Entity.addProperty("HeightOffset", (int) entities.get(i).getHitboxOffset().y);
+                Entity.addProperty("Depth", (int) entities.get(i).getSize().z);
+                Entity.addProperty("DepthOffset", (int) entities.get(i).getHitboxOffset().z);
+                if (entities.get(i) instanceof Interactable) {
+                    Entity.addProperty("TexLocation", ((Interactable) entities.get(i)).getTexLocation());
+                } else {
+                    Entity.addProperty("TexLocation", "");
+                }
+                Entity.addProperty("Physics", entities.get(i).getState().name());
+                Entity.addProperty("Collidable", entities.get(i).isCollidable());
+                if (entities.get(i) instanceof Trigger) {
+                    Entity.addProperty("TriggerType", ((Trigger) entities.get(i)).getActivationType().toString());
+                    Entity.addProperty("Event", ((Trigger) entities.get(i)).getRawCommands());
+                } else {
+                    Entity.addProperty("TriggerType", "");
+                    Entity.addProperty("Event", "");
+                }
 
-
-            ObjectsList.add(Entity);
+                ObjectsList.add(Entity);
+            }
         }
 
         Output.add("Objects", ObjectsList);

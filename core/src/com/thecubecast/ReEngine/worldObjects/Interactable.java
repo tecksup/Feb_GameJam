@@ -50,10 +50,12 @@ public class Interactable extends Trigger {
             batch.flush();
             //batch.setShader(OutlineShader);
             //setOutlineShaderColor(this.HighlightColor, 0.8f);
-            batch.draw(Image, getPosition().x, getPosition().y);
+            if (Image != null)
+                batch.draw(Image, getPosition().x, getPosition().y);
             batch.setShader(null);
         } else {
-            batch.draw(Image, getPosition().x, getPosition().y);
+            if (Image != null)
+                batch.draw(Image, getPosition().x, getPosition().y);
         }
     }
 
@@ -68,7 +70,8 @@ public class Interactable extends Trigger {
             BoundingBox temp = new BoundingBox(this.getPosition(), new Vector3(Image.getWidth(), Image.getHeight(), 0).add(this.getPosition()));
             return temp;
         } else {
-            return null;
+            BoundingBox temp = new BoundingBox(this.getPosition(), new Vector3(getSize().x, getSize().y, 0).add(this.getPosition()));
+            return temp;
         }
     }
 
@@ -82,6 +85,9 @@ public class Interactable extends Trigger {
 
     public void setTexLocation(String texLocation) {
         TexLocation = texLocation;
-        Image = new Texture(Gdx.files.internal(TexLocation));
+        if (texLocation.equals(""))
+            Image = null;
+        else
+            Image = new Texture(Gdx.files.internal(TexLocation));
     }
 }
