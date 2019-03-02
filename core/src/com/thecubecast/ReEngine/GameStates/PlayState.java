@@ -238,6 +238,7 @@ public class PlayState extends DialogStateExtention {
         gsm.Render.GUIDrawText(g, 60,60,"Use WASD to move", Color.WHITE);
         gsm.Render.GUIDrawText(g, 170,140,"SPACE to roll", Color.WHITE);
         gsm.Render.GUIDrawText(g, 170,130,"And CLICK to attack!", Color.WHITE);
+        gsm.Render.GUIDrawText(g, 830,670,"UNDER CONSTRUCTION", Color.WHITE);
 
         //Block of code renders all the entities
         WorldObjectComp entitySort = new WorldObjectComp();
@@ -387,7 +388,6 @@ public class PlayState extends DialogStateExtention {
         g.setProjectionMatrix(GuiCam.combined);
         g.begin();
         MenuDraw(g, Gdx.graphics.getDeltaTime());
-        gsm.Render.GUIDrawText(g, 2,height-4,"Health: " + player.Health, Color.WHITE);
         g.end();
         UI.Draw(g);
     }
@@ -396,7 +396,7 @@ public class PlayState extends DialogStateExtention {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             if(UI.Visible) {
-                UI.setVisable(!UI.Visible);
+                UI.setState(UI_state.INGAMEUI);
             } else if (!UI.Visible) {
                 UI.setState(UI_state.InGameHome);
             } else {

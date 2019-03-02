@@ -16,7 +16,7 @@ import static com.thecubecast.ReEngine.Data.GameStateManager.AudioM;
 
 public class HackSlashPlayer extends WorldObject{
 
-    public int Health = 100;
+    public int Health = 30;
 
     public int Energy = 100;
 

@@ -30,7 +30,7 @@ public enum EnemyState implements State<Smart> {
         @Override
         public void update(Smart Student) {
             //Check for changes, then update state
-            Student.getStateMachine().changeState(WANDER);
+            Student.getStateMachine().changeState(HUNTING);
         }
 
         @Override

@@ -102,7 +102,6 @@ public class Brute extends Brute_Enemy {
     }
 
     public void update(float delta, List<Cube> Colls, HackSlashPlayer player) {
-        System.out.println("it's running");
         if (Colls == null) {
             return;
         }

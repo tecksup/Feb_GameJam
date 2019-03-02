@@ -18,6 +18,8 @@ import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 import com.thecubecast.ReEngine.Data.Common;
 import com.thecubecast.ReEngine.Data.GameStateManager;
 import com.thecubecast.ReEngine.Data.controlerManager;
+import com.thecubecast.ReEngine.GameStates.PlayState;
+import com.thecubecast.ReEngine.mainclass;
 
 import java.net.URI;
 
@@ -471,6 +473,46 @@ public enum UI_state implements State<UIFSM> {
             table.setVisible(entity.Visible);
             ControllerCheck(table);
             entity.stage.act(Gdx.graphics.getDeltaTime());
+        }
+
+        @Override
+        public void exit(UIFSM entity) {
+            entity.stage.clear();
+        }
+
+        @Override
+        public boolean onMessage(UIFSM entity, Telegram telegram) {
+            return false;
+        }
+    },
+    INGAMEUI() {
+
+        private Table table;
+        private Label Health;
+
+        @Override
+        public void enter(UIFSM entity) {
+            table = new Table();
+            table.setFillParent(true);
+            entity.stage.addActor(table);
+
+            Health = new Label("", entity.skin);
+
+            if (mainclass.gsm.gameState instanceof PlayState)
+                Health.setText("" + ((PlayState)mainclass.gsm.gameState).player.Health);
+
+            table.add(Health);
+        }
+
+        @Override
+        public void update(UIFSM entity) {
+            table.setVisible(entity.Visible);
+            ControllerCheck(table);
+            entity.stage.act(Gdx.graphics.getDeltaTime());
+
+            if (mainclass.gsm.gameState instanceof PlayState)
+                Health.setText("" + ((PlayState)mainclass.gsm.gameState).player.Health);
+
         }
 
         @Override
