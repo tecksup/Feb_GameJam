@@ -12,12 +12,21 @@ import com.thecubecast.ReEngine.Data.GameStateManager;
 
 import java.util.List;
 
+import static com.thecubecast.ReEngine.Data.GameStateManager.AudioM;
+
 public class HackSlashPlayer extends WorldObject{
+
+    public int Health = 100;
+
+    public int Energy = 100;
 
     public float AttackTime;
 
     //True is left, False is right
     boolean Facing = true;
+
+    private boolean Soundthing = true;
+    private float JustPlayed = 0;
 
     public float RollingTime;
     public boolean Rolling;
@@ -52,21 +61,17 @@ public class HackSlashPlayer extends WorldObject{
     @Override
     public void update(float delta, List<Cube> Colls) {
 
+        JustPlayed += delta;
+
         if (AttackTime - delta > 0)
             AttackTime -= delta;
         if (RollingTime - delta > 0)
             RollingTime -= delta;
 
         if (Rolling) {
-            if (getVelocity().x < 0)
-                super.setVelocityX((getVelocity().x - 1));
-            else
-                super.setVelocityX((getVelocity().x + 1));
+            getVelocity().clamp(-5, 5);
+        } else {
 
-            if (getVelocity().y < 0)
-                super.setVelocityY((getVelocity().y - 1));
-            else
-                super.setVelocityY((getVelocity().y + 1));
         }
 
         if (getState().equals(type.Dynamic)) {
@@ -169,6 +174,14 @@ public class HackSlashPlayer extends WorldObject{
                 //running animation
                 TextureRegion frame = Walking.getFrame(Gdx.graphics.getDeltaTime());
                 batch.draw(frame, Facing ? (int)getPosition().x + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
+                if (JustPlayed > 0.25f) {
+                    //if (Soundthing)
+                        //AudioM.playS("feet1.wav");
+                    //else
+                        //AudioM.playS("feet2.wav");
+                    JustPlayed = 0;
+                    Soundthing = !Soundthing;
+                }
             } else if(this.getVelocity().y < 0.5f || this.getVelocity().x < 0.5f) {
                 batch.draw(Shadow, Facing ? (int)getPosition().x +1 : (int)getPosition().x + 3, (int)getPosition().y - 2 + (int)getZFloor() / 2);
                 //Idle animation

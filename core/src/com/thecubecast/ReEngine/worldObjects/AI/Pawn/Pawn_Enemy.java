@@ -1,40 +1,42 @@
-package com.thecubecast.ReEngine.worldObjects;
+package com.thecubecast.ReEngine.worldObjects.AI.Pawn;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.thecubecast.ReEngine.Data.Cube;
+import com.thecubecast.ReEngine.Data.GameStateManager;
 import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.FlatTiledGraph;
 import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.FlatTiledNode;
 import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.TiledSmoothableGraphPath;
-import com.thecubecast.ReEngine.worldObjects.AI.Pawn.Smart;
-import com.thecubecast.ReEngine.worldObjects.AI.Pawn.EnemyState;
+import com.thecubecast.ReEngine.worldObjects.HackSlashPlayer;
+import com.thecubecast.ReEngine.worldObjects.NPC;
 
 import java.util.List;
 
-public class Student extends NPC {
+public class Pawn_Enemy extends NPC {
 
     private Vector3 Destination;
     private Smart AI;
+    HackSlashPlayer player;
 
-    public Student(String name, int x, int y, int z, Vector3 size, float knockbackResistance, float health, intractability interact, FlatTiledGraph worldMap) {
-        super(name, x, y, z, size, knockbackResistance, health, interact);
+    public GameStateManager gsm;
 
-        //AI = new Smart(this, worldMap);
-
+    public Pawn_Enemy(String name, int x, int y, int z, Vector3 size, float knockbackResistance, float health, intractability interact, boolean invincible, FlatTiledGraph map, GameStateManager gsm) {
+        super(name,x,y,z, size, knockbackResistance,health, interact, invincible);
+        this.gsm = gsm;
+        AI = new Smart(this, map);
     }
 
-    @Override
-    public void init(int Width, int Height) {
-
-    }
-
-    @Override
-    public void update(float delta, List<Cube> Colls) {
+    public void update(float delta, List<Cube> Colls, HackSlashPlayer player) {
+        this.player = player;
         super.update(delta, Colls);
-        AI.setDestination(Destination);
         AI.update();
-
+        //System.out.println(AI.getStateMachine().getCurrentState().name());
     }
 
+    @Override
+    public void draw(SpriteBatch batch, float Time) {
+        batch.draw(gsm.Render.getTexture("BlackEnemyTemp"), getPosition().x,getPosition().y);
+    }
 
     @Override
     public void interact() {
@@ -45,23 +47,12 @@ public class Student extends NPC {
             setPosition(AI.getPath().get(1).x * 16, AI.getPath().get(1).y * 16, 0);
             AI.updatePath(true);
         }
-
-    }
-
-    public Vector3 getDestination() {
-        return Destination;
     }
 
     public void setDestination(Vector3 destination) {
         Destination = destination;
         AI.setDestination(Destination);
-        AI.update();
-    }
-
-    public void setDestination(int destinationX, int destinationY, int destinationZ) {
-        Destination = new Vector3(destinationX, destinationY, destinationZ);
-        AI.setDestination(Destination);
-        AI.update();
+        AI.updatePath(true);
     }
 
     public TiledSmoothableGraphPath<FlatTiledNode> getPath() {

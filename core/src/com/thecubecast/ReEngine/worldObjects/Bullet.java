@@ -12,6 +12,9 @@ public class Bullet extends WorldObject {
 
     public WorldObject Parrent;
 
+    public float Lifespan = 1f;
+    public float timeAlive = 0;
+
     public Bullet(int x, int y, int z, Vector3 Velocity, WorldObject parrent) {
         super(x, y, z, new Vector3(4,4,4));
         setState(type.Dynamic);
@@ -33,12 +36,14 @@ public class Bullet extends WorldObject {
             if (pos.x < 0) { //Moving left
                 if (checkCollision(new Vector3(newpos.x, getPosition().y, getPosition().z), Colls)) {
                     super.setVelocityX(0);
+                    timeAlive = 100;
                 } else {
                     super.setPositionX((getPosition().x - getVelocity().x * -1));
                 }
             } else if (pos.x > 0) { // Moving right
                 if (checkCollision(new Vector3(newpos.x, getPosition().y, getPosition().z), Colls)) {
                     super.setVelocityX(0);
+                    timeAlive = 100;
                 } else {
                     super.setPositionX((getPosition().x + getVelocity().x));
                 }
@@ -47,12 +52,14 @@ public class Bullet extends WorldObject {
             if (pos.y < 0) { // Moving down
                 if (checkCollision(new Vector3(getPosition().x, newpos.y, getPosition().z), Colls)) {
                     super.setVelocityY(0);
+                    timeAlive = 100;
                 } else {
                     super.setPositionY((getPosition().y - getVelocity().y * -1));
                 }
             } else if (pos.y > 0) {
                 if (checkCollision(new Vector3(getPosition().x, newpos.y, getPosition().z), Colls)) {
                     super.setVelocityY(0);
+                    timeAlive = 100;
                 } else {
                     super.setPositionY((getPosition().y + getVelocity().y));
                 }

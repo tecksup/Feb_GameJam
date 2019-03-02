@@ -372,6 +372,7 @@ public enum UI_state implements State<UIFSM> {
                     } else {
                         String[] temp = Gdx.app.getPreferences("properties").getString("Resolution").split("X");
                         Gdx.graphics.setWindowedMode(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]));
+                        Gdx.graphics.setVSync(true);
                     }
 
                     String[] temp = Gdx.app.getPreferences("properties").getString("Resolution").split("X");

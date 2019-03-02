@@ -28,7 +28,7 @@ public class GameStateManager {
     public State currentState;
     private State previousState;
 
-    private GameState gameState;
+    public GameState gameState;
 
     public float CurrentTime;
     public float DeltaTime;

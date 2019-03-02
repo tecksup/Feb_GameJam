@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.thecubecast.ReEngine.Data.Cube;
+import com.thecubecast.ReEngine.Data.ParticleHandler;
 
 import java.util.List;
 
@@ -19,6 +20,8 @@ public abstract class NPC extends WorldObject {
     private float health;
     private boolean invulnerable = false;
     private String name;
+
+    public float VelDrag = -1;
 
     private intractability interact;
     private entityState EState = entityState.alive;
@@ -70,8 +73,8 @@ public abstract class NPC extends WorldObject {
     public void update(float delta, List<Cube> Colls) {
 
         if (getState().equals(type.Dynamic)) {
-            super.setVelocityX((getVelocity().x + getVelocity().x * -1 * 0.1f));
-            super.setVelocityY((getVelocity().y + getVelocity().y * -1 * 0.1f));
+            super.setVelocityX((getVelocity().x + getVelocity().x * VelDrag * 0.1f));
+            super.setVelocityY((getVelocity().y + getVelocity().y * VelDrag * 0.1f));
 
             Vector2 pos = new Vector2(getVelocity().x * delta, getVelocity().y * delta);
 
@@ -80,12 +83,14 @@ public abstract class NPC extends WorldObject {
             if (pos.x < 0) { //Moving left
                 if (checkCollision(new Vector3(getPosition().x-1, getPosition().y, getPosition().z), Colls)) {
                     super.setVelocityX(0);
+                    super.setPositionX(getPosition().x + 1);
                 } else {
                     super.setPositionX((getPosition().x - getVelocity().x*delta*-1));
                 }
             } else if (pos.x > 0) { // Moving right
                 if (checkCollision(new Vector3(getPosition().x+1, getPosition().y, getPosition().z), Colls)) {
                     super.setVelocityX(0);
+                    super.setPositionX(getPosition().x - 1);
                 } else {
                     super.setPositionX((getPosition().x + getVelocity().x*delta));
                 }
@@ -94,12 +99,14 @@ public abstract class NPC extends WorldObject {
             if (pos.y < 0) { // Moving down
                 if (checkCollision(new Vector3(getPosition().x, getPosition().y-1, getPosition().z),Colls)) {
                     super.setVelocityY(0);
+                    super.setPositionY(getPosition().y + 1);
                 } else {
                     super.setPositionY((getPosition().y - getVelocity().y*delta*-1));
                 }
             } else if (pos.y > 0) {
                 if (checkCollision(new Vector3(getPosition().x, getPosition().y+1, getPosition().z), Colls)) {
                     super.setVelocityY(0);
+                    super.setPositionY(getPosition().y - 1);
                 } else {
                     super.setPositionY((getPosition().y + getVelocity().y*delta));
                 }
@@ -173,6 +180,10 @@ public abstract class NPC extends WorldObject {
     public void Die() {
         //Remove this NPC, or at least set its state to dead
         setEState(entityState.dead);
+    }
+
+    public void GettingKilled(ParticleHandler particles) {
+        particles.AddParticleEffect("Health", getPosition().x, getPosition().y);
     }
 
     public float getHealth() {

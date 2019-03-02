@@ -2,6 +2,7 @@
 
 package com.thecubecast.ReEngine.GameStates;
 
+import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -11,7 +12,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.World;
 import com.thecubecast.ReEngine.Data.Cube;
 import com.thecubecast.ReEngine.Data.GameStateManager;
 import com.thecubecast.ReEngine.Data.ParticleHandler;
@@ -20,14 +20,17 @@ import com.thecubecast.ReEngine.Graphics.Scene2D.UIFSM;
 import com.thecubecast.ReEngine.Graphics.Scene2D.UI_state;
 import com.thecubecast.ReEngine.Graphics.ScreenShakeCameraController;
 import com.thecubecast.ReEngine.worldObjects.*;
-import com.thecubecast.ReEngine.worldObjects.AI.Enemy;
+import com.thecubecast.ReEngine.worldObjects.AI.Brute.Brute_Enemy;
+import com.thecubecast.ReEngine.worldObjects.AI.Pawn.Pawn_Enemy;
 import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.FlatTiledGraph;
 import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.FlatTiledNode;
-import com.thecubecast.ReEngine.worldObjects.EntityPrefabs.Hank;
+import com.thecubecast.ReEngine.worldObjects.EntityPrefabs.Brute;
 import com.thecubecast.ReEngine.worldObjects.EntityPrefabs.Pawn;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.thecubecast.ReEngine.Data.GameStateManager.AudioM;
 
 public class PlayState extends DialogStateExtention {
 
@@ -52,7 +55,7 @@ public class PlayState extends DialogStateExtention {
     //AI
     FlatTiledGraph MapGraph;
 
-    Enemy tempEnemy;
+    int MusicID;
 
     public PlayState(GameStateManager gsm) {
         super(gsm);
@@ -85,7 +88,7 @@ public class PlayState extends DialogStateExtention {
             }
         }
 
-        player = new HackSlashPlayer(13 * 16, 1 * 16, gsm);
+        player = new HackSlashPlayer(10 * 16, 3 * 16, gsm);
 
         Entities.add(player);
 
@@ -114,17 +117,10 @@ public class PlayState extends DialogStateExtention {
 
         MapGraph = new FlatTiledGraph(WorldMap);
 
-        tempEnemy = new Pawn("[PURPLE]Pawn", 280,316,0, new Vector3(8,8,16), 1, 10, NPC.intractability.Silent, false, MapGraph, gsm);
+        //Entities.add(new Pawn("[PURPLE]Pawn", 280,316,0, new Vector3(8,8,16), 1, 50, NPC.intractability.Silent, false, MapGraph, gsm));
+        Entities.add(new Brute("[RED]Brute", 610,400,0, new Vector3(8,8,16), 1, 60, NPC.intractability.Silent, false, MapGraph, gsm));
 
-        Entities.add(tempEnemy);
-
-        Entities.add(new Hank(450, 300, 0) {
-            @Override
-            public void interact() {
-                AddDialog("Hank","Hey, you can talk to me now?!");
-                AddDialog("Hank","I'm no longer {COLOR=purple}{WAVE}alone{ENDWAVE}{CLEARCOLOR}!!!");
-            }
-        });
+        MusicID = AudioM.playMusic("TimeBroke.wav", true, true);
 
     }
 
@@ -133,13 +129,21 @@ public class PlayState extends DialogStateExtention {
         Particles.Update();
 
         for (int i = 0; i < Entities.size(); i++) {
-            if (Entities.get(i) instanceof Enemy) {
-                ((Enemy)Entities.get(i)).update(Gdx.graphics.getDeltaTime(), Collisions, player);
+            if (Entities.get(i) instanceof Pawn_Enemy) {
+                ((Pawn_Enemy)Entities.get(i)).update(Gdx.graphics.getDeltaTime(), Collisions, player);
                 if (!((NPC) Entities.get(i)).isAlive()) {
+                    Particles.AddParticleEffect("Leaf", player.getIntereactBox().getCenterX(), player.getIntereactBox().getCenterY());
+                    Entities.remove(i);
+                }
+            } else if (Entities.get(i) instanceof Brute_Enemy) {
+                ((Brute_Enemy)Entities.get(i)).update(Gdx.graphics.getDeltaTime(), Collisions, player);
+                if (!((NPC) Entities.get(i)).isAlive()) {
+                    Particles.AddParticleEffect("Leaf", player.getIntereactBox().getCenterX(), player.getIntereactBox().getCenterY());
                     Entities.remove(i);
                 }
             } else if (Entities.get(i) instanceof NPC) {
                 if (!((NPC) Entities.get(i)).isAlive()) {
+                    Particles.AddParticleEffect("Leaf", player.getIntereactBox().getCenterX(), player.getIntereactBox().getCenterY());
                     Entities.remove(i);
                 }
             } else if (Entities.get(i) instanceof Interactable) {
@@ -173,7 +177,16 @@ public class PlayState extends DialogStateExtention {
         List<WorldObject> Remove = new ArrayList<>();
 
         for (int i = 0; i < Entities.size(); i++) {
+
             if (Entities.get(i) instanceof Bullet) {
+
+                ((Bullet)Entities.get(i)).timeAlive += Gdx.graphics.getDeltaTime();
+
+                if (((Bullet)Entities.get(i)).timeAlive >= ((Bullet)Entities.get(i)).Lifespan){
+                    Remove.add(Entities.get(i));
+                    break;
+                }
+
                 WorldObject tempPar = ((Bullet)Entities.get(i)).Parrent;
                 if (Entities.get(i).checkCollision(new Vector3(Entities.get(i).getPosition().x, Entities.get(i).getPosition().y, 0), Collisions, true)) {
                     Remove.add(Entities.get(i));
@@ -184,9 +197,15 @@ public class PlayState extends DialogStateExtention {
                         } else if (Entities.get(j) instanceof Bullet) {
 
                         } else if (Entities.get(j).getHitbox().contains(Entities.get(i).getPosition())) {
-                            Remove.add(Entities.get(i));
+
                             if(Entities.get(j) instanceof NPC) {
+                                Remove.add(Entities.get(i));
                                 ((NPC) Entities.get(j)).setHealth(((NPC) Entities.get(j)).getHealth()-10);
+                            } else if (Entities.get(j) instanceof HackSlashPlayer) {
+                                if (!((HackSlashPlayer) Entities.get(j)).Rolling) {
+                                    Remove.add(Entities.get(i));
+                                    ((HackSlashPlayer) Entities.get(j)).Health--;
+                                }
                             }
                         }
                     }
@@ -216,6 +235,10 @@ public class PlayState extends DialogStateExtention {
 
         WorldMap.Draw(camera, g);
 
+        gsm.Render.GUIDrawText(g, 60,60,"Use WASD to move", Color.WHITE);
+        gsm.Render.GUIDrawText(g, 170,140,"SPACE to roll", Color.WHITE);
+        gsm.Render.GUIDrawText(g, 170,130,"And CLICK to attack!", Color.WHITE);
+
         //Block of code renders all the entities
         WorldObjectComp entitySort = new WorldObjectComp();
         WorldObjectCompDepth entitySortz = new WorldObjectCompDepth();
@@ -235,16 +258,21 @@ public class PlayState extends DialogStateExtention {
         }
 
         //Particles
-        Particles.Draw(g);
+        //Particles.Draw(g);
 
         //Renders the GUI for entities
         for (int i = 0; i < Entities.size(); i++) {
             if (Entities.get(i) instanceof NPC) {
-                NPC Entitemp = (NPC) Entities.get(i);
-                if (drawView.overlaps(new Rectangle(Entitemp.getPosition().x, Entitemp.getPosition().y, Entitemp.getSize().x, Entitemp.getSize().y))) {
+                if (drawView.overlaps(new Rectangle(Entities.get(i).getPosition().x, Entities.get(i).getPosition().y, Entities.get(i).getSize().x, Entities.get(i).getSize().y))) {
                     ((NPC) Entities.get(i)).drawGui(g, Time);
                 }
             }
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) { //KeyHit
+            Vector3 pos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            camera.unproject(pos);
+            gsm.Render.GUIDrawText(g, (int) pos.x / 16 * 16 + 1, (int) pos.y / 16 * 16 + 1, ((int) pos.x) + " : " +( (int) pos.y) + "", Color.WHITE);
         }
 
         g.end();
@@ -278,8 +306,15 @@ public class PlayState extends DialogStateExtention {
 
             gsm.Render.debugRenderer.setColor(Color.FIREBRICK);
             for (int i = 0; i < Entities.size(); i++) {
-                if(Entities.get(i) instanceof Enemy) {
-                    Enemy temp = (Enemy) Entities.get(i);
+                if(Entities.get(i) instanceof Pawn_Enemy) {
+                    Pawn_Enemy temp = (Pawn_Enemy) Entities.get(i);
+                    int nodeCount = temp.getPath().getCount();
+                    for (int j = 0; j < nodeCount; j++) {
+                        FlatTiledNode node = temp.getPath().nodes.get(j);
+                        gsm.Render.debugRenderer.rect(node.x * 16 + 4, node.y * 16 + 4, 4, 4);
+                    }
+                } else if(Entities.get(i) instanceof Brute_Enemy) {
+                    Brute_Enemy temp = (Brute_Enemy) Entities.get(i);
                     int nodeCount = temp.getPath().getCount();
                     for (int j = 0; j < nodeCount; j++) {
                         FlatTiledNode node = temp.getPath().nodes.get(j);
@@ -352,6 +387,7 @@ public class PlayState extends DialogStateExtention {
         g.setProjectionMatrix(GuiCam.combined);
         g.begin();
         MenuDraw(g, Gdx.graphics.getDeltaTime());
+        gsm.Render.GUIDrawText(g, 2,height-4,"Health: " + player.Health, Color.WHITE);
         g.end();
         UI.Draw(g);
     }
@@ -369,7 +405,7 @@ public class PlayState extends DialogStateExtention {
             //gsm.ctm.newController("template");
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             if (DialogOpen) {
                 DialogNext();
             } else {
@@ -380,10 +416,10 @@ public class PlayState extends DialogStateExtention {
                             Entitemp.interact();
                         }
 
-                        //if (Entities.get(i) instanceof Trigger) {
-                            //Trigger Ent = (Trigger) Entities.get(i);
-                            //Ent.Interact(player,shaker,this,MainCameraFocusPoint,Particles,Entities);
-                        //}
+                        if (Entities.get(i) instanceof Trigger) {
+                            Trigger Ent = (Trigger) Entities.get(i);
+                            Ent.Interact(player,shaker,this,null,Particles,Entities);
+                        }
                      }
                 }
             }
@@ -422,11 +458,6 @@ public class PlayState extends DialogStateExtention {
             //Get the direction of the attack based on whether mouse is on left or right of the screen.
 
             if (player.AttackTime < .1f) {
-
-                //Vector3 addVeloc = new Vector3(player.getPosition().x - player.getAttackBox().min.x, player.getPosition().y - player.getAttackBox().min.y, 0);
-                //player.setVelocity(new Vector3(player.getVelocity().x + (addVeloc.x*1.4f * -1), player.getVelocity().y + (addVeloc.y*1.4f * -1), player.getVelocity().z + (addVeloc.z*1.4f * -1)));
-
-                //Particles.AddParticleEffect("sparkle", player.getIntereactBox().getCenterX(), player.getIntereactBox().getCenterY());
                 for (int i = 0; i < Entities.size(); i++) {
                     if (player.getAttackBox().intersects(Entities.get(i).getHitbox())) {
                         if (Entities.get(i) instanceof NPC) {
@@ -448,10 +479,6 @@ public class PlayState extends DialogStateExtention {
 
                 player.AttackTime += 0.35f;
             }
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
-            tempEnemy.interact();
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_6)) {
@@ -527,11 +554,12 @@ public class PlayState extends DialogStateExtention {
     public void dispose() {
         Collisions.clear();
         Entities.clear();
+        AudioM.stopMusic(MusicID);
     }
 
     @Override
     public void Shutdown() {
-
+        AudioM.stopMusic(MusicID);
     }
 
 }

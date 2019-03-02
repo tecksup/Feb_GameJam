@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -13,20 +12,18 @@ import com.thecubecast.ReEngine.Data.Cube;
 import com.thecubecast.ReEngine.Data.DcpUtils.TextureAnimation;
 import com.thecubecast.ReEngine.Data.GameStateManager;
 import com.thecubecast.ReEngine.Graphics.Scene2D.TkLabel;
-import com.thecubecast.ReEngine.worldObjects.AI.Pawn.Pawn_Enemy;
 import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.FlatTiledGraph;
+import com.thecubecast.ReEngine.worldObjects.AI.Brute.Brute_Enemy;
 import com.thecubecast.ReEngine.worldObjects.HackSlashPlayer;
 
 import java.util.List;
 
-public class Pawn extends Pawn_Enemy {
+public class Brute extends Brute_Enemy {
+
+    Vector3 Size = new Vector3(16,12,22);
 
     //True is left, False is right
     public boolean Facing = true;
-
-    public float degrees;
-
-    Vector3 Size = new Vector3(10,8,16);
 
     TextureAnimation<TextureAtlas.AtlasRegion> Walking;
     TextureAnimation<TextureAtlas.AtlasRegion> Idle;
@@ -39,14 +36,14 @@ public class Pawn extends Pawn_Enemy {
     Group stage;
     ProgressBar HealthBar;
 
-    public Pawn(String name, int x, int y, int z, Vector3 size, float knockbackResistance, float health, intractability interact, boolean invincible, FlatTiledGraph map, GameStateManager gsm) {
+    public Brute(String name, int x, int y, int z, Vector3 size, float knockbackResistance, float health, intractability interact, boolean invincible, FlatTiledGraph map, GameStateManager gsm) {
         super(name,x,y,z, size, knockbackResistance,health, interact, invincible, map, gsm);
         setSize(Size);
-        setHitboxOffset(new Vector3(6,0,0));
+        setHitboxOffset(new Vector3(8,0,0));
 
-        Walking = new TextureAnimation<>(gsm.Render.getTextures("pawn"), 0.1f);
-        Idle = new TextureAnimation<>(gsm.Render.getTextures("pawn_idle"), 0.1f);
-        Sword = new TextureAnimation<>(gsm.Render.getTextures("pawn_pistol"), 0.05f);
+        Walking = new TextureAnimation<>(gsm.Render.getTextures("brute"), 0.1f);
+        Idle = new TextureAnimation<>(gsm.Render.getTextures("brute_idle"), 0.1f);
+        Sword = new TextureAnimation<>(gsm.Render.getTextures("brute_pistol"), 0.05f);
         Shadow = gsm.Render.getTexture("Shadow");
 
         FocusStrength = 0.15f;
@@ -59,24 +56,14 @@ public class Pawn extends Pawn_Enemy {
 
         NameLabel = new TkLabel(getName(), skin);
         HealthBar = new ProgressBar(0f, 10f, 0.1f, false, skin, "Health_npc");
-        HealthBar.setValue(getHealth() / 5);
+        HealthBar.setValue(getHealth() / 6);
         HealthBar.setWidth(40);
         stage.addActor(NameLabel);
         stage.addActor(HealthBar);
     }
 
     @Override
-    public BoundingBox getHitbox() {
-        return super.getHitbox();
-    }
-
-    @Override
     public void draw(SpriteBatch batch, float Time) {
-
-        Sword.resume();
-        TextureRegion frameS = Sword.getFrame(Gdx.graphics.getDeltaTime());
-        batch.draw(frameS, Facing ? (int)getPosition().x - 4 + (frameS.getRegionWidth()) : (int)getPosition().x + 10, (int)getPosition().y + (int)getPosition().z / 2, 0f, 0f, (float) frameS.getRegionWidth(), (float) frameS.getRegionHeight(), Facing ? -1f : 1f, 1f, degrees);
-
 
         if(Math.abs(this.getVelocity().y) >= 0.5f || Math.abs(this.getVelocity().x) >= 0.5f) {
             batch.draw(Shadow, Facing ? (int)getPosition().x + 3: (int)getPosition().x + 3, (int)getPosition().y - 2 + (int)getZFloor() / 2);
@@ -89,6 +76,10 @@ public class Pawn extends Pawn_Enemy {
             TextureRegion frame = Idle.getFrame(Gdx.graphics.getDeltaTime());
             batch.draw(frame, Facing ? (int)getPosition().x + 2 + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, Facing ? -(frame.getRegionHeight()) : (frame.getRegionHeight()), (frame.getRegionHeight()));
         }
+
+        Sword.resume();
+        TextureRegion frameS = Sword.getFrame(Gdx.graphics.getDeltaTime());
+        batch.draw(frameS, Facing ? (int)getPosition().x + (frameS.getRegionWidth()) : (int)getPosition().x , (int)getPosition().y + (int)getPosition().z / 2, 0f, 0f, (float) frameS.getRegionWidth(), (float) frameS.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
 
     }
 
@@ -111,6 +102,7 @@ public class Pawn extends Pawn_Enemy {
     }
 
     public void update(float delta, List<Cube> Colls, HackSlashPlayer player) {
+        System.out.println("it's running");
         if (Colls == null) {
             return;
         }
@@ -123,8 +115,8 @@ public class Pawn extends Pawn_Enemy {
         super.update(delta, Colls, player);
         stage.act(Gdx.graphics.getDeltaTime());
         NameLabel.setText(getName());
-        NameLabel.setPosition((int) getPosition().x - 2, (int) getPosition().y + 24);
-        HealthBar.setValue(getHealth() / 5);
-        HealthBar.setPosition((int) getPosition().x + 10 - (HealthBar.getWidth() / 2), (int) getPosition().y + 18);
+        NameLabel.setPosition((int) getPosition().x - 2, (int) getPosition().y + 44);
+        HealthBar.setValue(getHealth() / 6);
+        HealthBar.setPosition((int) getPosition().x + 10 - (HealthBar.getWidth() / 2), (int) getPosition().y + 38);
     }
 }

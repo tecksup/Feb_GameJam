@@ -34,7 +34,7 @@ public class mainclass extends ApplicationAdapter implements InputProcessor {
     private int[] MouseClick = new int[]{0, 0, 0};
 
     // game state manager
-    public GameStateManager gsm;
+    public static GameStateManager gsm;
 
     // A variable for tracking elapsed time for the animation
     private float stateTime;

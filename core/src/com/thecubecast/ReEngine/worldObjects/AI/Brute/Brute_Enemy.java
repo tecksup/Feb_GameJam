@@ -1,4 +1,4 @@
-package com.thecubecast.ReEngine.worldObjects.AI;
+package com.thecubecast.ReEngine.worldObjects.AI.Brute;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
@@ -12,7 +12,7 @@ import com.thecubecast.ReEngine.worldObjects.NPC;
 
 import java.util.List;
 
-public class Enemy extends NPC {
+public class Brute_Enemy extends NPC {
 
     private Vector3 Destination;
     private Smart AI;
@@ -20,7 +20,7 @@ public class Enemy extends NPC {
 
     public GameStateManager gsm;
 
-    public Enemy(String name, int x, int y, int z, Vector3 size, float knockbackResistance, float health, intractability interact, boolean invincible, FlatTiledGraph map, GameStateManager gsm) {
+    public Brute_Enemy(String name, int x, int y, int z, Vector3 size, float knockbackResistance, float health, intractability interact, boolean invincible, FlatTiledGraph map, GameStateManager gsm) {
         super(name,x,y,z, size, knockbackResistance,health, interact, invincible);
         this.gsm = gsm;
         AI = new Smart(this, map);
@@ -29,7 +29,6 @@ public class Enemy extends NPC {
     public void update(float delta, List<Cube> Colls, HackSlashPlayer player) {
         this.player = player;
         super.update(delta, Colls);
-        AI.setDestination(player.getPosition());
         AI.update();
         //System.out.println(AI.getStateMachine().getCurrentState().name());
     }
@@ -41,13 +40,7 @@ public class Enemy extends NPC {
 
     @Override
     public void interact() {
-        if (!AI.getStateMachine().getCurrentState().equals(EnemyState.HUNTING))
-            AI.getStateMachine().changeState(EnemyState.HUNTING);
 
-        if (AI.getPath().nodes.size > 1) {
-            setPosition(AI.getPath().get(1).x * 16, AI.getPath().get(1).y * 16, 0);
-            AI.updatePath(true);
-        }
     }
 
     public void setDestination(Vector3 destination) {

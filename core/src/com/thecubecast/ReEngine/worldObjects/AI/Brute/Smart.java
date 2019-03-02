@@ -1,4 +1,4 @@
-package com.thecubecast.ReEngine.worldObjects.AI;
+package com.thecubecast.ReEngine.worldObjects.AI.Brute;
 
 import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.StateMachine;
@@ -17,7 +17,7 @@ import static com.badlogic.gdx.utils.TimeUtils.nanoTime;
 public class Smart implements Telegraph {
 
     private Vector3 Destination;
-    Enemy WorldObject;
+    Brute_Enemy WorldObject;
 
     FlatTiledGraph worldMap;
 
@@ -27,7 +27,7 @@ public class Smart implements Telegraph {
 
     private StateMachine<Smart, EnemyState> stateMachine;
 
-    public Smart(Enemy WorldObject, FlatTiledGraph worldMap) {
+    public Smart(Brute_Enemy WorldObject, FlatTiledGraph worldMap) {
 
         Destination = new Vector3(WorldObject.getPosition());
 
