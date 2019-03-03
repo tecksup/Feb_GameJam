@@ -16,6 +16,8 @@ import sun.security.krb5.internal.crypto.Des;
 
 import java.util.Random;
 
+import static com.thecubecast.ReEngine.Data.GameStateManager.AudioM;
+
 public enum EnemyState implements State<Smart> {
 
     IDLE() {
@@ -261,9 +263,10 @@ public enum EnemyState implements State<Smart> {
                     }
                     if (!((Pawn)Student.WorldObject).Facing) {
                         ((PlayState) mainclass.gsm.gameState).Entities.add(new Bullet((int) Student.WorldObject.getPosition().x + 14, (int) Student.WorldObject.getPosition().y, (int) Student.WorldObject.getPosition().z, Angle, Student.WorldObject));
-
+                        AudioM.play("gun");
                     } else {
                         ((PlayState) mainclass.gsm.gameState).Entities.add(new Bullet((int) Student.WorldObject.getPosition().x - 4, (int) Student.WorldObject.getPosition().y, (int) Student.WorldObject.getPosition().z, Angle, Student.WorldObject));
+                        AudioM.play("gun");
                     }
                     ShotsFired++;
                 } else if (Student.WorldObject.getHealth() <= 30) {
@@ -275,9 +278,10 @@ public enum EnemyState implements State<Smart> {
                     }
                     if (!((Pawn)Student.WorldObject).Facing) {
                         ((PlayState) mainclass.gsm.gameState).Entities.add(new Bullet((int) Student.WorldObject.getPosition().x + 14, (int) Student.WorldObject.getPosition().y, (int) Student.WorldObject.getPosition().z, Angle, Student.WorldObject));
-
+                        AudioM.play("gun");
                     } else {
                         ((PlayState) mainclass.gsm.gameState).Entities.add(new Bullet((int) Student.WorldObject.getPosition().x - 4, (int) Student.WorldObject.getPosition().y, (int) Student.WorldObject.getPosition().z, Angle, Student.WorldObject));
+                        AudioM.play("gun");
                     }
                     ShotsFired++;
                 }

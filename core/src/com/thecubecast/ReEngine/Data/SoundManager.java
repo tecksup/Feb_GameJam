@@ -19,6 +19,7 @@ public class SoundManager {
 
     //Define all sound objects
     Sound Click;
+    Sound Gun;
 
     //Define all your music objects
     private List<Music> HandledMusic = new ArrayList<>();
@@ -49,6 +50,7 @@ public class SoundManager {
         Gdx.app.getPreferences("properties").flush();
 
         Click = Gdx.audio.newSound(Gdx.files.internal("Music/Sound/menu-clik.wav"));
+        Gun = Gdx.audio.newSound(Gdx.files.internal("Music/Sound/gun.wav"));
 
     }
 
@@ -73,6 +75,10 @@ public class SoundManager {
     public void play(String soundName) {
         if (soundName.equals("Click")) {
             long temp = Click.play(SoundVolume * MasterVolume);
+            SoundIds.put(soundName, temp);
+        }
+        if (soundName.equals("Gun")) {
+            long temp = Gun.play(SoundVolume * MasterVolume);
             SoundIds.put(soundName, temp);
         }
     }
@@ -129,9 +135,19 @@ public class SoundManager {
     }
 
     public void stopMusic(int MusicID) {
-        HandledMusic.get(MusicID).stop();
-        HandledMusic.get(MusicID).dispose();
-        HandledMusic.remove(MusicID);
+        for (int i = 0; i < HandledMusic.size(); i++) {
+            HandledMusic.get(i).stop();
+            HandledMusic.get(i).dispose();
+            HandledMusic.remove(i);
+        }
+    }
+
+    public void stopAllMusic() {
+        for (int i = 0; i < HandledMusic.size(); i++) {
+            HandledMusic.get(i).stop();
+            HandledMusic.get(i).dispose();
+            HandledMusic.remove(i);
+        }
     }
 
     public float getMasterVolume() {

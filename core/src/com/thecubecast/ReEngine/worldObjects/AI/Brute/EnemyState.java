@@ -265,10 +265,10 @@ public enum EnemyState implements State<Smart> {
                     }
                     if (!((Brute)Student.WorldObject).Facing) {
                         ((PlayState) mainclass.gsm.gameState).Entities.add(new Bullet((int) Student.WorldObject.getPosition().x + 14, (int) Student.WorldObject.getPosition().y, (int) Student.WorldObject.getPosition().z, Angle, Student.WorldObject));
-                        AudioM.playS("gun.wav");
+                        AudioM.play("gun");
                     } else {
                         ((PlayState) mainclass.gsm.gameState).Entities.add(new Bullet((int) Student.WorldObject.getPosition().x - 4, (int) Student.WorldObject.getPosition().y, (int) Student.WorldObject.getPosition().z, Angle, Student.WorldObject));
-                        AudioM.playS("gun.wav");
+                        AudioM.play("gun");
                     }
                     ShotsFired++;
                 } else if (Student.WorldObject.getHealth() <= 30) {
@@ -280,10 +280,10 @@ public enum EnemyState implements State<Smart> {
                     }
                     if (!((Brute)Student.WorldObject).Facing) {
                         ((PlayState) mainclass.gsm.gameState).Entities.add(new Bullet((int) Student.WorldObject.getPosition().x + 14, (int) Student.WorldObject.getPosition().y, (int) Student.WorldObject.getPosition().z, Angle, Student.WorldObject));
-                        AudioM.playS("gun.wav");
+                        
                     } else {
                         ((PlayState) mainclass.gsm.gameState).Entities.add(new Bullet((int) Student.WorldObject.getPosition().x - 4, (int) Student.WorldObject.getPosition().y, (int) Student.WorldObject.getPosition().z, Angle, Student.WorldObject));
-                        AudioM.playS("gun.wav");
+                        AudioM.play("gun");
                     }
                     ShotsFired++;
                 }

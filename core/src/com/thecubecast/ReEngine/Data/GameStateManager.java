@@ -304,6 +304,7 @@ public class GameStateManager {
     }
 
     public void Shutdown() {
+        AudioM.stopAllMusic();
         gameState.dispose();
         gameState.Shutdown();
     }
