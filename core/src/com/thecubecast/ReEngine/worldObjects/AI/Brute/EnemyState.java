@@ -30,7 +30,10 @@ public enum EnemyState implements State<Smart> {
         @Override
         public void update(Smart Student) {
             //Check for changes, then update state
-            Student.getStateMachine().changeState(HUNTING);
+            BoundingBox AreaAround = new BoundingBox(new Vector3(Student.WorldObject.player.getPosition().x-75, Student.WorldObject.player.getPosition().y-50, 0), new Vector3(Student.WorldObject.player.getPosition().x+125, Student.WorldObject.player.getPosition().y+75, 32));
+            if (Student.WorldObject.getHitbox().intersects(AreaAround)) {
+                Student.getStateMachine().changeState(HUNTING);
+            }
         }
 
         @Override
@@ -136,7 +139,9 @@ public enum EnemyState implements State<Smart> {
             Student.setDestination(Student.WorldObject.player.getPosition());
 
             //Check for changes, then update state
-            if (Student.getPath().nodes.size > 2) {
+            if (Student.getPath().nodes.size > 20) {
+                Student.getStateMachine().changeState(IDLE);
+            } else if (Student.getPath().nodes.size > 2) {
 
                 //If the AI is within 150 pixels of the player. switch to attacking instead of tracking
                 BoundingBox AreaAround = new BoundingBox(new Vector3(Student.WorldObject.player.getPosition().x-50, Student.WorldObject.player.getPosition().y-50, 0), new Vector3(Student.WorldObject.player.getPosition().x+100, Student.WorldObject.player.getPosition().y+100, 32));

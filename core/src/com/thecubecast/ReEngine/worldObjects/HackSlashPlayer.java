@@ -16,7 +16,7 @@ import static com.thecubecast.ReEngine.Data.GameStateManager.AudioM;
 
 public class HackSlashPlayer extends WorldObject{
 
-    public int Health = 30;
+    public int Health = 10;
 
     public int Energy = 100;
 
@@ -136,62 +136,65 @@ public class HackSlashPlayer extends WorldObject{
     @Override
     public void draw(SpriteBatch batch, float Time) {
 
-        if (Rolling) {
-            Roll.resume();
-            batch.draw(Shadow, Facing ? (int)getPosition().x + 1: (int)getPosition().x + 3, (int)getPosition().y - 2 + (int)getZFloor() / 2);
-            //running animation
-            TextureRegion frame = Roll.getFrame(Gdx.graphics.getDeltaTime());
-           // batch.draw(frame, Facing ? (int)getPosition().x + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
+        if (Health > 0) {
 
-            if (getVelocity().x < 0)
-                batch.draw(frame,(int)getPosition().x + (frame.getRegionWidth()), (int)getPosition().y + (int)getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), -1f, 1f, 0f);
-            else
-                batch.draw(frame, (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), 1f, 1f, 0f);
-            if (Roll.hasFinishedOneLoop()) {
-                Rolling = false;
-                Roll.reset();
-                Roll.pause();
-            }
-        } else {
-            if (AttackTime > 0.1f) {
-                Sword.resume();
-                TextureRegion frameS = Sword.getFrame(Gdx.graphics.getDeltaTime());
-                batch.draw(frameS, Facing ? (int)getPosition().x - 33 + (frameS.getRegionWidth()) : (int)getPosition().x + 9, (int)getPosition().y - 22 + (int)getPosition().z / 2, 0f, 0f, (float) frameS.getRegionWidth(), (float) frameS.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
-
-            } else {
-                Sword.pause();
-                Sword.setFrame(0);
-                TextureRegion frameS = Sword.getFrame(Gdx.graphics.getDeltaTime());
-
-                //Degrees
-
-                batch.draw(frameS, Facing ? (int)getPosition().x - 33 + (frameS.getRegionWidth()) : (int)getPosition().x + 9, (int)getPosition().y - 22 + (int)getPosition().z / 2, 0f, 0f, (float) frameS.getRegionWidth(), (float) frameS.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
-
-            }
-
-            if(Math.abs(this.getVelocity().y) >= 0.5f || Math.abs(this.getVelocity().x) >= 0.5f) {
-                batch.draw(Shadow, Facing ? (int)getPosition().x + 1: (int)getPosition().x + 3, (int)getPosition().y - 2 + (int)getZFloor() / 2);
+            if (Rolling) {
+                Roll.resume();
+                batch.draw(Shadow, Facing ? (int) getPosition().x + 1 : (int) getPosition().x + 3, (int) getPosition().y - 2 + (int) getZFloor() / 2);
                 //running animation
-                TextureRegion frame = Walking.getFrame(Gdx.graphics.getDeltaTime());
-                batch.draw(frame, Facing ? (int)getPosition().x + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
-                if (JustPlayed > 0.25f) {
-                    //if (Soundthing)
-                        //AudioM.playS("feet1.wav");
-                    //else
-                        //AudioM.playS("feet2.wav");
-                    JustPlayed = 0;
-                    Soundthing = !Soundthing;
+                TextureRegion frame = Roll.getFrame(Gdx.graphics.getDeltaTime());
+                // batch.draw(frame, Facing ? (int)getPosition().x + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
+
+                if (getVelocity().x < 0)
+                    batch.draw(frame, (int) getPosition().x + (frame.getRegionWidth()), (int) getPosition().y + (int) getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), -1f, 1f, 0f);
+                else
+                    batch.draw(frame, (int) getPosition().x, (int) getPosition().y + (int) getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), 1f, 1f, 0f);
+                if (Roll.hasFinishedOneLoop()) {
+                    Rolling = false;
+                    Roll.reset();
+                    Roll.pause();
                 }
-            } else if(this.getVelocity().y < 0.5f || this.getVelocity().x < 0.5f) {
-                batch.draw(Shadow, Facing ? (int)getPosition().x +1 : (int)getPosition().x + 3, (int)getPosition().y - 2 + (int)getZFloor() / 2);
-                //Idle animation
-                TextureRegion frame = Idle.getFrame(Gdx.graphics.getDeltaTime());
-                batch.draw(frame, Facing ? (int)getPosition().x + (frame.getRegionWidth()) : (int)getPosition().x, (int)getPosition().y + (int)getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
-            }
+            } else {
+                if (AttackTime > 0.1f) {
+                    Sword.resume();
+                    TextureRegion frameS = Sword.getFrame(Gdx.graphics.getDeltaTime());
+                    batch.draw(frameS, Facing ? (int) getPosition().x - 33 + (frameS.getRegionWidth()) : (int) getPosition().x + 9, (int) getPosition().y - 22 + (int) getPosition().z / 2, 0f, 0f, (float) frameS.getRegionWidth(), (float) frameS.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
+
+                } else {
+                    Sword.pause();
+                    Sword.setFrame(0);
+                    TextureRegion frameS = Sword.getFrame(Gdx.graphics.getDeltaTime());
+
+                    //Degrees
+
+                    batch.draw(frameS, Facing ? (int) getPosition().x - 33 + (frameS.getRegionWidth()) : (int) getPosition().x + 9, (int) getPosition().y - 22 + (int) getPosition().z / 2, 0f, 0f, (float) frameS.getRegionWidth(), (float) frameS.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
+
+                }
+
+                if (Math.abs(this.getVelocity().y) >= 0.5f || Math.abs(this.getVelocity().x) >= 0.5f) {
+                    batch.draw(Shadow, Facing ? (int) getPosition().x + 1 : (int) getPosition().x + 3, (int) getPosition().y - 2 + (int) getZFloor() / 2);
+                    //running animation
+                    TextureRegion frame = Walking.getFrame(Gdx.graphics.getDeltaTime());
+                    batch.draw(frame, Facing ? (int) getPosition().x + (frame.getRegionWidth()) : (int) getPosition().x, (int) getPosition().y + (int) getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
+                    if (JustPlayed > 0.25f) {
+                        //if (Soundthing)
+                        //AudioM.playS("feet1.wav");
+                        //else
+                        //AudioM.playS("feet2.wav");
+                        JustPlayed = 0;
+                        Soundthing = !Soundthing;
+                    }
+                } else if (this.getVelocity().y < 0.5f || this.getVelocity().x < 0.5f) {
+                    batch.draw(Shadow, Facing ? (int) getPosition().x + 1 : (int) getPosition().x + 3, (int) getPosition().y - 2 + (int) getZFloor() / 2);
+                    //Idle animation
+                    TextureRegion frame = Idle.getFrame(Gdx.graphics.getDeltaTime());
+                    batch.draw(frame, Facing ? (int) getPosition().x + (frame.getRegionWidth()) : (int) getPosition().x, (int) getPosition().y + (int) getPosition().z / 2, 0f, 0f, (float) frame.getRegionWidth(), (float) frame.getRegionHeight(), Facing ? -1f : 1f, 1f, 0f);
+                }
 
 
-            if(this.getVelocity().x+this.getVelocity().y >= 1) {
-                //Attack animation
+                if (this.getVelocity().x + this.getVelocity().y >= 1) {
+                    //Attack animation
+                }
             }
         }
 

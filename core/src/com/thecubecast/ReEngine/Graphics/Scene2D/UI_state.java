@@ -489,30 +489,57 @@ public enum UI_state implements State<UIFSM> {
 
         private Table table;
         private Label Health;
+        private ProgressBar Healthbar;
+
+        private Table Playing;
+        private Table GameOver;
 
         @Override
         public void enter(UIFSM entity) {
             table = new Table();
             table.setFillParent(true);
+            table.top().left();
             entity.stage.addActor(table);
 
-            Health = new Label("", entity.skin);
+            Health = new Label("HEALTH ", entity.skin);
+            Healthbar = new ProgressBar(0, 10, 1, false,entity.skin);
 
-            if (mainclass.gsm.gameState instanceof PlayState)
-                Health.setText("" + ((PlayState)mainclass.gsm.gameState).player.Health);
+            Playing = new Table();
+            Playing.add(Health).top().left();
+            Playing.add(Healthbar).top().left();
+            table.add(Playing).top().left().padTop(2);
 
-            table.add(Health);
+            GameOver = new Table();
+            GameOver.add(new Label("GameOver", entity.skin)).row();
+            TkTextButton temp = new TkTextButton("Return to Menu", entity.skin);
+            GameOver.add(temp);
+
+            temp.addCaptureListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    super.clicked(event, x, y);
+                    mainclass.gsm.setState(GameStateManager.State.MENU);
+                }
+            });
+
         }
 
         @Override
         public void update(UIFSM entity) {
-            table.setVisible(entity.Visible);
+
+            if (mainclass.gsm.gameState instanceof PlayState) {
+                Healthbar.setValue(((PlayState) mainclass.gsm.gameState).player.Health);
+
+                if (((PlayState) mainclass.gsm.gameState).player.Health <= 0) {
+                    table.clear();
+                    table.center();
+                    table.add(GameOver).center();
+                }
+
+            }
+
             ControllerCheck(table);
             entity.stage.act(Gdx.graphics.getDeltaTime());
-
-            if (mainclass.gsm.gameState instanceof PlayState)
-                Health.setText("" + ((PlayState)mainclass.gsm.gameState).player.Health);
-
         }
 
         @Override

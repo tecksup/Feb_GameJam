@@ -27,6 +27,7 @@ import com.thecubecast.ReEngine.worldObjects.AI.Pathfinding.FlatTiledNode;
 import com.thecubecast.ReEngine.worldObjects.EntityPrefabs.Brute;
 import com.thecubecast.ReEngine.worldObjects.EntityPrefabs.Pawn;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class PlayState extends DialogStateExtention {
 
     //GUI
     UIFSM UI;
+    boolean MenuOpen = true;
 
     //Camera
     OrthographicCamera GuiCam;
@@ -109,16 +111,18 @@ public class PlayState extends DialogStateExtention {
 
         UI = new UIFSM(GuiCam, gsm);
         UI.inGame = true;
-        UI.setState(UI_state.InGameHome);
-        UI.setVisable(false);
+        UI.setState(UI_state.INGAMEUI);
 
         //Particles
         Particles = new ParticleHandler();
 
         MapGraph = new FlatTiledGraph(WorldMap);
 
-        //Entities.add(new Pawn("[PURPLE]Pawn", 280,316,0, new Vector3(8,8,16), 1, 50, NPC.intractability.Silent, false, MapGraph, gsm));
-        Entities.add(new Brute("[RED]Brute", 610,400,0, new Vector3(8,8,16), 1, 60, NPC.intractability.Silent, false, MapGraph, gsm));
+        Entities.add(new Pawn("[PURPLE]Pawn", 400,250,0, new Vector3(8,8,16), 1, 50, NPC.intractability.Silent, false, MapGraph, gsm));
+        Entities.add(new Pawn("[PURPLE]Pawn", 470,240,0, new Vector3(8,8,16), 1, 50, NPC.intractability.Silent, false, MapGraph, gsm));
+        Entities.add(new Pawn("[PURPLE]Pawn", 710,330,0, new Vector3(8,8,16), 1, 50, NPC.intractability.Silent, false, MapGraph, gsm));
+        Entities.add(new Pawn("[PURPLE]Pawn", 800,425,0, new Vector3(8,8,16), 1, 50, NPC.intractability.Silent, false, MapGraph, gsm));
+        Entities.add(new Brute("[RED]Brute", 770,425,0, new Vector3(8,8,16), 1, 60, NPC.intractability.Silent, false, MapGraph, gsm));
 
         MusicID = AudioM.playMusic("TimeBroke.wav", true, true);
 
@@ -154,7 +158,7 @@ public class PlayState extends DialogStateExtention {
                 if (Entitemp.getImageHitbox().contains(new Vector3(pos.x, pos.y, player.getPosition().z))) {
                     ((Interactable) Entities.get(i)).Highlight = true;
                     ((Interactable) Entities.get(i)).HighlightColor = Color.YELLOW;
-                    if (Gdx.input.isTouched() && !UI.isVisible()) {
+                    if (Gdx.input.isTouched() && MenuOpen) {
                         //Trigger the action, mine it, open it, trigger the event code
                         ((Interactable) Entities.get(i)).HighlightColor = Color.RED;
                         if (((Interactable) Entities.get(i)).getActivationType().equals(Trigger.TriggerType.OnClick) && !((Interactable) Entities.get(i)).JustRan) {
@@ -220,7 +224,9 @@ public class PlayState extends DialogStateExtention {
 
         cameraUpdate(player, camera, Entities,0,0, WorldMap.getWidth()*WorldMap.getTileSize(), WorldMap.getHeight()*WorldMap.getTileSize());
 
-        handleInput();
+        if (player.Health > 0) {
+            handleInput();
+        }
     }
 
     public void draw(SpriteBatch g, int height, int width, float Time) {
@@ -235,10 +241,10 @@ public class PlayState extends DialogStateExtention {
 
         WorldMap.Draw(camera, g);
 
-        gsm.Render.GUIDrawText(g, 60,60,"Use WASD to move", Color.WHITE);
+        gsm.Render.GUIDrawText(g, 80,95,"Use WASD to move", Color.WHITE);
         gsm.Render.GUIDrawText(g, 170,140,"SPACE to roll", Color.WHITE);
         gsm.Render.GUIDrawText(g, 170,130,"And CLICK to attack!", Color.WHITE);
-        gsm.Render.GUIDrawText(g, 830,670,"UNDER CONSTRUCTION", Color.WHITE);
+        //gsm.Render.GUIDrawText(g, 810,648,"Press F", Color.WHITE);
 
         //Block of code renders all the entities
         WorldObjectComp entitySort = new WorldObjectComp();
@@ -387,6 +393,15 @@ public class PlayState extends DialogStateExtention {
         //Draws things on the screen, and not the world positions
         g.setProjectionMatrix(GuiCam.combined);
         g.begin();
+
+        if(MenuOpen) {
+            if (!UI.getState().equals(UI_state.INGAMEUI))
+                UI.setState(UI_state.INGAMEUI);
+        } else {
+            if (!UI.getState().equals(UI_state.InGameHome))
+                UI.setState(UI_state.InGameHome);
+        }
+
         MenuDraw(g, Gdx.graphics.getDeltaTime());
         g.end();
         UI.Draw(g);
@@ -395,14 +410,8 @@ public class PlayState extends DialogStateExtention {
     private void handleInput() {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            if(UI.Visible) {
-                UI.setState(UI_state.INGAMEUI);
-            } else if (!UI.Visible) {
-                UI.setState(UI_state.InGameHome);
-            } else {
-                UI.setVisable(!UI.Visible);
-            }
-            //gsm.ctm.newController("template");
+            System.out.println(MenuOpen);
+            MenuOpen = !MenuOpen;
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {

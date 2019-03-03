@@ -27,7 +27,10 @@ public enum EnemyState implements State<Smart> {
         @Override
         public void update(Smart Student) {
             //Check for changes, then update state
-                Student.getStateMachine().changeState(WANDER);
+            BoundingBox AreaAround = new BoundingBox(new Vector3(Student.WorldObject.player.getPosition().x-75, Student.WorldObject.player.getPosition().y-50, 0), new Vector3(Student.WorldObject.player.getPosition().x+125, Student.WorldObject.player.getPosition().y+75, 32));
+            if (Student.WorldObject.getHitbox().intersects(AreaAround)) {
+                Student.getStateMachine().changeState(HUNTING);
+            }
         }
 
         @Override
@@ -133,7 +136,9 @@ public enum EnemyState implements State<Smart> {
             Student.setDestination(Student.WorldObject.player.getPosition());
 
             //Check for changes, then update state
-            if (Student.getPath().nodes.size > 2) {
+            if (Student.getPath().nodes.size > 20) {
+                Student.getStateMachine().changeState(IDLE);
+            } else if (Student.getPath().nodes.size > 2) {
 
                 BoundingBox AreaAround = new BoundingBox(new Vector3(Student.WorldObject.player.getPosition().x-50, Student.WorldObject.player.getPosition().y-50, 0), new Vector3(Student.WorldObject.player.getPosition().x+100, Student.WorldObject.player.getPosition().y+100, 32));
                 if (Student.WorldObject.getHitbox().intersects(AreaAround)) {
@@ -248,7 +253,7 @@ public enum EnemyState implements State<Smart> {
             if (TimeSinceLastShot > ReloadTime) {
 
                 if (Student.WorldObject.getHealth() > 30) {
-                    if (ShotsFired < 3) {
+                    if (ShotsFired < 1) {
                         ReloadTime = 0.1f;
                     } else {
                         ReloadTime = 0.5f;
@@ -262,8 +267,8 @@ public enum EnemyState implements State<Smart> {
                     }
                     ShotsFired++;
                 } else if (Student.WorldObject.getHealth() <= 30) {
-                    if (ShotsFired < 5) {
-                        ReloadTime = 0.05f;
+                    if (ShotsFired < 2) {
+                        ReloadTime = 0.08f;
                     } else {
                         ReloadTime = 0.7f;
                         ShotsFired = 0;
