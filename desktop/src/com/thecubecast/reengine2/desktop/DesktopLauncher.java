@@ -86,7 +86,7 @@ public class DesktopLauncher {
         }
         config.setWindowIcon("icon.png");
         config.setTitle("ReEngine");
-        config.useVsync(true);
+        //config.useVsync(true);
         new Lwjgl3Application(new mainclass(), config);
     }
 }
